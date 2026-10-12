@@ -4,8 +4,38 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>BaghVeda® | India's #1 Premium Organic Potting Soil Mix | माटी से समृद्धि तक</title>
+    
+    <!-- SEO Meta Tags -->
+    <meta name="description" content="BaghVeda® - India's #1 Premium Organic Potting Soil Mix. 40% Cocopeat, 35% Vermicompost, Neem & Sarson Khali for fast plant growth. 24-hour express delivery in Delhi NCR!">
+    <meta name="keywords" content="BaghVeda, organic potting soil mix, potting soil delhi, vermicompost, cocopeat, plant soil online, ready to use soil mix, indoor plant soil, terrace garden soil delhi">
+    <meta name="author" content="BaghVeda Organics">
+    <meta name="robots" content="index, follow">
+
+    <!-- Open Graph for Social Media -->
+    <meta property="og:title" content="BaghVeda® | Premium Organic Potting Soil Mix">
+    <meta property="og:description" content="मिट्टी में प्राण, पौधे मुस्कुराएं! 100% शुद्ध ऑर्गेनिक पॉटिंग मिक्स। दिल्ली में 24 घंटे में डिलीवरी।">
+    <meta property="og:type" content="website">
+
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     
+    <!-- Schema Markup for E-commerce -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org/",
+      "@type": "Product",
+      "name": "BaghVeda Organic Potting Soil Mix",
+      "description": "Premium 100% Organic Potting Soil Mix containing 40% Cocopeat, 35% Vermicompost, Neem and Sarson Khali.",
+      "brand": { "@type": "Brand", "name": "BaghVeda" },
+      "offers": {
+        "@type": "AggregateOffer",
+        "priceCurrency": "INR",
+        "lowPrice": "179",
+        "highPrice": "359",
+        "offerCount": "3"
+      }
+    }
+    </script>
+
     <!-- Firebase SDK Integration -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
@@ -256,15 +286,15 @@
         .cart-summary-row { display: flex; justify-content: space-between; color: var(--text-dim); font-size: 0.9rem; margin-bottom: 6px; }
         .cart-total { display: flex; justify-content: space-between; color: #fff; font-size: 1.15rem; font-weight: 800; margin: 12px 0 15px; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 10px; }
 
-        /* AI Chatbot Floating Widget Styles */
+        /* AI Chatbot Floating Widget */
         #ai-chat-btn { position: fixed; bottom: 25px; right: 25px; background: var(--accent-green); color: #fff; width: 60px; height: 60px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.8rem; cursor: pointer; box-shadow: 0 10px 25px rgba(0,0,0,0.4); z-index: 3500; transition: transform 0.3s; border: 2px solid #fff; }
         #ai-chat-btn:hover { transform: scale(1.1); }
         #ai-chat-box { position: fixed; bottom: 95px; right: 25px; width: 340px; height: 450px; background: #072218; border: 1px solid var(--accent-green); border-radius: 20px; box-shadow: 0 15px 35px rgba(0,0,0,0.6); z-index: 3500; display: none; flex-direction: column; overflow: hidden; }
         .ai-chat-header { background: #0b3d2c; padding: 15px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-glow); }
         .ai-chat-header h4 { color: #fff; font-size: 1rem; display: flex; align-items: center; gap: 8px; }
         .ai-chat-body { padding: 15px; flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; font-size: 0.88rem; }
-        .ai-msg { padding: 10px 14px; border-radius: 12px; max-width: 80%; line-height: 1.4; }
-        .ai-msg.bot { background: #0b3d2c; color: #fff; align-self: flex-start; border-bottom-left-radius: 2px; }
+        .ai-msg { padding: 10px 14px; border-radius: 12px; max-width: 85%; line-height: 1.4; word-wrap: break-word; }
+        .ai-msg.bot { background: #0b3d2c; color: #fff; align-self: flex-start; border-bottom-left-radius: 2px; border: 1px solid var(--border-glow); }
         .ai-msg.user { background: var(--accent-green); color: #fff; align-self: flex-end; border-bottom-right-radius: 2px; }
         .ai-chat-footer { padding: 12px; background: #0b3d2c; display: flex; gap: 8px; border-top: 1px solid var(--border-glow); }
         .ai-chat-footer input { flex: 1; padding: 10px; background: #062319; border: 1px solid rgba(255,255,255,0.2); border-radius: 8px; color: #fff; font-size: 0.85rem; }
@@ -493,14 +523,14 @@
     <div id="ai-chat-btn" onclick="toggleAIChat()">💬</div>
     <div id="ai-chat-box">
         <div class="ai-chat-header">
-            <h4>🌱 BaghVeda AI Assistant</h4>
+            <h4>🤖 BaghVeda AI Support</h4>
             <button class="close-cart" onclick="toggleAIChat()">&times;</button>
         </div>
         <div class="ai-chat-body" id="ai-chat-messages">
-            <div class="ai-msg bot">नमस्ते! मैं बागवेदा AI सपोर्ट हूँ। ऑर्डर, डिलीवरी या पॉटिंग मिक्स से जुड़ा कोई सवाल पूछिए!</div>
+            <div class="ai-msg bot">नमस्ते! मैं बागवेदा का AI असिस्टेंट हूँ। ऑर्डर, डिलीवरी, पॉटिंग मिक्स या पौधों की देखभाल के बारे में कुछ भी पूछें! 🌱</div>
         </div>
         <div class="ai-chat-footer">
-            <input type="text" id="ai-user-input" placeholder="यहाँ अपना सवाल लिखें..." onkeypress="handleAIPress(event)">
+            <input type="text" id="ai-user-input" placeholder="अपना सवाल लिखें..." onkeypress="handleAIPress(event)">
             <button onclick="sendAIMessage()">Send</button>
         </div>
     </div>
@@ -612,7 +642,7 @@
                     <input type="tel" id="cust-phone" required placeholder="10 अंकों का मोबाइल नंबर">
                 </div>
                 <div class="form-group">
-                    <label>डिलीवरी कब होगी / पता (Delivery Address)</label>
+                    <label>डिलीवरी पता (Delivery Address)</label>
                     <textarea id="cust-address" rows="3" required placeholder="हाउस नंबर, कॉलोनी, शहर, पिनकोड"></textarea>
                 </div>
                 <button type="submit" class="buy-now-btn" style="width:100%; font-size:1rem; padding:14px;">🚀 Confirm & Submit Order</button>
@@ -638,10 +668,13 @@
         <div class="copyright">&copy; 2026 BaghVeda Organics. All rights reserved. New Delhi, India.</div>
     </footer>
 
-    <!-- JavaScript Functions -->
+    <!-- JavaScript Core & Gemini AI API Integration -->
     <script>
         let cart = [];
         let appliedCoupon = false;
+
+        // Google Gemini API Configuration
+        const GEMINI_API_KEY = "YOUR_GEMINI_API_KEY_HERE"; // <-- अपनी Gemini API Key यहाँ डालें
 
         function toggleCart() {
             document.getElementById('cart-drawer').classList.toggle('open');
@@ -652,40 +685,60 @@
             box.style.display = box.style.display === 'flex' ? 'none' : 'flex';
         }
 
-        function sendAIMessage() {
+        async function sendAIMessage() {
             let input = document.getElementById('ai-user-input');
-            let text = input.value.trim();
-            if(!text) return;
+            let userText = input.value.trim();
+            if (!userText) return;
 
-            let container = document.getElementById('ai-chat-messages');
-            container.innerHTML += `<div class="ai-msg user">${text}</div>`;
+            let chatContainer = document.getElementById('ai-chat-messages');
+            chatContainer.innerHTML += `<div class="ai-msg user">${userText}</div>`;
             input.value = "";
-            container.scrollTop = container.scrollHeight;
+            chatContainer.scrollTop = chatContainer.scrollHeight;
 
-            setTimeout(() => {
-                let reply = getSmartAIResponse(text);
-                container.innerHTML += `<div class="ai-msg bot">${reply}</div>`;
-                container.scrollTop = container.scrollHeight;
-            }, 600);
+            // 'Typing...' इंडिकेटर
+            const loadingId = "loading-" + Date.now();
+            chatContainer.innerHTML += `<div id="${loadingId}" class="ai-msg bot" style="opacity: 0.7;">टाइप कर रहा है... 🌱</div>`;
+            chatContainer.scrollTop = chatContainer.scrollHeight;
+
+            try {
+                const systemPrompt = `आप BaghVeda® (बागवेदा) के आधिकारिक स्मार्ट AI असिस्टेंट हैं।
+                हमारी कंपनी New Delhi में स्थित है और 100% शुद्ध ऑर्गेनिक पॉटिंग सोइल मिक्स बेचती है।
+                हमारे प्रोडक्ट्स: 1 KG (₹179), 2 KG (₹249), 3 KG (₹359 - साथ में 250g फ्री ऑर्गेनिक रूट बूस्टर)।
+                कूपन कोड: "KHUSHI25" जिससे ग्राहकों को तुरंत 25% की छूट मिलती है।
+                डिलीवरी: New Delhi में 24 घंटे के अंदर एक्सप्रेस डिलीवरी, बाकी भारत में 2-3 दिन।
+                फ़ॉर्मूला: 40% प्रीमियम कोकोपीट + 35% वर्मीकंपोस्ट + 15% छनी मिट्टी + 7% नीम/सरसों खली + 3% परलाइट।
+                जवाब देने का नियम: विनम्रता से, हिंदी या हिंग्लिश में संक्षिप्त और बहुत ही मददगार उत्तर दें। हर बात पर व्हाट्सएप नंबर न दें, जब तक कि ग्राहक शिकायत न करे।`;
+
+                const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_API_KEY}`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        contents: [
+                            { role: "user", parts: [{ text: systemPrompt + "\n\nग्राहक का सवाल: " + userText }] }
+                        ]
+                    })
+                });
+
+                const data = await response.json();
+                document.getElementById(loadingId).remove();
+
+                if (data.candidates && data.candidates[0].content.parts[0].text) {
+                    let aiReply = data.candidates[0].content.parts[0].text;
+                    chatContainer.innerHTML += `<div class="ai-msg bot">${aiReply}</div>`;
+                } else {
+                    chatContainer.innerHTML += `<div class="ai-msg bot">क्षमा करें, जवाब देने में दिक्कत आ रही है। अधिक जानकारी के लिए WhatsApp करें: +91 8700733425</div>`;
+                }
+            } catch (error) {
+                console.error("Gemini API Error:", error);
+                document.getElementById(loadingId).remove();
+                chatContainer.innerHTML += `<div class="ai-msg bot">धन्यवाद! किसी भी सहायता के लिए आप +91 8700733425 पर कॉल कर सकते हैं।</div>`;
+            }
+
+            chatContainer.scrollTop = chatContainer.scrollHeight;
         }
 
         function handleAIPress(e) {
-            if(e.key === 'Enter') sendAIMessage();
-        }
-
-        function getSmartAIResponse(query) {
-            let q = query.toLowerCase();
-            if(q.includes('delivery') || q.includes('डिलीवरी') || q.includes('time') || q.includes('समय')) {
-                return "दिल्ली के अंदर हमारे पास 24 घंटे की एक्सप्रेस डिलीवरी उपलब्ध है! अन्य जगहों के लिए 2-3 दिन लगते हैं।";
-            } else if(q.includes('discount') || q.includes('coupon') || q.includes('कूपन') || q.includes('छूट')) {
-                return "हाँ! आप कार्ट में 'KHUSHI25' कूपन कोड इस्तेमाल करके तुरंत 25% की छूट पा सकते हैं।";
-            } else if(q.includes('price') || q.includes('rate') || q.includes('कीमत') || q.includes('دام')) {
-                return "हमारे पास 1 KG (₹179), 2 KG (₹249), और 3 KG (₹359 - साथ में 250g फ्री रूट बूस्टर) के पैक्स उपलब्ध हैं।";
-            } else if(q.includes('formula') || q.includes('ingredient') || q.includes('सामग्री') || q.includes('क्या है')) {
-                return "हमारे मिक्स में 40% कोकोपीट, 35% वर्मीकंपोस्ट, 15% उपजाऊ मिट्टी, 7% नीम/सरसों खली और 3% परलाइट शामिल है।";
-            } else {
-                return "आपके इस सवाल के लिए शुक्रिया! अधिक सहायता के लिए आप सीधे हमारे WhatsApp नंबर +91 8700733425 पर संपर्क कर सकते हैं।";
-            }
+            if (e.key === 'Enter') sendAIMessage();
         }
 
         function addToCartSilent(name, price) {
