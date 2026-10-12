@@ -3,111 +3,359 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>BaghVeda | Plants, Seeds & Organic Care</title>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <title>BaghVeda | माटी से समृद्धि तक</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700;800&display=swap" rel="stylesheet">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Poppins', sans-serif; }
-        body { background-color: #f7f9f6; color: #2d3748; }
+        body { background-color: #0b2318; color: #e2e8f0; line-height: 1.6; }
         
         /* Top Banner */
-        .announcement { background: #1b4332; color: #fff; text-align: center; padding: 8px; font-size: 0.85rem; letter-spacing: 0.5px; }
+        .announcement { background: #133e2b; color: #a7f3d0; text-align: center; padding: 10px; font-size: 0.9rem; font-weight: 600; letter-spacing: 0.5px; border-bottom: 1px solid #1e563b; }
         
         /* Navigation */
-        nav { background: #ffffff; padding: 15px 5%; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 10px rgba(0,0,0,0.05); position: sticky; top: 0; z-index: 100; }
-        .logo { font-size: 1.6rem; font-weight: 700; color: #2d6a4f; text-decoration: none; }
-        .logo span { color: #52b788; }
-        .nav-links a { margin-left: 20px; text-decoration: none; color: #4a5568; font-weight: 500; font-size: 0.95rem; }
+        nav { background: #071910; padding: 18px 6%; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 100; border-bottom: 1px solid #1b4d35; }
+        .logo { font-size: 1.8rem; font-weight: 800; color: #a7f3d0; text-decoration: none; letter-spacing: 1px; }
+        .logo span { color: #f59e0b; }
+        .nav-links a { margin-left: 20px; text-decoration: none; color: #cbd5e1; font-weight: 500; font-size: 0.95rem; transition: 0.3s; }
+        .nav-links a:hover { color: #a7f3d0; }
         
         /* Hero Section */
-        .hero { background: linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.4)), url('https://images.unsplash.com/photo-1463936575829-25148e1db1b8?auto=format&fit=crop&w=1200&q=80') center/cover; height: 75vh; display: flex; align-items: center; justify-content: center; text-align: center; color: white; padding: 0 20px; }
-        .hero-content h1 { font-size: 2.8rem; font-weight: 700; margin-bottom: 15px; }
-        .hero-content p { font-size: 1.2rem; margin-bottom: 25px; font-weight: 300; }
-        .btn-primary { background: #52b788; color: white; padding: 12px 30px; text-decoration: none; border-radius: 30px; font-weight: 600; transition: 0.3s; display: inline-block; }
-        .btn-primary:hover { background: #2d6a4f; }
-        
-        /* Categories */
-        .categories { display: flex; justify-content: center; gap: 20px; margin: -40px auto 40px; position: relative; z-index: 10; max-width: 1000px; padding: 0 20px; flex-wrap: wrap; }
-        .cat-card { background: white; padding: 15px 25px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.08); font-weight: 600; color: #2d6a4f; cursor: pointer; text-align: center; flex: 1; min-width: 140px; }
+        .hero { background: linear-gradient(180deg, rgba(7, 25, 16, 0.7) 0%, rgba(11, 35, 24, 0.95) 100%), url('https://images.unsplash.com/photo-1416879595882-3373a0480b5b?auto=format&fit=crop&w=1200&q=80') center/cover; padding: 90px 20px 70px; text-align: center; border-bottom: 1px solid #1e563b; }
+        .tagline-badge { background: #133e2b; color: #34d399; padding: 6px 18px; border-radius: 20px; font-size: 0.85rem; font-weight: 600; display: inline-block; margin-bottom: 15px; border: 1px solid #2d6a4f; }
+        .hero h1 { font-size: 2.8rem; font-weight: 800; color: #ffffff; margin-bottom: 12px; text-shadow: 0 2px 10px rgba(0,0,0,0.5); }
+        .hero-tagline { font-size: 1.5rem; color: #f59e0b; font-weight: 700; margin-bottom: 15px; font-style: italic; }
+        .hero p { font-size: 1.1rem; color: #cbd5e1; max-width: 650px; margin: 0 auto 30px; }
+        .btn-primary { background: #10b981; color: #042f2e; padding: 14px 36px; text-decoration: none; border-radius: 30px; font-weight: 700; font-size: 1rem; display: inline-block; box-shadow: 0 4px 20px rgba(16, 185, 129, 0.4); transition: 0.3s; }
+        .btn-primary:hover { background: #34d399; transform: translateY(-2px); }
+
+        /* Features Section */
+        .features { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 20px; max-width: 1100px; margin: 40px auto; padding: 0 20px; }
+        .feature-box { background: #113826; padding: 25px; border-radius: 15px; text-align: center; border: 1px solid #1d5237; }
+        .feature-icon { font-size: 2.2rem; margin-bottom: 10px; }
+        .feature-title { font-weight: 700; color: #a7f3d0; margin-bottom: 6px; }
+        .feature-desc { font-size: 0.85rem; color: #94a3b8; }
+
+        /* Section Titles */
+        .section-title { text-align: center; margin-top: 60px; font-size: 2.2rem; font-weight: 800; color: #ffffff; }
+        .section-subtitle { text-align: center; color: #34d399; margin-bottom: 40px; font-size: 1rem; }
 
         /* Products Grid */
-        .section-title { text-align: center; margin: 40px 0 10px; font-size: 2rem; color: #1b4332; }
-        .section-subtitle { text-align: center; color: #718096; margin-bottom: 30px; }
-        .product-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 25px; max-width: 1100px; margin: 0 auto 60px; padding: 0 20px; }
-        .product-card { background: white; border-radius: 15px; overflow: hidden; box-shadow: 0 4px 12px rgba(0,0,0,0.05); transition: 0.3s; }
-        .product-card:hover { transform: translateY(-5px); box-shadow: 0 8px 20px rgba(0,0,0,0.1); }
+        .product-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 25px; max-width: 1100px; margin: 0 auto 60px; padding: 0 20px; }
+        .product-card { background: #0f3121; border-radius: 20px; overflow: hidden; border: 1px solid #1e563b; transition: 0.3s; position: relative; }
+        .product-card:hover { transform: translateY(-7px); box-shadow: 0 10px 30px rgba(0,0,0,0.5); border-color: #10b981; }
+        .badge { position: absolute; top: 15px; right: 15px; background: #f59e0b; color: #000; font-weight: 700; font-size: 0.75rem; padding: 4px 12px; border-radius: 12px; }
         .product-img { width: 100%; height: 220px; object-fit: cover; }
-        .product-info { padding: 20px; text-align: center; }
-        .product-title { font-size: 1.1rem; font-weight: 600; margin-bottom: 8px; color: #2d3748; }
-        .price { color: #2d6a4f; font-weight: 700; font-size: 1.2rem; margin-bottom: 15px; }
-        .buy-btn { background: #2d6a4f; color: white; border: none; padding: 10px 20px; border-radius: 20px; width: 100%; cursor: pointer; font-weight: 600; font-size: 0.9rem; }
+        .product-info { padding: 22px; text-align: center; }
+        .product-title { font-size: 1.2rem; font-weight: 700; margin-bottom: 8px; color: #ffffff; }
+        .product-desc { font-size: 0.88rem; color: #94a3b8; margin-bottom: 15px; }
+        .price-box { margin-bottom: 18px; }
+        .price { color: #f59e0b; font-weight: 800; font-size: 1.5rem; }
+        
+        .buy-btn { background: #25D366; color: white; text-decoration: none; padding: 12px 20px; border-radius: 30px; display: block; font-weight: 700; font-size: 0.95rem; border: none; transition: 0.3s; box-shadow: 0 4px 15px rgba(37, 211, 102, 0.3); }
+        .buy-btn:hover { background: #1eb954; }
+
+        /* Detail Section */
+        .details-section { background: #071910; padding: 60px 20px; border-top: 1px solid #1e563b; border-bottom: 1px solid #1e563b; }
+        .details-container { max-width: 900px; margin: 0 auto; }
+        .details-container h3 { color: #a7f3d0; font-size: 1.5rem; margin-bottom: 15px; }
+        .details-container ul { list-style: none; padding-left: 0; }
+        .details-container li { margin-bottom: 12px; padding-left: 25px; position: relative; color: #cbd5e1; }
+        .details-container li::before { content: "🌱"; position: absolute; left: 0; top: 0; }
 
         /* Footer */
-        footer { background: #081c15; color: #a0aec0; text-align: center; padding: 30px 20px; margin-top: 50px; }
-        footer h3 { color: white; margin-bottom: 10px; }
+        footer { background: #040e09; color: #64748b; text-align: center; padding: 35px 20px; }
+        footer h3 { color: #a7f3d0; margin-bottom: 8px; font-weight: 700; }
+        footer p { font-size: 0.85rem; }
     </style>
 </head>
 <body>
 
-    <div class="announcement">🌿 BaghVeda स्पेशल ऑफर: ₹499 से ऊपर के ऑर्डर्स पर मुफ़्त डिलीवरी!</div>
+    <div class="announcement">🌿 BaghVeda ऑर्गेनिक पॉटिंग मिक्स | जड़ों को मिले असली पोषण!</div>
 
     <nav>
         <a href="#" class="logo">Bagh<span>Veda</span></a>
         <div class="nav-links">
-            <a href="#products">पौधे (Plants)</a>
-            <a href="#products">बीज (Seeds)</a>
+            <a href="#products">पैक साइज़</a>
+            <a href="#details">खासियत</a>
             <a href="#contact">संपर्क</a>
         </div>
     </nav>
 
     <section class="hero">
-        <div class="hero-content">
-            <h1>प्रकृति को अपने घर लाएं</h1>
-            <p>100% शुद्ध, ताज़े और हर्बल पौधे सीधे हमारे बागों से आपके घर तक।</p>
-            <a href="#products" class="btn-primary">अभी खरीदें</a>
+        <span class="tagline-badge">100% 🌿 शुद्ध एवं जैविक</span>
+        <h1>BaghVeda पॉटिंग मिक्स</h1>
+        <div class="hero-tagline">"माटी से समृद्धि तक"</div>
+        <p>कोकोपीट, वर्मीकंपोस्ट, नीम खली और दुर्लभ सूक्ष्म पोषकों का संतुलित मिश्रण — आपके पौधों को दे दोगुनी तेज़ी से बढ़त।</p>
+        <a href="#products" class="btn-primary">अभी ऑर्डर करें</a>
+    </section>
+
+    <!-- Features -->
+    <div class="features">
+        <div class="feature-box">
+            <div class="feature-icon">💧</div>
+            <div class="feature-title">नमी बनाए रखे</div>
+            <div class="feature-desc">बार-बार पानी देने की ज़रूरत नहीं, पौधे रहेंगे हमेशा तरोताज़ा।</div>
+        </div>
+        <div class="feature-box">
+            <div class="feature-icon">🪱</div>
+            <div class="feature-title">न्यूट्रिएंट्स से भरपूर</div>
+            <div class="feature-desc">शुद्ध केंचुआ खाद और नीम खली से भरपूर प्राकृतिक भोजन।</div>
+        </div>
+        <div class="feature-box">
+            <div class="feature-icon">🛡️</div>
+            <div class="feature-title">फंगस व कीट से सुरक्षा</div>
+            <div class="feature-desc">एंटी-फंगल गुणों से लैस ताकि जड़ें कभी खराब न हों।</div>
+        </div>
+    </div>
+
+    <!-- Products -->
+    <h2 class="section-title">हमारे स्पेशल पॉटिंग मिक्स पैक्स</h2>
+    <p class="section-subtitle">अपनी ज़रूरत के अनुसार सही वज़न चुनें</p>
+
+    <div class="product-grid" id="products">
+        
+        <!-- 1 KG Pack -->
+        <div class="product-card">
+            <span class="badge">ट्रायल पैक</span>
+            <img src="https://images.unsplash.com/photo-1416879595882-3373a0480b5b?auto=format&fit=crop&w=500&q=80" class="product-img" alt="Potting Mix 1KG">
+            <div class="product-info">
+                <div class="product-title">ऑर्गेनिक पॉटिंग मिक्स (1 KG)</div>
+                <div class="product-desc">छोटे गमलों, रसीले पौधों (Succulents) और इंडोर वैरायटी के लिए बेस्ट।</div>
+                <div class="price-box">
+                    <span class="price">₹99</span>
+                </div>
+                <a href="https://wa.me/91XXXXXXXXXX?text=नमस्ते%20BaghVeda!%20मुझे%20'ऑर्गेनिक%20पॉटिंग%20मिक्स%20(1%20KG)'%20ऑर्डर%20करना%20है।" target="_blank" class="buy-btn">💬 WhatsApp पर ऑर्डर करें</a>
+            </div>
+        </div>
+
+        <!-- 2 KG Pack -->
+        <div class="product-card">
+            <span class="badge" style="background:#10b981; color:#fff;">मोस्ट पॉपुलर</span>
+            <img src="https://images.unsplash.com/photo-1585320806297-9794b3e4eeae?auto=format&fit=crop&w=500&q=80" class="product-img" alt="Potting Mix 2KG">
+            <div class="product-info">
+                <div class="product-title">ऑर्गेनिक पॉटिंग मिक्स (2 KG)</div>
+                <div class="product-desc">बालकनी गार्डन और मध्यम आकार के गमलों के लिए सबसे पसंदीदा पैक।</div>
+                <div class="price-box">
+                    <span class="price">₹189</span>
+                </div>
+                <a href="https://wa.me/91XXXXXXXXXX?text=नमस्ते%20BaghVeda!%20मुझे%20'ऑर्गेनिक%20पॉटिंग%20मिक्स%20(2%20KG)'%20ऑर्डर%20करना%20है।" target="_blank" class="buy-btn">💬 WhatsApp पर ऑर्डर करें</a>
+            </div>
+        </div>
+
+        <!-- 3 KG Pack -->
+        <div class="product-card">
+            <span class="badge">बेस्ट वैल्यू</span>
+            <img src="https://images.unsplash.com/photo-1617576683096-00fc8eecb3af?auto=format&fit=crop&w=500&q=80" class="product-img" alt="Potting Mix 3KG">
+            <div class="product-info">
+                <div class="product-title">ऑर्गेनिक पॉटिंग मिक्स (3 KG)</div>
+                <div class="product-desc">बड़े गमलों, छत के बगीचे (Terrace Garden) और नए पौधों के लिए।</div>
+                <div class="price-box">
+                    <span class="price">₹269</span>
+                </div>
+                <a href="https://wa.me/91XXXXXXXXXX?text=नमस्ते%20BaghVeda!%20मुझे%20'ऑर्गेनिक%20पॉटिंग%20मिक्स%20(3%20KG)'%20ऑर्डर%20करना%20है।" target="_blank" class="buy-btn">💬 WhatsApp पर ऑर्डर करें</a>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Details Section -->
+    <section class="details-section" id="details">
+        <div class="details-container">
+            <h3>BaghVeda पॉटिंग मिक्स में क्या-क्या शामिल है?</h3>
+            <ul>
+                <li><strong>प्रीमियम कोकोपीट:</strong> जड़ों को हल्की हवा और सही नमी प्रदान करता है।</li>
+                <li><strong>वर्मीकंपोस्ट खाद:</strong> केंचुओं द्वारा निर्मित 100% शुद्ध और समृद्ध पोषण।</li>
+                <li><strong>नीम खली पाउडर:</strong> मिट्टी को कीड़ों, फंगस और हानिकारक बैक्टीरिया से बचाता है।</li>
+                <li><strong>पेरलाइट व माइक्रोन्यूट्रिएंट्स:</strong> जड़ों के फैलाव को आसान बनाता है ताकि पौधा जल्दी बढे।</li>
+            </ul>
         </div>
     </section>
 
-    <div class="categories">
-        <div class="cat-card">🌱 इनडोर पौधे</div>
-        <div class="cat-card">🌸 एयर प्यूरीफायर</div>
-        <div class="cat-card">🪴 प्रीमियम पॉट्स</div>
+    <footer>
+        <h3>BaghVeda Organic Care</h3>
+        <p>"माटी से समृद्धि तक" — 100% हर्बल और प्राकृतिक गार्डनिंग सॉल्यूशन्स।</p>
+        <p style="margin-top: 10px; font-size: 0.75rem;">&copy; 2026 BaghVeda. सर्वाधिकार सुरक्षित।</p>
+    </footer>
+
+</body>
+</html>
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BaghVeda | माटी से समृद्धि तक</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Poppins', sans-serif; }
+        body { background-color: #0b2318; color: #e2e8f0; line-height: 1.6; }
+        
+        /* Top Banner */
+        .announcement { background: #133e2b; color: #a7f3d0; text-align: center; padding: 10px; font-size: 0.9rem; font-weight: 600; letter-spacing: 0.5px; border-bottom: 1px solid #1e563b; }
+        
+        /* Navigation */
+        nav { background: #071910; padding: 18px 6%; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 100; border-bottom: 1px solid #1b4d35; }
+        .logo { font-size: 1.8rem; font-weight: 800; color: #a7f3d0; text-decoration: none; letter-spacing: 1px; }
+        .logo span { color: #f59e0b; }
+        .nav-links a { margin-left: 20px; text-decoration: none; color: #cbd5e1; font-weight: 500; font-size: 0.95rem; transition: 0.3s; }
+        .nav-links a:hover { color: #a7f3d0; }
+        
+        /* Hero Section */
+        .hero { background: linear-gradient(180deg, rgba(7, 25, 16, 0.7) 0%, rgba(11, 35, 24, 0.95) 100%), url('https://images.unsplash.com/photo-1416879595882-3373a0480b5b?auto=format&fit=crop&w=1200&q=80') center/cover; padding: 90px 20px 70px; text-align: center; border-bottom: 1px solid #1e563b; }
+        .tagline-badge { background: #133e2b; color: #34d399; padding: 6px 18px; border-radius: 20px; font-size: 0.85rem; font-weight: 600; display: inline-block; margin-bottom: 15px; border: 1px solid #2d6a4f; }
+        .hero h1 { font-size: 2.8rem; font-weight: 800; color: #ffffff; margin-bottom: 12px; text-shadow: 0 2px 10px rgba(0,0,0,0.5); }
+        .hero-tagline { font-size: 1.5rem; color: #f59e0b; font-weight: 700; margin-bottom: 15px; font-style: italic; }
+        .hero p { font-size: 1.1rem; color: #cbd5e1; max-width: 650px; margin: 0 auto 30px; }
+        .btn-primary { background: #10b981; color: #042f2e; padding: 14px 36px; text-decoration: none; border-radius: 30px; font-weight: 700; font-size: 1rem; display: inline-block; box-shadow: 0 4px 20px rgba(16, 185, 129, 0.4); transition: 0.3s; }
+        .btn-primary:hover { background: #34d399; transform: translateY(-2px); }
+
+        /* Features Section */
+        .features { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 20px; max-width: 1100px; margin: 40px auto; padding: 0 20px; }
+        .feature-box { background: #113826; padding: 25px; border-radius: 15px; text-align: center; border: 1px solid #1d5237; }
+        .feature-icon { font-size: 2.2rem; margin-bottom: 10px; }
+        .feature-title { font-weight: 700; color: #a7f3d0; margin-bottom: 6px; }
+        .feature-desc { font-size: 0.85rem; color: #94a3b8; }
+
+        /* Section Titles */
+        .section-title { text-align: center; margin-top: 60px; font-size: 2.2rem; font-weight: 800; color: #ffffff; }
+        .section-subtitle { text-align: center; color: #34d399; margin-bottom: 40px; font-size: 1rem; }
+
+        /* Products Grid */
+        .product-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 25px; max-width: 1100px; margin: 0 auto 60px; padding: 0 20px; }
+        .product-card { background: #0f3121; border-radius: 20px; overflow: hidden; border: 1px solid #1e563b; transition: 0.3s; position: relative; }
+        .product-card:hover { transform: translateY(-7px); box-shadow: 0 10px 30px rgba(0,0,0,0.5); border-color: #10b981; }
+        .badge { position: absolute; top: 15px; right: 15px; background: #f59e0b; color: #000; font-weight: 700; font-size: 0.75rem; padding: 4px 12px; border-radius: 12px; }
+        .product-img { width: 100%; height: 220px; object-fit: cover; }
+        .product-info { padding: 22px; text-align: center; }
+        .product-title { font-size: 1.2rem; font-weight: 700; margin-bottom: 8px; color: #ffffff; }
+        .product-desc { font-size: 0.88rem; color: #94a3b8; margin-bottom: 15px; }
+        .price-box { margin-bottom: 18px; }
+        .price { color: #f59e0b; font-weight: 800; font-size: 1.5rem; }
+        
+        .buy-btn { background: #25D366; color: white; text-decoration: none; padding: 12px 20px; border-radius: 30px; display: block; font-weight: 700; font-size: 0.95rem; border: none; transition: 0.3s; box-shadow: 0 4px 15px rgba(37, 211, 102, 0.3); }
+        .buy-btn:hover { background: #1eb954; }
+
+        /* Detail Section */
+        .details-section { background: #071910; padding: 60px 20px; border-top: 1px solid #1e563b; border-bottom: 1px solid #1e563b; }
+        .details-container { max-width: 900px; margin: 0 auto; }
+        .details-container h3 { color: #a7f3d0; font-size: 1.5rem; margin-bottom: 15px; }
+        .details-container ul { list-style: none; padding-left: 0; }
+        .details-container li { margin-bottom: 12px; padding-left: 25px; position: relative; color: #cbd5e1; }
+        .details-container li::before { content: "🌱"; position: absolute; left: 0; top: 0; }
+
+        /* Footer */
+        footer { background: #040e09; color: #64748b; text-align: center; padding: 35px 20px; }
+        footer h3 { color: #a7f3d0; margin-bottom: 8px; font-weight: 700; }
+        footer p { font-size: 0.85rem; }
+    </style>
+</head>
+<body>
+
+    <div class="announcement">🌿 BaghVeda ऑर्गेनिक पॉटिंग मिक्स | जड़ों को मिले असली पोषण!</div>
+
+    <nav>
+        <a href="#" class="logo">Bagh<span>Veda</span></a>
+        <div class="nav-links">
+            <a href="#products">पैक साइज़</a>
+            <a href="#details">खासियत</a>
+            <a href="#contact">संपर्क</a>
+        </div>
+    </nav>
+
+    <section class="hero">
+        <span class="tagline-badge">100% 🌿 शुद्ध एवं जैविक</span>
+        <h1>BaghVeda पॉटिंग मिक्स</h1>
+        <div class="hero-tagline">"माटी से समृद्धि तक"</div>
+        <p>कोकोपीट, वर्मीकंपोस्ट, नीम खली और दुर्लभ सूक्ष्म पोषकों का संतुलित मिश्रण — आपके पौधों को दे दोगुनी तेज़ी से बढ़त।</p>
+        <a href="#products" class="btn-primary">अभी ऑर्डर करें</a>
+    </section>
+
+    <!-- Features -->
+    <div class="features">
+        <div class="feature-box">
+            <div class="feature-icon">💧</div>
+            <div class="feature-title">नमी बनाए रखे</div>
+            <div class="feature-desc">बार-बार पानी देने की ज़रूरत नहीं, पौधे रहेंगे हमेशा तरोताज़ा।</div>
+        </div>
+        <div class="feature-box">
+            <div class="feature-icon">🪱</div>
+            <div class="feature-title">न्यूट्रिएंट्स से भरपूर</div>
+            <div class="feature-desc">शुद्ध केंचुआ खाद और नीम खली से भरपूर प्राकृतिक भोजन।</div>
+        </div>
+        <div class="feature-box">
+            <div class="feature-icon">🛡️</div>
+            <div class="feature-title">फंगस व कीट से सुरक्षा</div>
+            <div class="feature-desc">एंटी-फंगल गुणों से लैस ताकि जड़ें कभी खराब न हों।</div>
+        </div>
     </div>
 
-    <h2 class="section-title">हमारे बेस्ट सेलर</h2>
-    <p class="section-subtitle">घर और बगीचे के लिए सबसे पसंदीदा पौधे</p>
+    <!-- Products -->
+    <h2 class="section-title">हमारे स्पेशल पॉटिंग मिक्स पैक्स</h2>
+    <p class="section-subtitle">अपनी ज़रूरत के अनुसार सही वज़न चुनें</p>
 
     <div class="product-grid" id="products">
+        
+        <!-- 1 KG Pack -->
         <div class="product-card">
-            <img src="https://images.unsplash.com/photo-1545241047-6083a3684587?auto=format&fit=crop&w=500&q=80" class="product-img" alt="Snake Plant">
+            <span class="badge">ट्रायल पैक</span>
+            <img src="https://images.unsplash.com/photo-1416879595882-3373a0480b5b?auto=format&fit=crop&w=500&q=80" class="product-img" alt="Potting Mix 1KG">
             <div class="product-info">
-                <div class="product-title">स्नेक प्लांट (Snake Plant)</div>
-                <div class="price">₹299</div>
-                <button class="buy-btn">ऑर्डर करें</button>
+                <div class="product-title">ऑर्गेनिक पॉटिंग मिक्स (1 KG)</div>
+                <div class="product-desc">छोटे गमलों, रसीले पौधों (Succulents) और इंडोर वैरायटी के लिए बेस्ट।</div>
+                <div class="price-box">
+                    <span class="price">₹179</span>
+                </div>
+                <a href="https://wa.me/91XXXXXXXXXX?text=नमस्ते%20BaghVeda!%20मुझे%20'ऑर्गेनिक%20पॉटिंग%20मिक्स%20(1%20KG)'%20ऑर्डर%20करना%20है।" target="_blank" class="buy-btn">💬 WhatsApp पर ऑर्डर करें</a>
             </div>
         </div>
 
+        <!-- 2 KG Pack -->
         <div class="product-card">
-            <img src="https://images.unsplash.com/photo-1512428559087-560fa5ceab42?auto=format&fit=crop&w=500&q=80" class="product-img" alt="Jade Plant">
+            <span class="badge" style="background:#10b981; color:#fff;">मोस्ट पॉपुलर</span>
+            <img src="https://images.unsplash.com/photo-1585320806297-9794b3e4eeae?auto=format&fit=crop&w=500&q=80" class="product-img" alt="Potting Mix 2KG">
             <div class="product-info">
-                <div class="product-title">जेड प्लांट (Jade Plant)</div>
-                <div class="price">₹349</div>
-                <button class="buy-btn">ऑर्डर करें</button>
+                <div class="product-title">ऑर्गेनिक पॉटिंग मिक्स (2 KG)</div>
+                <div class="product-desc">बालकनी गार्डन और मध्यम आकार के गमलों के लिए सबसे पसंदीदा पैक।</div>
+                <div class="price-box">
+                    <span class="price">₹249</span>
+                </div>
+                <a href="https://wa.me/91XXXXXXXXXX?text=नमस्ते%20BaghVeda!%20मुझे%20'ऑर्गेनिक%20पॉटिंग%20मिक्स%20(2%20KG)'%20ऑर्डर%20करना%20है।" target="_blank" class="buy-btn">💬 WhatsApp पर ऑर्डर करें</a>
             </div>
         </div>
 
+        <!-- 3 KG Pack -->
         <div class="product-card">
-            <img src="https://images.unsplash.com/photo-1614594975525-e45190c55d0b?auto=format&fit=crop&w=500&q=80" class="product-img" alt="Money Plant">
+            <span class="badge">बेस्ट वैल्यू</span>
+            <img src="https://images.unsplash.com/photo-1617576683096-00fc8eecb3af?auto=format&fit=crop&w=500&q=80" class="product-img" alt="Potting Mix 3KG">
             <div class="product-info">
-                <div class="product-title">मनी प्लांट (Money Plant)</div>
-                <div class="price">₹199</div>
-                <button class="buy-btn">ऑर्डर करें</button>
+                <div class="product-title">ऑर्गेनिक पॉटिंग मिक्स (3 KG)</div>
+                <div class="product-desc">बड़े गमलों, छत के बगीचे (Terrace Garden) और नए पौधों के लिए।</div>
+                <div class="price-box">
+                    <span class="price">₹349</span>
+                </div>
+                <a href="https://wa.me/918700733425?text=नमस्ते%20BaghVeda!%20मुझे%20'ऑर्गेनिक%20पॉटिंग%20मिक्स%20(3%20KG)'%20ऑर्डर%20करना%20है।" target="_blank" class="buy-btn">💬 WhatsApp पर ऑर्डर करें</a>
             </div>
         </div>
+
     </div>
 
+    <!-- Details Section -->
+    <section class="details-section" id="details">
+        <div class="details-container">
+            <h3>BaghVeda पॉटिंग मिक्स में क्या-क्या शामिल है?</h3>
+            <ul>
+                <li><strong>प्रीमियम कोकोपीट:</strong> जड़ों को हल्की हवा और सही नमी प्रदान करता है।</li>
+                <li><strong>वर्मीकंपोस्ट खाद:</strong> केंचुओं द्वारा निर्मित 100% शुद्ध और समृद्ध पोषण।</li>
+                <li><strong>नीम खली पाउडर:</strong> मिट्टी को कीड़ों, फंगस और हानिकारक बैक्टीरिया से बचाता है।</li>
+                <li><strong>पेरलाइट व माइक्रोन्यूट्रिएंट्स:</strong> जड़ों के फैलाव को आसान बनाता है ताकि पौधा जल्दी बढे।</li>
+            </ul>
+        </div>
+    </section>
+
     <footer>
-        <h3>BaghVeda</h3>
-        <p>&copy; 2026 BaghVeda. सर्वाधिकार सुरक्षित।</p>
+        <h3>BaghVeda Organic Care</h3>
+        <p>"माटी से समृद्धि तक" — 100% हर्बल और प्राकृतिक गार्डनिंग सॉल्यूशन्स।</p>
+        <p style="margin-top: 10px; font-size: 0.75rem;">&copy; 2026 BaghVeda. सर्वाधिकार सुरक्षित।</p>
     </footer>
 
 </body>
