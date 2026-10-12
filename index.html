@@ -3,128 +3,110 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>BaghVeda | Natural & Pure D2C Brand</title>
+    <title>BaghVeda | Plants, Seeds & Organic Care</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        }
-        body {
-            background-color: #f9f8f3;
-            color: #2c3e50;
-        }
-        header {
-            background-color: #1b4332;
-            color: white;
-            padding: 20px;
-            text-align: center;
-        }
-        header h1 {
-            font-size: 2.2rem;
-            letter-spacing: 2px;
-        }
-        header p {
-            font-size: 1rem;
-            color: #d8f3dc;
-            margin-top: 5px;
-        }
-        .hero {
-            padding: 60px 20px;
-            text-align: center;
-            background: linear-gradient(rgba(27, 67, 50, 0.8), rgba(27, 67, 50, 0.8)), url('https://images.unsplash.com/photo-1540555700478-4be289fbecef?auto=format&fit=crop&w=1000&q=80');
-            background-size: cover;
-            background-position: center;
-            color: white;
-        }
-        .hero h2 {
-            font-size: 2rem;
-            margin-bottom: 15px;
-        }
-        .hero p {
-            font-size: 1.1rem;
-            margin-bottom: 25px;
-            max-width: 600px;
-            margin-left: auto;
-            margin-right: auto;
-        }
-        .btn {
-            background-color: #52b788;
-            color: white;
-            padding: 12px 25px;
-            text-decoration: none;
-            border-radius: 25px;
-            font-weight: bold;
-            display: inline-block;
-        }
-        .container {
-            max-width: 1000px;
-            margin: 40px auto;
-            padding: 0 20px;
-        }
-        .section-title {
-            text-align: center;
-            margin-bottom: 30px;
-            color: #1b4332;
-        }
-        .products {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 20px;
-        }
-        .card {
-            background: white;
-            border-radius: 10px;
-            padding: 20px;
-            text-align: center;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-        }
-        .card h3 {
-            color: #2d6a4f;
-            margin-bottom: 10px;
-        }
-        footer {
-            background-color: #081c15;
-            color: white;
-            text-align: center;
-            padding: 20px;
-            margin-top: 40px;
-        }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Poppins', sans-serif; }
+        body { background-color: #f7f9f6; color: #2d3748; }
+        
+        /* Top Banner */
+        .announcement { background: #1b4332; color: #fff; text-align: center; padding: 8px; font-size: 0.85rem; letter-spacing: 0.5px; }
+        
+        /* Navigation */
+        nav { background: #ffffff; padding: 15px 5%; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 10px rgba(0,0,0,0.05); position: sticky; top: 0; z-index: 100; }
+        .logo { font-size: 1.6rem; font-weight: 700; color: #2d6a4f; text-decoration: none; }
+        .logo span { color: #52b788; }
+        .nav-links a { margin-left: 20px; text-decoration: none; color: #4a5568; font-weight: 500; font-size: 0.95rem; }
+        
+        /* Hero Section */
+        .hero { background: linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.4)), url('https://images.unsplash.com/photo-1463936575829-25148e1db1b8?auto=format&fit=crop&w=1200&q=80') center/cover; height: 75vh; display: flex; align-items: center; justify-content: center; text-align: center; color: white; padding: 0 20px; }
+        .hero-content h1 { font-size: 2.8rem; font-weight: 700; margin-bottom: 15px; }
+        .hero-content p { font-size: 1.2rem; margin-bottom: 25px; font-weight: 300; }
+        .btn-primary { background: #52b788; color: white; padding: 12px 30px; text-decoration: none; border-radius: 30px; font-weight: 600; transition: 0.3s; display: inline-block; }
+        .btn-primary:hover { background: #2d6a4f; }
+        
+        /* Categories */
+        .categories { display: flex; justify-content: center; gap: 20px; margin: -40px auto 40px; position: relative; z-index: 10; max-width: 1000px; padding: 0 20px; flex-wrap: wrap; }
+        .cat-card { background: white; padding: 15px 25px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.08); font-weight: 600; color: #2d6a4f; cursor: pointer; text-align: center; flex: 1; min-width: 140px; }
+
+        /* Products Grid */
+        .section-title { text-align: center; margin: 40px 0 10px; font-size: 2rem; color: #1b4332; }
+        .section-subtitle { text-align: center; color: #718096; margin-bottom: 30px; }
+        .product-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 25px; max-width: 1100px; margin: 0 auto 60px; padding: 0 20px; }
+        .product-card { background: white; border-radius: 15px; overflow: hidden; box-shadow: 0 4px 12px rgba(0,0,0,0.05); transition: 0.3s; }
+        .product-card:hover { transform: translateY(-5px); box-shadow: 0 8px 20px rgba(0,0,0,0.1); }
+        .product-img { width: 100%; height: 220px; object-fit: cover; }
+        .product-info { padding: 20px; text-align: center; }
+        .product-title { font-size: 1.1rem; font-weight: 600; margin-bottom: 8px; color: #2d3748; }
+        .price { color: #2d6a4f; font-weight: 700; font-size: 1.2rem; margin-bottom: 15px; }
+        .buy-btn { background: #2d6a4f; color: white; border: none; padding: 10px 20px; border-radius: 20px; width: 100%; cursor: pointer; font-weight: 600; font-size: 0.9rem; }
+
+        /* Footer */
+        footer { background: #081c15; color: #a0aec0; text-align: center; padding: 30px 20px; margin-top: 50px; }
+        footer h3 { color: white; margin-bottom: 10px; }
     </style>
 </head>
 <body>
 
-    <header>
-        <h1>BaghVeda</h1>
-        <p>प्रकृति की शुद्धता, आपके लिए</p>
-    </header>
+    <div class="announcement">🌿 BaghVeda स्पेशल ऑफर: ₹499 से ऊपर के ऑर्डर्स पर मुफ़्त डिलीवरी!</div>
+
+    <nav>
+        <a href="#" class="logo">Bagh<span>Veda</span></a>
+        <div class="nav-links">
+            <a href="#products">पौधे (Plants)</a>
+            <a href="#products">बीज (Seeds)</a>
+            <a href="#contact">संपर्क</a>
+        </div>
+    </nav>
 
     <section class="hero">
-        <h2>स्वागत है BaghVeda में</h2>
-        <p>100% प्राकृतिक और प्रीमियम प्रोडक्ट्स सीधे आपके घर तक।</p>
-        <a href="#products" class="btn">एक्सप्लोर करें</a>
+        <div class="hero-content">
+            <h1>प्रकृति को अपने घर लाएं</h1>
+            <p>100% शुद्ध, ताज़े और हर्बल पौधे सीधे हमारे बागों से आपके घर तक।</p>
+            <a href="#products" class="btn-primary">अभी खरीदें</a>
+        </div>
     </section>
 
-    <div class="container" id="products">
-        <h2 class="section-title">हमारे खास प्रोडक्ट्स</h2>
-        <div class="products">
-            <div class="card">
-                <h3>प्राकृतिक उत्पाद 1</h3>
-                <p>उच्च गुणवत्ता और प्राकृतिक तत्वों से निर्मित।</p>
+    <div class="categories">
+        <div class="cat-card">🌱 इनडोर पौधे</div>
+        <div class="cat-card">🌸 एयर प्यूरीफायर</div>
+        <div class="cat-card">🪴 प्रीमियम पॉट्स</div>
+    </div>
+
+    <h2 class="section-title">हमारे बेस्ट सेलर</h2>
+    <p class="section-subtitle">घर और बगीचे के लिए सबसे पसंदीदा पौधे</p>
+
+    <div class="product-grid" id="products">
+        <div class="product-card">
+            <img src="https://images.unsplash.com/photo-1545241047-6083a3684587?auto=format&fit=crop&w=500&q=80" class="product-img" alt="Snake Plant">
+            <div class="product-info">
+                <div class="product-title">स्नेक प्लांट (Snake Plant)</div>
+                <div class="price">₹299</div>
+                <button class="buy-btn">ऑर्डर करें</button>
             </div>
-            <div class="card">
-                <h3>प्राकृतिक उत्पाद 2</h3>
-                <p>शुद्धता और ताजगी की पूरी गारंटी।</p>
+        </div>
+
+        <div class="product-card">
+            <img src="https://images.unsplash.com/photo-1512428559087-560fa5ceab42?auto=format&fit=crop&w=500&q=80" class="product-img" alt="Jade Plant">
+            <div class="product-info">
+                <div class="product-title">जेड प्लांट (Jade Plant)</div>
+                <div class="price">₹349</div>
+                <button class="buy-btn">ऑर्डर करें</button>
             </div>
-            <div class="card">
-                <h3>प्राकृतिक उत्पाद 3</h3>
-                <p>आपके स्वास्थ्य और सौंदर्य का ध्यान।</p>
+        </div>
+
+        <div class="product-card">
+            <img src="https://images.unsplash.com/photo-1614594975525-e45190c55d0b?auto=format&fit=crop&w=500&q=80" class="product-img" alt="Money Plant">
+            <div class="product-info">
+                <div class="product-title">मनी प्लांट (Money Plant)</div>
+                <div class="price">₹199</div>
+                <button class="buy-btn">ऑर्डर करें</button>
             </div>
         </div>
     </div>
 
     <footer>
+        <h3>BaghVeda</h3>
         <p>&copy; 2026 BaghVeda. सर्वाधिकार सुरक्षित।</p>
     </footer>
 
