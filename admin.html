@@ -3,68 +3,179 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>BaghVeda Admin</title>
+    <title>BaghVeda Admin Dashboard</title>
     <style>
+        :root {
+            --primary: #1b4332;
+            --accent: #2d6a4f;
+            --bg: #081c15;
+            --card-bg: #112a20;
+            --text: #e8f5e9;
+            --gold: #d4af37;
+        }
+
         body {
-            font-family: Arial, sans-serif;
-            background-color: #081c15;
-            color: #e8f5e9;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            margin: 0;
+            padding: 20px;
             display: flex;
             justify-content: center;
             align-items: center;
-            height: 100vh;
-            margin: 0;
+            min-height: 100vh;
+            box-sizing: border-box;
         }
-        .box {
-            background: #112a20;
-            padding: 30px;
-            border-radius: 10px;
-            border: 1px solid #d4af37;
+
+        .container {
             width: 100%;
-            max-width: 400px;
+            max-width: 900px;
+            background: var(--card-bg);
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            border: 1px solid rgba(212, 175, 55, 0.2);
         }
-        h2 { text-align: center; color: #d4af37; margin-top: 0; }
+
+        h1, h2, h3 {
+            text-align: center;
+            color: var(--gold);
+            margin-top: 0;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 600;
+        }
+
         input {
             width: 100%;
-            padding: 10px;
-            margin: 10px 0;
-            background: #081c15;
+            padding: 12px;
+            border-radius: 6px;
             border: 1px solid #2d6a4f;
-            color: white;
+            background: #081c15;
+            color: #fff;
             box-sizing: border-box;
-            border-radius: 5px;
+            font-size: 16px;
         }
+
         button {
             width: 100%;
             padding: 12px;
-            background: #d4af37;
-            color: black;
+            background: var(--gold);
+            color: #000;
             border: none;
+            border-radius: 6px;
+            font-size: 16px;
             font-weight: bold;
-            border-radius: 5px;
             cursor: pointer;
+            transition: 0.3s;
+        }
+
+        button:hover {
+            background: #b89628;
+        }
+
+        #dashboard {
+            display: none;
+        }
+
+        .card {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .price-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+        }
+
+        .error { 
+            color: #ff6b6b; 
+            text-align: center; 
+            font-size: 14px; 
             margin-top: 10px;
         }
-        .error { color: #ff6b6b; text-align: center; font-size: 14px; }
+
+        .order-item {
+            background: #081c15;
+            padding: 15px;
+            border-radius: 6px;
+            margin-bottom: 10px;
+            border-left: 4px solid var(--gold);
+        }
+
+        .order-item p {
+            margin: 5px 0;
+        }
     </style>
-    <!-- Firebase SDK -->
+
+    <!-- Firebase SDKs -->
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
 </head>
 <body>
 
-<div class="box" id="login-box">
-    <h2>🔒 BaghVeda Admin</h2>
-    <input type="email" id="email" placeholder="ईमेल आईडी दर्ज करें">
-    <input type="password" id="password" placeholder="पासवर्ड दर्ज करें">
-    <button onclick="login()">لॉगिन करें</button>
-    <p id="err" class="error"></p>
-</div>
+<div class="container">
+    <!-- Login Box -->
+    <div id="login-box">
+        <h1>🔒 BaghVeda Admin</h1>
+        <div class="form-group">
+            <label>ईमेल आईडी</label>
+            <input type="email" id="email" placeholder="support@baghveda.in">
+        </div>
+        <div class="form-group">
+            <label>पासवर्ड</label>
+            <input type="password" id="password" placeholder="पासवर्ड दर्ज करें">
+        </div>
+        <button onclick="login()">डैशबोर्ड खोलें</button>
+        <p id="err" class="error"></p>
+    </div>
 
-<div class="box" id="dashboard" style="display:none;">
-    <h2>🌿 स्वागत है एडमिन!</h2>
-    <p>डैशबोर्ड सफलतापूर्वक खुल गया है।</p>
-    <button onclick="logout()" style="background: #e63946; color: white;">लॉगआउट करें</button>
+    <!-- Admin Dashboard -->
+    <div id="dashboard">
+        <h2>🌿 BaghVeda Admin Dashboard</h2>
+        
+        <!-- Pricing Management -->
+        <div class="card">
+            <h3>💰 उत्पाद कीमतें प्रबंधित करें</h3>
+            <div class="price-grid">
+                <div class="form-group">
+                    <label>1 KG Price (₹)</label>
+                    <input type="number" id="p1kg" value="499">
+                </div>
+                <div class="form-group">
+                    <label>2 KG Price (₹)</label>
+                    <input type="number" id="p2kg" value="899">
+                </div>
+                <div class="form-group">
+                    <label>3 KG Price (₹)</label>
+                    <input type="number" id="p3kg" value="1299">
+                </div>
+            </div>
+            <button onclick="savePrices()" style="margin-top: 5px;">कीमतें सेव करें</button>
+        </div>
+
+        <!-- Live Orders Management -->
+        <div class="card">
+            <h3>📦 ग्राहक ऑर्डर्स (Live Orders)</h3>
+            <div id="orders-container">
+                <p style="text-align: center; color: #888;">ऑर्डर्स लोड हो रहे हैं...</p>
+            </div>
+        </div>
+
+        <button onclick="logout()" style="background: #e63946; color: white;">लॉगआउट करें</button>
+    </div>
 </div>
 
 <script>
@@ -79,7 +190,22 @@
 
     firebase.initializeApp(firebaseConfig);
     const auth = firebase.auth();
+    const db = firebase.firestore();
 
+    // Check Auth State
+    auth.onAuthStateChanged((user) => {
+        if (user) {
+            document.getElementById('login-box').style.display = 'none';
+            document.getElementById('dashboard').style.display = 'block';
+            loadPrices();
+            loadOrders();
+        } else {
+            document.getElementById('login-box').style.display = 'block';
+            document.getElementById('dashboard').style.display = 'none';
+        }
+    });
+
+    // Login Function
     function login() {
         const email = document.getElementById('email').value.trim();
         const password = document.getElementById('password').value;
@@ -87,19 +213,82 @@
         err.innerText = "";
 
         auth.signInWithEmailAndPassword(email, password)
-            .then(() => {
-                document.getElementById('login-box').style.display = 'none';
-                document.getElementById('dashboard').style.display = 'block';
-            })
             .catch((error) => {
-                err.innerText = "एरर: " + error.message;
+                err.innerText = "लॉगिन असफल: " + error.message;
             });
     }
 
+    // Logout Function
     function logout() {
         auth.signOut().then(() => {
             location.reload();
         });
+    }
+
+    // Save Prices to Firestore
+    function savePrices() {
+        const p1kg = document.getElementById('p1kg').value;
+        const p2kg = document.getElementById('p2kg').value;
+        const p3kg = document.getElementById('p3kg').value;
+
+        db.collection("settings").doc("pricing").set({
+            kg1: p1kg,
+            kg2: p2kg,
+            kg3: p3kg
+        })
+        .then(() => {
+            alert("कीमतें सफलतापूर्वक अपडेट हो गईं!");
+        })
+        .catch((error) => {
+            alert("एरर: " + error.message);
+        });
+    }
+
+    // Load Prices from Firestore
+    function loadPrices() {
+        db.collection("settings").doc("pricing").get().then((doc) => {
+            if (doc.exists) {
+                const data = doc.data();
+                if(data.kg1) document.getElementById('p1kg').value = data.kg1;
+                if(data.kg2) document.getElementById('p2kg').value = data.kg2;
+                if(data.kg3) document.getElementById('p3kg').value = data.kg3;
+            }
+        });
+    }
+
+    // Load Live Orders from Firestore
+    function loadOrders() {
+        const container = document.getElementById('orders-container');
+        db.collection("orders").orderBy("createdAt", "desc").onSnapshot((snapshot) => {
+            if (snapshot.empty) {
+                container.innerHTML = '<p style="text-align: center; color: #888;">कोई नया ऑर्डर नहीं मिला है।</p>';
+                return;
+            }
+            
+            let html = "";
+            snapshot.forEach((doc) => {
+                const order = doc.data();
+                html += `
+                    <div class="order-item">
+                        <p><strong>ग्राहक नाम:</strong> ${order.name || 'N/A'}</p>
+                        <p><strong>मोबाइल:</strong> ${order.phone || 'N/A'}</p>
+                        <p><strong>पैक साइज:</strong> ${order.package || 'N/A'}</p>
+                        <p><strong>पता:</strong> ${order.address || 'N/A'}</p>
+                        <button onclick="deleteOrder('${doc.id}')" style="background: #e63946; color: white; padding: 6px; margin-top: 8px; font-size: 14px;">ऑर्डर पूरा हुआ (Delete)</button>
+                    </div>
+                `;
+            });
+            container.innerHTML = html;
+        });
+    }
+
+    // Delete/Complete Order
+    function deleteOrder(id) {
+        if(confirm("क्या यह ऑर्डर पूरा हो गया है?")) {
+            db.collection("orders").doc(id).delete().then(() => {
+                alert("ऑर्डर सूची से हटा दिया गया है।");
+            });
+        }
     }
 </script>
 
