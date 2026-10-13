@@ -158,7 +158,6 @@
             --border-glow: rgba(16, 185, 129, 0.25);
         }
 
-        /* Responsive Viewport Fix for Mobile & Desktop */
         html, body {
             width: 100%;
             max-width: 100%;
@@ -294,7 +293,6 @@
         .ai-chat-footer input { flex: 1; padding: 9px; background: #062319; border: 1px solid rgba(255,255,255,0.2); border-radius: 8px; color: #fff; font-size: 0.85rem; }
         .ai-chat-footer button { background: var(--accent-green); color: #fff; border: none; padding: 0 12px; border-radius: 8px; font-weight: bold; cursor: pointer; font-size: 0.85rem; }
 
-        /* मोबाइल स्क्रीन पर AI चैट बॉक्स और लेआउट की ऑटोमैटिक फुल स्क्रीन फिटिंग */
         @media (max-width: 600px) {
             .hero h1 { font-size: 2.2rem; }
             .hero-tagline { font-size: 1.2rem; }
@@ -311,7 +309,6 @@
             }
         }
 
-        /* Modals for Auth & Checkout */
         .custom-modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 4000; align-items: center; justify-content: center; padding: 15px; }
         .modal-content { background: #0b3d2c; padding: 25px; border-radius: 20px; width: 100%; max-width: 420px; border: 1px solid var(--accent-green); position: relative; }
         .modal-content h3 { color: #ffffff; margin-bottom: 15px; font-size: 1.3rem; }
@@ -677,23 +674,15 @@
         <div class="copyright">&copy; 2026 BaghVeda Organics. All rights reserved. New Delhi, India.</div>
     </footer>
 
-    <!-- JavaScript Core & Gemini AI API Integration (Conversation History Enabled) -->
+    <!-- JavaScript Core & Gemini API Integration -->
     <script>
         let cart = [];
         let appliedCoupon = false;
-        const GEMINI_API_KEY = "YOUR_GEMINI_API_KEY_HERE"; 
 
-        // बातचीत का इतिहास (History) रखने के लिए ऐरे
-        let chatHistory = [
-            {
-                role: "user",
-                parts: [{ text: "आप BaghVeda® के आधिकारिक गार्डनिंग व कस्टमर सपोर्ट AI असिस्टेंट हैं। आपको कभी भी यह नहीं कहना है कि आप Google या Gemini API हैं। कंपनी New Delhi में है और 100% शुद्ध ऑर्गेनिक पॉटिंग सोइल मिक्स बेचती है। प्रोडक्ट्स: 1 KG (₹179), 2 KG (₹249), 3 KG (₹359)। कूपन: KHUSHI25 (25% छूट)। डिलीवरी: Delhi में 24 घंटे। ग्राहकों के सवालों का हमेशा सीधा, सटीक और मददगार जवाब हिंदी/हिंग्लिश में दें।" }]
-            },
-            {
-                role: "model",
-                parts: [{ text: "समझ गया! मैं बागवेदा का आधिकारिक असिस्टेंट हूँ और ग्राहकों के सवालों के सीधे और सटीक जवाब दूँगा।" }]
-            }
-        ];
+        // 👇 आपकी जनरेट की हुई असली Gemini API Key जोड़ दी गई है
+        const GEMINI_API_KEY = "AQ.Ab8RN6I_sCleabqNQPsqhsPOOL3p9kLPLNQvq0TFGEMcF5vgoA"; 
+
+        let chatHistory = [];
 
         function toggleCart() {
             document.getElementById('cart-drawer').classList.toggle('open');
@@ -714,27 +703,20 @@
             input.value = "";
             chatContainer.scrollTop = chatContainer.scrollHeight;
 
-            // यूजर का मैसेज हिस्ट्री में जोड़ें
             chatHistory.push({ role: "user", parts: [{ text: userText }] });
 
             const loadingId = "loading-" + Date.now();
             chatContainer.innerHTML += `<div id="${loadingId}" class="ai-msg bot" style="opacity: 0.7;">टाइप कर रहा है... 🌱</div>`;
             chatContainer.scrollTop = chatContainer.scrollHeight;
 
-            if (GEMINI_API_KEY === "YOUR_GEMINI_API_KEY_HERE" || !GEMINI_API_KEY) {
-                setTimeout(() => {
-                    document.getElementById(loadingId).remove();
-                    chatContainer.innerHTML += `<div class="ai-msg bot">नमस्ते! बागवेदा में आपका स्वागत है। आप मुझसे पॉटिंग मिक्स, कीमत या ऑर्डर के बारे में सीधा पूछ सकते हैं! 🌱</div>`;
-                    chatContainer.scrollTop = chatContainer.scrollHeight;
-                }, 500);
-                return;
-            }
-
             try {
                 const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_API_KEY}`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
+                        system_instruction: {
+                            parts: [{ text: "आप BaghVeda® (बागवेदा) के आधिकारिक गार्डनिंग व कस्टमर सपोर्ट AI असिस्टेंट हैं। कंपनी New Delhi में है और 100% शुद्ध ऑर्गेनिक पॉटिंग सोइल मिक्स बेचती है। प्रोडक्ट्स: 1 KG (₹179), 2 KG (₹249), 3 KG (₹359)। कूपन: KHUSHI25 (25% छूट)। डिलीवरी: Delhi में 24 घंटे। ग्राहकों के सवालों का हमेशा सीधा, सटीक और मददगार जवाब हिंदी/हिंग्लिश में दें।" }]
+                        },
                         contents: chatHistory
                     })
                 });
@@ -745,15 +727,13 @@
                 if (data.candidates && data.candidates[0].content.parts[0].text) {
                     let aiReply = data.candidates[0].content.parts[0].text;
                     chatContainer.innerHTML += `<div class="ai-msg bot">${aiReply}</div>`;
-                    
-                    // एआई का जवाब भी हिस्ट्री में सेव करें ताकि बातचीत का फ्लो बना रहे
                     chatHistory.push({ role: "model", parts: [{ text: aiReply }] });
                 } else {
-                    chatContainer.innerHTML += `<div class="ai-msg bot">कृपया अपने सवाल को दोबारा पूछें, मैं मदद के लिए तैयार हूँ।</div>`;
+                    chatContainer.innerHTML += `<div class="ai-msg bot">माफ़ कीजिए, मैं आपका जवाब नहीं समझ पाया। कृपया दोबारा पूछें।</div>`;
                 }
             } catch (error) {
                 document.getElementById(loadingId).remove();
-                chatContainer.innerHTML += `<div class="ai-msg bot">क्षमा करें, कुछ तकनीकी समस्या है। आप सीधे कॉल या व्हाट्सएप कर सकते हैं: 8700733425</div>`;
+                chatContainer.innerHTML += `<div class="ai-msg bot">तकनीकी समस्या के कारण संपर्क नहीं हो सका। कृपया व्हाट्सएप करें: 8700733425</div>`;
             }
             chatContainer.scrollTop = chatContainer.scrollHeight;
         }
