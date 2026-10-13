@@ -13,124 +13,23 @@
             --text: #e8f5e9;
             --gold: #d4af37;
         }
-
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: var(--bg);
-            color: var(--text);
-            margin: 0;
-            padding: 15px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-            box-sizing: border-box;
-        }
-
-        .container {
-            width: 100%;
-            max-width: 500px;
-            background: var(--card-bg);
-            padding: 25px;
-            border-radius: 12px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-            border: 1px solid rgba(212, 175, 55, 0.2);
-            box-sizing: border-box;
-        }
-
-        h1, h2, h3 {
-            text-align: center;
-            color: var(--gold);
-            margin-top: 0;
-        }
-
-        .form-group {
-            margin-bottom: 15px;
-        }
-
-        label {
-            display: block;
-            margin-bottom: 5px;
-            font-weight: 600;
-        }
-
-        input {
-            width: 100%;
-            padding: 12px;
-            border-radius: 6px;
-            border: 1px solid #2d6a4f;
-            background: #081c15;
-            color: #fff;
-            box-sizing: border-box;
-            font-size: 16px;
-        }
-
-        button {
-            width: 100%;
-            padding: 12px;
-            background: var(--gold);
-            color: #000;
-            border: none;
-            border-radius: 6px;
-            font-size: 16px;
-            font-weight: bold;
-            cursor: pointer;
-            transition: 0.3s;
-        }
-
-        button:hover {
-            background: #b89628;
-        }
-
-        /* बाय डिफॉल्ट दोनों छिपे रहेंगे ताकि एक साथ दो बॉक्स कभी न दिखें */
-        #login-box, #dashboard {
-            display: none;
-        }
-
-        .card {
-            background: rgba(255, 255, 255, 0.05);
-            padding: 15px;
-            border-radius: 8px;
-            margin-bottom: 20px;
-            border: 1px solid rgba(255, 255, 255, 0.1);
-        }
-
-        .price-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
-            gap: 10px;
-        }
-
-        .error { 
-            color: #ff6b6b; 
-            text-align: center; 
-            font-size: 14px; 
-            margin-top: 10px;
-        }
-
-        .order-item {
-            background: #081c15;
-            padding: 12px;
-            border-radius: 8px;
-            margin-bottom: 12px;
-            border-left: 4px solid var(--gold);
-        }
-
-        .order-item p {
-            margin: 5px 0;
-            font-size: 14px;
-        }
-
-        .item-list {
-            background: rgba(255,255,255,0.05);
-            padding: 8px;
-            border-radius: 6px;
-            margin: 6px 0;
-            font-size: 13px;
-        }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: var(--bg); color: var(--text); margin: 0; padding: 15px; display: flex; justify-content: center; align-items: center; min-height: 100vh; box-sizing: border-box; }
+        .container { width: 100%; max-width: 500px; background: var(--card-bg); padding: 25px; border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); border: 1px solid rgba(212, 175, 55, 0.2); box-sizing: border-box; }
+        h1, h2, h3 { text-align: center; color: var(--gold); margin-top: 0; }
+        .form-group { margin-bottom: 15px; }
+        label { display: block; margin-bottom: 5px; font-weight: 600; font-size: 14px; }
+        input { width: 100%; padding: 12px; border-radius: 6px; border: 1px solid #2d6a4f; background: #081c15; color: #fff; box-sizing: border-box; font-size: 16px; }
+        button { width: 100%; padding: 12px; background: var(--gold); color: #000; border: none; border-radius: 6px; font-size: 16px; font-weight: bold; cursor: pointer; transition: 0.3s; }
+        button:hover { background: #b89628; }
+        #login-box, #dashboard { display: none; }
+        .card { background: rgba(255, 255, 255, 0.05); padding: 15px; border-radius: 8px; margin-bottom: 20px; border: 1px solid rgba(255, 255, 255, 0.1); }
+        .price-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(110px, 1fr)); gap: 10px; }
+        .error { color: #ff6b6b; text-align: center; font-size: 14px; margin-top: 10px; }
+        .order-item { background: #081c15; padding: 12px; border-radius: 8px; margin-bottom: 12px; border-left: 4px solid var(--gold); }
+        .order-item p { margin: 5px 0; font-size: 14px; }
+        .item-list { background: rgba(255,255,255,0.05); padding: 8px; border-radius: 6px; margin: 6px 0; font-size: 13px; }
     </style>
 
-    <!-- Firebase SDKs -->
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
@@ -138,51 +37,34 @@
 <body>
 
 <div class="container">
-    <!-- 1. लॉगिन बॉक्स -->
     <div id="login-box">
         <h1>🔒 BaghVeda Admin</h1>
-        <div class="form-group">
-            <label>ईमेल आईडी</label>
-            <input type="email" id="email" placeholder="support@baghveda.in">
-        </div>
-        <div class="form-group">
-            <label>पासवर्ड</label>
-            <input type="password" id="password" placeholder="पासवर्ड दर्ज करें">
-        </div>
+        <div class="form-group"><label>ईमेल आईडी</label><input type="email" id="email" placeholder="support@baghveda.in"></div>
+        <div class="form-group"><label>पासवर्ड</label><input type="password" id="password" placeholder="पासवर्ड दर्ज करें"></div>
         <button onclick="login()">डैशबोर्ड खोलें</button>
         <p id="err" class="error"></p>
     </div>
 
-    <!-- 2. एडमिन डैशबोर्ड -->
     <div id="dashboard">
         <h2>🌿 Admin Dashboard</h2>
         
-        <!-- Pricing Management -->
         <div class="card">
-            <h3>💰 उत्पाद कीमतें प्रबंधित करें</h3>
+            <h3>💰 उत्पाद कीमतें व डिस्काउंट प्रबंधित करें</h3>
             <div class="price-grid">
-                <div class="form-group">
-                    <label>1 KG (₹)</label>
-                    <input type="number" id="p1kg" value="179">
-                </div>
-                <div class="form-group">
-                    <label>2 KG (₹)</label>
-                    <input type="number" id="p2kg" value="249">
-                </div>
-                <div class="form-group">
-                    <label>3 KG (₹)</label>
-                    <input type="number" id="p3kg" value="359">
-                </div>
+                <div class="form-group"><label>1 KG (₹)</label><input type="number" id="p1kg" value="179"></div>
+                <div class="form-group"><label>2 KG (₹)</label><input type="number" id="p2kg" value="249"></div>
+                <div class="form-group"><label>3 KG (₹)</label><input type="number" id="p3kg" value="359"></div>
             </div>
-            <button onclick="savePrices()" style="margin-top: 5px;">कीमतें सेव करें</button>
+            <div class="form-group" style="margin-top: 10px;">
+                <label>कूपन डिस्काउंट (%) (जैसे 25 का मतलब 25% छूट)</label>
+                <input type="number" id="pdisc" value="25">
+            </div>
+            <button onclick="saveSettings()" style="margin-top: 5px;">बदलाव सेव करें</button>
         </div>
 
-        <!-- Live Orders Management -->
         <div class="card">
             <h3>📦 ग्राहक ऑर्डर्स (Live Orders)</h3>
-            <div id="orders-container">
-                <p style="text-align: center; color: #888;">ऑर्डर्स लोड हो रहे हैं...</p>
-            </div>
+            <div id="orders-container"><p style="text-align: center; color: #888;">ऑर्डर्स लोड हो रहे हैं...</p></div>
         </div>
 
         <button onclick="logout()" style="background: #e63946; color: white;">लॉगआउट करें</button>
@@ -203,64 +85,52 @@
     const auth = firebase.auth();
     const db = firebase.firestore();
 
-    // लॉगिन स्टेटस के आधार पर केवल एक ही बॉक्स दिखेगा
     auth.onAuthStateChanged((user) => {
         if (user) {
             document.getElementById('login-box').style.display = 'none';
             document.getElementById('dashboard').style.display = 'block';
-            document.querySelector('.container').style.maxWidth = '800px'; // डैशबोर्ड के लिए चौड़ाई बढ़ाएं
-            loadPrices();
+            document.querySelector('.container').style.maxWidth = '800px';
+            loadSettings();
             loadOrders();
         } else {
             document.getElementById('login-box').style.display = 'block';
             document.getElementById('dashboard').style.display = 'none';
-            document.querySelector('.container').style.maxWidth = '450px'; // लॉगिन के लिए छोटा कार्ड
+            document.querySelector('.container').style.maxWidth = '450px';
         }
     });
 
     function login() {
         const email = document.getElementById('email').value.trim();
         const password = document.getElementById('password').value;
-        const err = document.getElementById('err');
-        err.innerText = "";
-
-        auth.signInWithEmailAndPassword(email, password)
-            .catch((error) => {
-                err.innerText = "लॉगिन असफल: " + error.message;
-            });
-    }
-
-    function logout() {
-        auth.signOut().then(() => {
-            location.reload();
+        document.getElementById('err').innerText = "";
+        auth.signInWithEmailAndPassword(email, password).catch((e) => {
+            document.getElementById('err').innerText = "लॉगिन असफल: " + e.message;
         });
     }
 
-    function savePrices() {
-        const p1kg = document.getElementById('p1kg').value;
-        const p2kg = document.getElementById('p2kg').value;
-        const p3kg = document.getElementById('p3kg').value;
+    function logout() { auth.signOut().then(() => location.reload()); }
+
+    function saveSettings() {
+        const kg1 = document.getElementById('p1kg').value;
+        const kg2 = document.getElementById('p2kg').value;
+        const kg3 = document.getElementById('p3kg').value;
+        const discountPercent = document.getElementById('pdisc').value;
 
         db.collection("settings").doc("pricing").set({
-            kg1: p1kg,
-            kg2: p2kg,
-            kg3: p3kg
+            kg1, kg2, kg3, discountPercent: Number(discountPercent)
         })
-        .then(() => {
-            alert("कीमतें सफलतापूर्वक अपडेट हो गईं!");
-        })
-        .catch((error) => {
-            alert("एरर: " + error.message);
-        });
+        .then(() => alert("कीमतें और डिस्काउंट सफलतापूर्वक अपडेट हो गए!"))
+        .catch((e) => alert("एरर: " + e.message));
     }
 
-    function loadPrices() {
+    function loadSettings() {
         db.collection("settings").doc("pricing").get().then((doc) => {
             if (doc.exists) {
                 const data = doc.data();
                 if(data.kg1) document.getElementById('p1kg').value = data.kg1;
                 if(data.kg2) document.getElementById('p2kg').value = data.kg2;
                 if(data.kg3) document.getElementById('p3kg').value = data.kg3;
+                if(data.discountPercent !== undefined) document.getElementById('pdisc').value = data.discountPercent;
             }
         });
     }
@@ -272,22 +142,17 @@
                 container.innerHTML = '<p style="text-align: center; color: #888;">कोई नया ऑर्डर नहीं मिला है।</p>';
                 return;
             }
-            
             let html = "";
             snapshot.forEach((doc) => {
                 const order = doc.data();
-                const name = order.customerName || order.name || 'N/A';
-                const phone = order.customerPhone || order.phone || 'N/A';
-                const address = order.customerAddress || order.address || 'N/A';
-                const amount = order.totalAmount ? `₹${order.totalAmount}` : (order.amount ? `₹${order.amount}` : 'N/A');
+                const name = order.customerName || 'N/A';
+                const phone = order.customerPhone || 'N/A';
+                const address = order.customerAddress || 'N/A';
+                const amount = order.totalAmount ? `₹${order.totalAmount}` : 'N/A';
                 
                 let itemsListHtml = "";
-                if (order.items && Array.isArray(order.items) && order.items.length > 0) {
+                if (order.items && Array.isArray(order.items)) {
                     itemsListHtml = order.items.map(i => `<div>• <strong>${i.name}</strong> (मात्रा: ${i.qty})</div>`).join("");
-                } else if (order.package) {
-                    itemsListHtml = `<div>• <strong>${order.package}</strong></div>`;
-                } else {
-                    itemsListHtml = "<div>• जानकारी उपलब्ध नहीं है</div>";
                 }
 
                 html += `
@@ -308,9 +173,7 @@
 
     function deleteOrder(id) {
         if(confirm("क्या यह ऑर्डर पूरा हो गया है?")) {
-            db.collection("orders").doc(id).delete().then(() => {
-                alert("ऑर्डर हटा दिया गया है।");
-            });
+            db.collection("orders").doc(id).delete().then(() => alert("ऑर्डर हटा दिया गया है।"));
         }
     }
 </script>
