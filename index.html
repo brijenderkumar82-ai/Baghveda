@@ -15,7 +15,7 @@
     <!-- Firebase SDK Integration -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-        import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged, signOut, deleteUser } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+        import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
         import { getFirestore, collection, addDoc, setDoc, doc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
         const firebaseConfig = {
@@ -482,7 +482,6 @@
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
-                        system_instruction: { parts: [{ text: `आप BaghVeda® के आधिकारिक असिस्टेंट हैं। कीमतें: 1KG (₹${window.dbPrices.kg1}), 2KG (₹${window.dbPrices.kg2}), 3KG (₹${window.dbPrices.kg3})। कूपन: KHUSHI25 (${window.activeDiscountPercent}% छूट)। सीधा जवाब दें।` }] },
                         contents: chatHistory
                     })
                 });
@@ -492,8 +491,13 @@
                     let aiReply = data.candidates[0].content.parts[0].text;
                     chatContainer.innerHTML += `<div class="ai-msg bot">${aiReply}</div>`;
                     chatHistory.push({ role: "model", parts: [{ text: aiReply }] });
+                } else {
+                    chatContainer.innerHTML += `<div class="ai-msg bot">माफ़ कीजिए, अभी संपर्क नहीं हो पा रहा है।</div>`;
                 }
-            } catch (e) { document.getElementById(loadingId).remove(); }
+            } catch (e) {
+                document.getElementById(loadingId).remove();
+                chatContainer.innerHTML += `<div class="ai-msg bot">तकनीकी समस्या है। कृपया व्हाट्सएप करें: 8700733425</div>`;
+            }
             chatContainer.scrollTop = chatContainer.scrollHeight;
         }
 
