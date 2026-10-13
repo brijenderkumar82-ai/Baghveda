@@ -99,7 +99,7 @@
                     alert("आपका खाता और सारा डेटा सफलतापूर्वक डिलीट कर दिया गया है।");
                     closeAccountModal();
                 } catch (error) {
-                    alert("खाता डिलीट करने में सुरक्षा कारणों से आपको फिर से लॉग-इन करना पड़ सकता है।");
+                    alert("खाता डिलीट करने के लिए सुरक्षा कारणों से आपको फिर से लॉग-इन करना पड़ सकता है।");
                 }
             }
         };
@@ -537,7 +537,7 @@
             <button class="close-cart" onclick="toggleAIChat()">&times;</button>
         </div>
         <div class="ai-chat-body" id="ai-chat-messages">
-            <div class="ai-msg bot">नमस्ते! मैं बागवेदा का AI असिस्टेंट हूँ। ऑर्डर, डिलीवरी या पौधों की देखभाल के बारे में पूछें! 🌱</div>
+            <div class="ai-msg bot">नमस्ते! मैं बागवेदा का AI असिस्टेंट हूँ। आप मुझसे पौधे की देखभाल या ऑर्डर के बारे में सीधा पूछ सकते हैं! 🌱</div>
         </div>
         <div class="ai-chat-footer">
             <input type="text" id="ai-user-input" placeholder="अपना सवाल लिखें..." onkeypress="handleAIPress(event)">
@@ -677,11 +677,23 @@
         <div class="copyright">&copy; 2026 BaghVeda Organics. All rights reserved. New Delhi, India.</div>
     </footer>
 
-    <!-- JavaScript Core & Gemini AI API Integration -->
+    <!-- JavaScript Core & Gemini AI API Integration (Conversation History Enabled) -->
     <script>
         let cart = [];
         let appliedCoupon = false;
         const GEMINI_API_KEY = "YOUR_GEMINI_API_KEY_HERE"; 
+
+        // बातचीत का इतिहास (History) रखने के लिए ऐरे
+        let chatHistory = [
+            {
+                role: "user",
+                parts: [{ text: "आप BaghVeda® के आधिकारिक गार्डनिंग व कस्टमर सपोर्ट AI असिस्टेंट हैं। आपको कभी भी यह नहीं कहना है कि आप Google या Gemini API हैं। कंपनी New Delhi में है और 100% शुद्ध ऑर्गेनिक पॉटिंग सोइल मिक्स बेचती है। प्रोडक्ट्स: 1 KG (₹179), 2 KG (₹249), 3 KG (₹359)। कूपन: KHUSHI25 (25% छूट)। डिलीवरी: Delhi में 24 घंटे। ग्राहकों के सवालों का हमेशा सीधा, सटीक और मददगार जवाब हिंदी/हिंग्लिश में दें।" }]
+            },
+            {
+                role: "model",
+                parts: [{ text: "समझ गया! मैं बागवेदा का आधिकारिक असिस्टेंट हूँ और ग्राहकों के सवालों के सीधे और सटीक जवाब दूँगा।" }]
+            }
+        ];
 
         function toggleCart() {
             document.getElementById('cart-drawer').classList.toggle('open');
@@ -702,6 +714,9 @@
             input.value = "";
             chatContainer.scrollTop = chatContainer.scrollHeight;
 
+            // यूजर का मैसेज हिस्ट्री में जोड़ें
+            chatHistory.push({ role: "user", parts: [{ text: userText }] });
+
             const loadingId = "loading-" + Date.now();
             chatContainer.innerHTML += `<div id="${loadingId}" class="ai-msg bot" style="opacity: 0.7;">टाइप कर रहा है... 🌱</div>`;
             chatContainer.scrollTop = chatContainer.scrollHeight;
@@ -709,19 +724,18 @@
             if (GEMINI_API_KEY === "YOUR_GEMINI_API_KEY_HERE" || !GEMINI_API_KEY) {
                 setTimeout(() => {
                     document.getElementById(loadingId).remove();
-                    chatContainer.innerHTML += `<div class="ai-msg bot">नमस्ते! बागवेदा AI सपोर्ट में आपका स्वागत है। 🌱</div>`;
+                    chatContainer.innerHTML += `<div class="ai-msg bot">नमस्ते! बागवेदा में आपका स्वागत है। आप मुझसे पॉटिंग मिक्स, कीमत या ऑर्डर के बारे में सीधा पूछ सकते हैं! 🌱</div>`;
                     chatContainer.scrollTop = chatContainer.scrollHeight;
                 }, 500);
                 return;
             }
 
             try {
-                const systemPrompt = `आप BaghVeda® (बागवेदा) के आधिकारिक स्मार्ट AI असिस्टेंट हैं। New Delhi आधारित ब्रांड।`;
                 const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_API_KEY}`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
-                        contents: [{ role: "user", parts: [{ text: systemPrompt + "\n\nग्राहक का सवाल: " + userText }] }]
+                        contents: chatHistory
                     })
                 });
 
@@ -731,9 +745,15 @@
                 if (data.candidates && data.candidates[0].content.parts[0].text) {
                     let aiReply = data.candidates[0].content.parts[0].text;
                     chatContainer.innerHTML += `<div class="ai-msg bot">${aiReply}</div>`;
+                    
+                    // एआई का जवाब भी हिस्ट्री में सेव करें ताकि बातचीत का फ्लो बना रहे
+                    chatHistory.push({ role: "model", parts: [{ text: aiReply }] });
+                } else {
+                    chatContainer.innerHTML += `<div class="ai-msg bot">कृपया अपने सवाल को दोबारा पूछें, मैं मदद के लिए तैयार हूँ।</div>`;
                 }
             } catch (error) {
                 document.getElementById(loadingId).remove();
+                chatContainer.innerHTML += `<div class="ai-msg bot">क्षमा करें, कुछ तकनीकी समस्या है। आप सीधे कॉल या व्हाट्सएप कर सकते हैं: 8700733425</div>`;
             }
             chatContainer.scrollTop = chatContainer.scrollHeight;
         }
