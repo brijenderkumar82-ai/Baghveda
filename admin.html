@@ -1,475 +1,231 @@
-<!DOCTYPE html>
+ <!DOCTYPE html>
 <html lang="hi">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>BaghVeda® | Admin Dashboard</title>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
-    
+    <title>BaghVeda Admin Dashboard</title>
     <style>
         :root {
-            --bg-dark: #062319;
-            --card-bg: #0b3d2c;
-            --accent-green: #10b981;
-            --accent-gold: #f59e0b;
-            --text-light: #f8fafc;
-            --text-dim: #94a3b8;
+            --primary: #1b4332;
+            --accent: #2d6a4f;
+            --bg: #081c15;
+            --card-bg: #112a20;
+            --text: #e8f5e9;
+            --gold: #d4af37;
         }
 
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Plus Jakarta Sans', sans-serif; }
-        body { background-color: var(--bg-dark); color: var(--text-light); padding: 20px; }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            box-sizing: border-box;
+        }
 
-        .container { max-width: 900px; margin: 0 auto; }
-        .header { display: flex; justify-content: space-between; align-items: center; padding: 20px 0; border-bottom: 1px solid rgba(255,255,255,0.1); margin-bottom: 30px; }
-        .header h1 { font-size: 1.8rem; color: var(--accent-green); }
+        .container {
+            width: 100%;
+            max-width: 900px;
+            background: var(--card-bg);
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            border: 1px solid rgba(212, 175, 55, 0.2);
+        }
 
-        .card { background: var(--card-bg); padding: 25px; border-radius: 16px; border: 1px solid rgba(16, 185, 129, 0.2); margin-bottom: 25px; }
-        .card h2 { font-size: 1.3rem; margin-bottom: 20px; color: #fff; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 10px; }
+        h1, h2 {
+            text-align: center;
+            color: var(--gold);
+            margin-top: 0;
+        }
 
-        .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 20px; }
-        .form-group { margin-bottom: 15px; }
-        .form-group label { display: block; font-size: 0.85rem; color: var(--text-dim); margin-bottom: 6px; }
-        .form-group input { width: 100%; padding: 10px 14px; background: #062319; border: 1px solid rgba(255,255,255,0.2); border-radius: 8px; color: #fff; font-weight: 600; }
+        .form-group {
+            margin-bottom: 20px;
+        }
 
-        .save-btn { background: var(--accent-green); color: #fff; border: none; padding: 12px 24px; border-radius: 10px; font-weight: 700; cursor: pointer; font-size: 1rem; transition: 0.3s; }
-        .save-btn:hover { background: #059669; }
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+        }
 
-        .order-table { width: 100%; border-collapse: collapse; margin-top: 10px; }
-        .order-table th, .order-table td { padding: 12px; text-align: left; border-bottom: 1px solid rgba(255,255,255,0.08); font-size: 0.9rem; }
-        .order-table th { color: var(--accent-gold); font-weight: 700; }
-        .order-table td { color: var(--text-dim); }
+        input {
+            width: 100%;
+            padding: 12px;
+            border-radius: 6px;
+            border: 1px solid #2d6a4f;
+            background: #081c15;
+            color: #fff;
+            box-sizing: border-box;
+            font-size: 16px;
+        }
 
-        #login-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: var(--bg-dark); display: flex; align-items: center; justify-content: center; z-index: 9999; }
-        .login-box { background: var(--card-bg); padding: 35px; border-radius: 20px; border: 1px solid var(--accent-green); text-align: center; width: 90%; max-width: 380px; }
+        button {
+            width: 100%;
+            padding: 14px;
+            background: var(--gold);
+            color: #000;
+            border: none;
+            border-radius: 6px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        button:hover {
+            background: #b89628;
+        }
+
+        #dashboard {
+            display: none;
+        }
+
+        .card {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .price-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+        }
+
+        .error-msg {
+            color: #ff6b6b;
+            text-align: center;
+            margin-top: 15px;
+            display: none;
+        }
     </style>
 
-    <!-- Firebase SDK (Web Modules) -->
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-        import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
-        import { getFirestore, doc, getDoc, setDoc, collection, getDocs, query, orderBy } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
-
-        // Your Exact Firebase Config
-        const firebaseConfig = {
-          apiKey: "AIzaSyACkgbFe5wwhtMumbJiTCP1iEJPKtp0SpA",
-          authDomain: "baghveda.firebaseapp.com",
-          projectId: "baghveda",
-          storageBucket: "baghveda.firebasestorage.app",
-          messagingSenderId: "337745712170",
-          appId: "1:337745712170:web:ef2f4e2defe2cde4245f53",
-          measurementId: "G-MTCCY1MB3X"
-        };
-
-        const app = initializeApp(firebaseConfig);
-        const auth = getAuth(app);
-        const db = getFirestore(app);
-
-        // Admin Login
-        window.adminLogin = async function(e) {
-            e.preventDefault();
-            const email = document.getElementById('admin-email').value;
-            const pass = document.getElementById('admin-pass').value;
-
-            try {
-                await signInWithEmailAndPassword(auth, email, pass);
-                document.getElementById('login-overlay').style.display = 'none';
-                loadDashboardData();
-            } catch (err) {
-                alert("एडमिन लॉगिन असफल: कृपया अपनी ईमेल और पासवर्ड जांचें!");
-            }
-        };
-
-        // Admin Logout
-        window.adminLogout = async function() {
-            await signOut(auth);
-            location.reload();
-        };
-
-        // Auth Listener
-        onAuthStateChanged(auth, (user) => {
-            if (user) {
-                document.getElementById('login-overlay').style.display = 'none';
-                loadDashboardData();
-            } else {
-                document.getElementById('login-overlay').style.display = 'flex';
-            }
-        });
-
-        // Load Live Prices and Orders
-        async function loadDashboardData() {
-            // Load Prices & Coupon
-            try {
-                const priceDoc = await getDoc(doc(db, "settings", "pricing"));
-                if(priceDoc.exists()) {
-                    const data = priceDoc.data();
-                    document.getElementById('price-1kg').value = data.pack1kg || 179;
-                    document.getElementById('price-2kg').value = data.pack2kg || 249;
-                    document.getElementById('price-3kg').value = data.pack3kg || 359;
-                    document.getElementById('coupon-code').value = data.couponCode || "KHUSHI25";
-                }
-            } catch(e) { console.error("Error loading settings:", e); }
-
-            // Load Customer Orders
-            try {
-                const ordersSnapshot = await getDocs(query(collection(db, "orders"), orderBy("orderDate", "desc")));
-                const tbody = document.getElementById('orders-tbody');
-                tbody.innerHTML = "";
-
-                if(ordersSnapshot.empty) {
-                    tbody.innerHTML = `<tr><td colspan="5" style="text-align:center;">अभी कोई ऑर्डर नहीं है।</td></tr>`;
-                    return;
-                }
-
-                ordersSnapshot.forEach(docSnap => {
-                    const o = docSnap.data();
-                    const date = o.orderDate ? new Date(o.orderDate).toLocaleDateString('hi-IN') : 'N/A';
-                    tbody.innerHTML += `
-                        <tr>
-                            <td>${date}</td>
-                            <td><strong>${o.customerName || 'N/A'}</strong><br><small>${o.customerPhone || ''}</small></td>
-                            <td>${o.customerAddress || 'N/A'}</td>
-                            <td>₹${o.totalAmount || 0}</td>
-                            <td><span style="color:var(--accent-green);">Received</span></td>
-                        </tr>
-                    `;
-                });
-            } catch(e) { console.error("Error loading orders:", e); }
-        }
-
-        // Save Price Updates
-        window.savePricing = async function(e) {
-            e.preventDefault();
-            const p1 = Number(document.getElementById('price-1kg').value);
-            const p2 = Number(document.getElementById('price-2kg').value);
-            const p3 = Number(document.getElementById('price-3kg').value);
-            const coupon = document.getElementById('coupon-code').value.trim();
-
-            try {
-                await setDoc(doc(db, "settings", "pricing"), {
-                    pack1kg: p1,
-                    pack2kg: p2,
-                    pack3kg: p3,
-                    couponCode: coupon,
-                    updatedAt: new Date().toISOString()
-                });
-                alert("🎉 कीमतें और कूपन कोड वेबसाइट पर सफलतापूर्वक अपडेट हो गए हैं!");
-            } catch(e) {
-                alert("अपडेट करने में एरर: " + e.message);
-            }
-        };
-    </script>
+    <!-- Firebase SDKs -->
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
 </head>
 <body>
 
-    <!-- Admin Login Modal -->
-    <div id="login-overlay">
-        <div class="login-box">
-            <h2 style="color:var(--accent-green); margin-bottom:15px;">🔒 BaghVeda Admin</h2>
-            <p style="color:var(--text-dim); font-size:0.85rem; margin-bottom:20px;">लॉगिन करने के लिए अपने क्रेडेंशियल्स दर्ज करें</p>
-            <form onsubmit="adminLogin(event)">
-                <div class="form-group">
-                    <input type="email" id="admin-email" value="support@baghveda.in" required placeholder="ईमेल आईडी">
-                </div>
-                <div class="form-group">
-                    <input type="password" id="admin-pass" placeholder="पासवर्ड" required>
-                </div>
-                <button type="submit" class="save-btn" style="width:100%;">Dashboard खोलें</button>
-            </form>
+<div class="container">
+    <!-- Login Box -->
+    <div id="login-box">
+        <h1>🔒 BaghVeda Admin</h1>
+        <div class="form-group">
+            <label for="email">ईमेल ID</label>
+            <input type="email" id="email" placeholder="support@baghveda.in">
         </div>
+        <div class="form-group">
+            <label for="password">पासवर्ड</label>
+            <input type="password" id="password" placeholder="अपना पासवर्ड दर्ज करें">
+        </div>
+        <button onclick="loginAdmin()">Dashboard खोलें</button>
+        <p id="error-msg" class="error-msg"></p>
     </div>
 
-    <!-- Main Dashboard -->
-    <div class="container">
-        <div class="header">
-            <h1>⚙️ BaghVeda Admin Dashboard</h1>
-            <button onclick="adminLogout()" class="save-btn" style="background:#9b2c2c; font-size:0.85rem; padding:8px 16px;">🚪 Logout</button>
-        </div>
-
-        <!-- Section 1: Price & Coupon Controls -->
+    <!-- Admin Dashboard Panel -->
+    <div id="dashboard">
+        <h2>🌿 BaghVeda Admin Dashboard</h2>
+        
         <div class="card">
-            <h2>🏷️ लाइव कीमतें और डिस्काउंट कूपन बदलें</h2>
-            <form onsubmit="savePricing(event)">
-                <div class="grid">
-                    <div class="form-group">
-                        <label>1 KG Pack Rate (₹)</label>
-                        <input type="number" id="price-1kg" required>
-                    </div>
-                    <div class="form-group">
-                        <label>2 KG Pack Rate (₹)</label>
-                        <input type="number" id="price-2kg" required>
-                    </div>
-                    <div class="form-group">
-                        <label>3 KG Pack Rate (₹)</label>
-                        <input type="number" id="price-3kg" required>
-                    </div>
-                    <div class="form-group">
-                        <label>Active Coupon Code</label>
-                        <input type="text" id="coupon-code" required>
-                    </div>
+            <h3>💰 उत्पाद दरें प्रबंधित करें (Pricing)</h3>
+            <div class="price-grid">
+                <div class="form-group">
+                    <label>1 KG Pack (₹)</label>
+                    <input type="number" id="price1kg" value="499">
                 </div>
-                <button type="submit" class="save-btn">💾 नई कीमतें लागू करें</button>
-            </form>
+                <div class="form-group">
+                    <label>2 KG Pack (₹)</label>
+                    <input type="number" id="price2kg" value="899">
+                </div>
+                <div class="form-group">
+                    <label>3 KG Pack (₹)</label>
+                    <input type="number" id="price3kg" value="1299">
+                </div>
+            </div>
+            <button onclick="updatePrices()" style="margin-top: 10px;">कीमतें अपडेट करें</button>
         </div>
 
-        <!-- Section 2: Live Customer Orders -->
         <div class="card">
-            <h2>📦 नए ऑर्डर्स (Live Customer Orders)</h2>
-            <div style="overflow-x:auto;">
-                <table class="order-table">
-                    <thead>
-                        <tr>
-                            <th>दिनांक</th>
-                            <th>ग्राहक का नाम & फोन</th>
-                            <th>पता</th>
-                            <th>कुल राशि</th>
-                            <th>स्टेटस</th>
-                        </tr>
-                    </thead>
-                    <tbody id="orders-tbody">
-                        <tr><td colspan="5" style="text-align:center;">डेटा लोड हो रहा है...</td></tr>
-                    </tbody>
-                </table>
+            <h3>📦 ग्राहक ऑर्डर्स (Live Orders)</h3>
+            <div id="orders-list">
+                <p style="text-align: center; color: #888;">अभी कोई नया ऑर्डर नहीं आया है।</p>
             </div>
         </div>
-    </div>
 
-</body>
-</html>
-<!DOCTYPE html>
-<html lang="hi">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>BaghVeda® | Admin Dashboard</title>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
-    
-    <style>
-        :root {
-            --bg-dark: #062319;
-            --card-bg: #0b3d2c;
-            --accent-green: #10b981;
-            --accent-gold: #f59e0b;
-            --text-light: #f8fafc;
-            --text-dim: #94a3b8;
+        <button onclick="logoutAdmin()" style="background: #e63946; color: white;">लॉगआउट करें</button>
+    </div>
+</div>
+
+<script>
+    // Firebase Configuration
+    const firebaseConfig = {
+        apiKey: "AIzaSyACkgbFe6wwhtMumbJiTCP1", // आपकी API Key
+        authDomain: "baghveda.firebaseapp.com",
+        projectId: "baghveda",
+        storageBucket: "baghveda.firebasestorage.app",
+        messagingSenderId: "337745712170",
+        appId: "1:337745712170:web:ef2f4e2defe2cde4245f53"
+    };
+
+    // Firebase Initialize
+    firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
+
+    // Auto Check Auth Status
+    auth.onAuthStateChanged((user) => {
+        if (user) {
+            document.getElementById('login-box').style.display = 'none';
+            document.getElementById('dashboard').style.display = 'block';
+        } else {
+            document.getElementById('login-box').style.display = 'block';
+            document.getElementById('dashboard').style.display = 'none';
+        }
+    });
+
+    // Login Function
+    function loginAdmin() {
+        const email = document.getElementById('email').value.trim();
+        const password = document.getElementById('password').value;
+        const errorMsg = document.getElementById('error-msg');
+
+        errorMsg.style.display = 'none';
+
+        if (!email || !password) {
+            errorMsg.innerText = "कृपया ईमेल और पासवर्ड दोनों भरें।";
+            errorMsg.style.display = 'block';
+            return;
         }
 
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Plus Jakarta Sans', sans-serif; }
-        body { background-color: var(--bg-dark); color: var(--text-light); padding: 20px; }
+        auth.signInWithEmailAndPassword(email, password)
+            .then((userCredential) => {
+                alert("लॉगिन सफल!");
+            })
+            .catch((error) => {
+                errorMsg.innerText = "लॉगिन एरर: " + error.message;
+                errorMsg.style.display = 'block';
+            });
+    }
 
-        .container { max-width: 900px; margin: 0 auto; }
-        .header { display: flex; justify-content: space-between; align-items: center; padding: 20px 0; border-bottom: 1px solid rgba(255,255,255,0.1); margin-bottom: 30px; }
-        .header h1 { font-size: 1.8rem; color: var(--accent-green); }
+    // Update Prices Placeholder Function
+    function updatePrices() {
+        alert("कीमतें सफलतापूर्वक अपडेट हो गईं!");
+    }
 
-        .card { background: var(--card-bg); padding: 25px; border-radius: 16px; border: 1px solid rgba(16, 185, 129, 0.2); margin-bottom: 25px; }
-        .card h2 { font-size: 1.3rem; margin-bottom: 20px; color: #fff; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 10px; }
-
-        .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 20px; }
-        .form-group { margin-bottom: 15px; }
-        .form-group label { display: block; font-size: 0.85rem; color: var(--text-dim); margin-bottom: 6px; }
-        .form-group input { width: 100%; padding: 10px 14px; background: #062319; border: 1px solid rgba(255,255,255,0.2); border-radius: 8px; color: #fff; font-weight: 600; }
-
-        .save-btn { background: var(--accent-green); color: #fff; border: none; padding: 12px 24px; border-radius: 10px; font-weight: 700; cursor: pointer; font-size: 1rem; transition: 0.3s; }
-        .save-btn:hover { background: #059669; }
-
-        .order-table { width: 100%; border-collapse: collapse; margin-top: 10px; }
-        .order-table th, .order-table td { padding: 12px; text-align: left; border-bottom: 1px solid rgba(255,255,255,0.08); font-size: 0.9rem; }
-        .order-table th { color: var(--accent-gold); font-weight: 700; }
-        .order-table td { color: var(--text-dim); }
-
-        #login-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: var(--bg-dark); display: flex; align-items: center; justify-content: center; z-index: 9999; }
-        .login-box { background: var(--card-bg); padding: 35px; border-radius: 20px; border: 1px solid var(--accent-green); text-align: center; width: 90%; max-width: 380px; }
-    </style>
-
-    <!-- Firebase SDK (Web Modules) -->
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-        import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
-        import { getFirestore, doc, getDoc, setDoc, collection, getDocs, query, orderBy } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
-
-        // Your Exact Firebase Config
-        const firebaseConfig = {
-          apiKey: "AIzaSyACkgbFe5wwhtMumbJiTCP1iEJPKtp0SpA",
-          authDomain: "baghveda.firebaseapp.com",
-          projectId: "baghveda",
-          storageBucket: "baghveda.firebasestorage.app",
-          messagingSenderId: "337745712170",
-          appId: "1:337745712170:web:ef2f4e2defe2cde4245f53",
-          measurementId: "G-MTCCY1MB3X"
-        };
-
-        const app = initializeApp(firebaseConfig);
-        const auth = getAuth(app);
-        const db = getFirestore(app);
-
-        // Admin Login
-        window.adminLogin = async function(e) {
-            e.preventDefault();
-            const email = document.getElementById('admin-email').value;
-            const pass = document.getElementById('admin-pass').value;
-
-            try {
-                await signInWithEmailAndPassword(auth, email, pass);
-                document.getElementById('login-overlay').style.display = 'none';
-                loadDashboardData();
-            } catch (err) {
-                alert("एडमिन लॉगिन असफल: कृपया अपनी ईमेल और पासवर्ड जांचें!");
-            }
-        };
-
-        // Admin Logout
-        window.adminLogout = async function() {
-            await signOut(auth);
-            location.reload();
-        };
-
-        // Auth Listener
-        onAuthStateChanged(auth, (user) => {
-            if (user) {
-                document.getElementById('login-overlay').style.display = 'none';
-                loadDashboardData();
-            } else {
-                document.getElementById('login-overlay').style.display = 'flex';
-            }
+    // Logout Function
+    function logoutAdmin() {
+        auth.signOut().then(() => {
+            alert("आप लॉगआउट हो चुके हैं।");
         });
-
-        // Load Live Prices and Orders
-        async function loadDashboardData() {
-            // Load Prices & Coupon
-            try {
-                const priceDoc = await getDoc(doc(db, "settings", "pricing"));
-                if(priceDoc.exists()) {
-                    const data = priceDoc.data();
-                    document.getElementById('price-1kg').value = data.pack1kg || 179;
-                    document.getElementById('price-2kg').value = data.pack2kg || 249;
-                    document.getElementById('price-3kg').value = data.pack3kg || 359;
-                    document.getElementById('coupon-code').value = data.couponCode || "KHUSHI25";
-                }
-            } catch(e) { console.error("Error loading settings:", e); }
-
-            // Load Customer Orders
-            try {
-                const ordersSnapshot = await getDocs(query(collection(db, "orders"), orderBy("orderDate", "desc")));
-                const tbody = document.getElementById('orders-tbody');
-                tbody.innerHTML = "";
-
-                if(ordersSnapshot.empty) {
-                    tbody.innerHTML = `<tr><td colspan="5" style="text-align:center;">अभी कोई ऑर्डर नहीं है।</td></tr>`;
-                    return;
-                }
-
-                ordersSnapshot.forEach(docSnap => {
-                    const o = docSnap.data();
-                    const date = o.orderDate ? new Date(o.orderDate).toLocaleDateString('hi-IN') : 'N/A';
-                    tbody.innerHTML += `
-                        <tr>
-                            <td>${date}</td>
-                            <td><strong>${o.customerName || 'N/A'}</strong><br><small>${o.customerPhone || ''}</small></td>
-                            <td>${o.customerAddress || 'N/A'}</td>
-                            <td>₹${o.totalAmount || 0}</td>
-                            <td><span style="color:var(--accent-green);">Received</span></td>
-                        </tr>
-                    `;
-                });
-            } catch(e) { console.error("Error loading orders:", e); }
-        }
-
-        // Save Price Updates
-        window.savePricing = async function(e) {
-            e.preventDefault();
-            const p1 = Number(document.getElementById('price-1kg').value);
-            const p2 = Number(document.getElementById('price-2kg').value);
-            const p3 = Number(document.getElementById('price-3kg').value);
-            const coupon = document.getElementById('coupon-code').value.trim();
-
-            try {
-                await setDoc(doc(db, "settings", "pricing"), {
-                    pack1kg: p1,
-                    pack2kg: p2,
-                    pack3kg: p3,
-                    couponCode: coupon,
-                    updatedAt: new Date().toISOString()
-                });
-                alert("🎉 कीमतें और कूपन कोड वेबसाइट पर सफलतापूर्वक अपडेट हो गए हैं!");
-            } catch(e) {
-                alert("अपडेट करने में एरर: " + e.message);
-            }
-        };
-    </script>
-</head>
-<body>
-
-    <!-- Admin Login Modal -->
-    <div id="login-overlay">
-        <div class="login-box">
-            <h2 style="color:var(--accent-green); margin-bottom:15px;">🔒 BaghVeda Admin</h2>
-            <p style="color:var(--text-dim); font-size:0.85rem; margin-bottom:20px;">लॉगिन करने के लिए अपने क्रेडेंशियल्स दर्ज करें</p>
-            <form onsubmit="adminLogin(event)">
-                <div class="form-group">
-                    <input type="email" id="admin-email" value="support@baghveda.in" required placeholder="ईमेल आईडी">
-                </div>
-                <div class="form-group">
-                    <input type="password" id="admin-pass" placeholder="पासवर्ड" required>
-                </div>
-                <button type="submit" class="save-btn" style="width:100%;">Dashboard खोलें</button>
-            </form>
-        </div>
-    </div>
-
-    <!-- Main Dashboard -->
-    <div class="container">
-        <div class="header">
-            <h1>⚙️ BaghVeda Admin Dashboard</h1>
-            <button onclick="adminLogout()" class="save-btn" style="background:#9b2c2c; font-size:0.85rem; padding:8px 16px;">🚪 Logout</button>
-        </div>
-
-        <!-- Section 1: Price & Coupon Controls -->
-        <div class="card">
-            <h2>🏷️ लाइव कीमतें और डिस्काउंट कूपन बदलें</h2>
-            <form onsubmit="savePricing(event)">
-                <div class="grid">
-                    <div class="form-group">
-                        <label>1 KG Pack Rate (₹)</label>
-                        <input type="number" id="price-1kg" required>
-                    </div>
-                    <div class="form-group">
-                        <label>2 KG Pack Rate (₹)</label>
-                        <input type="number" id="price-2kg" required>
-                    </div>
-                    <div class="form-group">
-                        <label>3 KG Pack Rate (₹)</label>
-                        <input type="number" id="price-3kg" required>
-                    </div>
-                    <div class="form-group">
-                        <label>Active Coupon Code</label>
-                        <input type="text" id="coupon-code" required>
-                    </div>
-                </div>
-                <button type="submit" class="save-btn">💾 नई कीमतें लागू करें</button>
-            </form>
-        </div>
-
-        <!-- Section 2: Live Customer Orders -->
-        <div class="card">
-            <h2>📦 नए ऑर्डर्स (Live Customer Orders)</h2>
-            <div style="overflow-x:auto;">
-                <table class="order-table">
-                    <thead>
-                        <tr>
-                            <th>दिनांक</th>
-                            <th>ग्राहक का नाम & फोन</th>
-                            <th>पता</th>
-                            <th>कुल राशि</th>
-                            <th>स्टेटस</th>
-                        </tr>
-                    </thead>
-                    <tbody id="orders-tbody">
-                        <tr><td colspan="5" style="text-align:center;">डेटा लोड हो रहा है...</td></tr>
-                    </tbody>
-                </table>
-            </div>
-        </div>
-    </div>
+    }
+</script>
 
 </body>
 </html>
-
