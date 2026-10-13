@@ -3,459 +3,102 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>BaghVeda Admin Dashboard</title>
+    <title>BaghVeda Admin</title>
     <style>
-        :root {
-            --primary: #1b4332;
-            --accent: #2d6a4f;
-            --bg: #081c15;
-            --card-bg: #112a20;
-            --text: #e8f5e9;
-            --gold: #d4af37;
-        }
-
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: var(--bg);
-            color: var(--text);
-            margin: 0;
-            padding: 20px;
+            font-family: Arial, sans-serif;
+            background-color: #081c15;
+            color: #e8f5e9;
             display: flex;
             justify-content: center;
             align-items: center;
-            min-height: 100vh;
-            box-sizing: border-box;
+            height: 100vh;
+            margin: 0;
         }
-
-        .container {
-            width: 100%;
-            max-width: 900px;
-            background: var(--card-bg);
+        .box {
+            background: #112a20;
             padding: 30px;
-            border-radius: 12px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-            border: 1px solid rgba(212, 175, 55, 0.2);
+            border-radius: 10px;
+            border: 1px solid #d4af37;
+            width: 100%;
+            max-width: 400px;
         }
-
-        h1, h2 {
-            text-align: center;
-            color: var(--gold);
-            margin-top: 0;
-        }
-
-        .form-group {
-            margin-bottom: 20px;
-        }
-
-        label {
-            display: block;
-            margin-bottom: 8px;
-            font-weight: 600;
-        }
-
+        h2 { text-align: center; color: #d4af37; margin-top: 0; }
         input {
             width: 100%;
-            padding: 12px;
-            border-radius: 6px;
-            border: 1px solid #2d6a4f;
+            padding: 10px;
+            margin: 10px 0;
             background: #081c15;
-            color: #fff;
+            border: 1px solid #2d6a4f;
+            color: white;
             box-sizing: border-box;
-            font-size: 16px;
+            border-radius: 5px;
         }
-
         button {
             width: 100%;
-            padding: 14px;
-            background: var(--gold);
-            color: #000;
+            padding: 12px;
+            background: #d4af37;
+            color: black;
             border: none;
-            border-radius: 6px;
-            font-size: 16px;
             font-weight: bold;
+            border-radius: 5px;
             cursor: pointer;
-            transition: 0.3s;
+            margin-top: 10px;
         }
-
-        button:hover {
-            background: #b89628;
-        }
-
-        #dashboard {
-            display: none;
-        }
-
-        .card {
-            background: rgba(255, 255, 255, 0.05);
-            padding: 20px;
-            border-radius: 8px;
-            margin-bottom: 20px;
-            border: 1px solid rgba(255, 255, 255, 0.1);
-        }
-
-        .price-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 15px;
-        }
-
-        .error-msg {
-            color: #ff6b6b;
-            text-align: center;
-            margin-top: 15px;
-            display: none;
-        }
+        .error { color: #ff6b6b; text-align: center; font-size: 14px; }
     </style>
-
-    <!-- Firebase SDKs -->
+    <!-- Firebase SDK -->
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
 </head>
 <body>
 
-<div class="container">
-    <!-- Login Box -->
-    <div id="login-box">
-        <h1>🔒 BaghVeda Admin</h1>
-        <div class="form-group">
-            <label for="email">ईमेल ID</label>
-            <input type="email" id="email" placeholder="support@baghveda.in">
-        </div>
-        <div class="form-group">
-            <label for="password">पासवर्ड</label>
-            <input type="password" id="password" placeholder="अपना पासवर्ड दर्ज करें">
-        </div>
-        <button onclick="loginAdmin()">Dashboard खोलें</button>
-        <p id="error-msg" class="error-msg"></p>
-    </div>
+<div class="box" id="login-box">
+    <h2>🔒 BaghVeda Admin</h2>
+    <input type="email" id="email" placeholder="ईमेल आईडी दर्ज करें">
+    <input type="password" id="password" placeholder="पासवर्ड दर्ज करें">
+    <button onclick="login()">لॉगिन करें</button>
+    <p id="err" class="error"></p>
+</div>
 
-    <!-- Admin Dashboard Panel -->
-    <div id="dashboard">
-        <h2>🌿 BaghVeda Admin Dashboard</h2>
-        
-        <div class="card">
-            <h3>💰 उत्पाद दरें प्रबंधित करें (Pricing)</h3>
-            <div class="price-grid">
-                <div class="form-group">
-                    <label>1 KG Pack (₹)</label>
-                    <input type="number" id="price1kg" value="499">
-                </div>
-                <div class="form-group">
-                    <label>2 KG Pack (₹)</label>
-                    <input type="number" id="price2kg" value="899">
-                </div>
-                <div class="form-group">
-                    <label>3 KG Pack (₹)</label>
-                    <input type="number" id="price3kg" value="1299">
-                </div>
-            </div>
-            <button onclick="updatePrices()" style="margin-top: 10px;">कीमतें अपडेट करें</button>
-        </div>
-
-        <div class="card">
-            <h3>📦 ग्राहक ऑर्डर्स (Live Orders)</h3>
-            <div id="orders-list">
-                <p style="text-align: center; color: #888;">अभी कोई नया ऑर्डर नहीं आया है।</p>
-            </div>
-        </div>
-
-        <button onclick="logoutAdmin()" style="background: #e63946; color: white;">लॉगआउट करें</button>
-    </div>
+<div class="box" id="dashboard" style="display:none;">
+    <h2>🌿 स्वागत है एडमिन!</h2>
+    <p>डैशबोर्ड सफलतापूर्वक खुल गया है।</p>
+    <button onclick="logout()" style="background: #e63946; color: white;">लॉगआउट करें</button>
 </div>
 
 <script>
-    // Firebase Configuration
     const firebaseConfig = {
-        apiKey: "AIzaSyACkgbFe6wwhtMumbJiTCP1iEJPKtp0SpA",
+        apiKey: "AIzaSyACkgbFe5wwhtMumbJiTCP1iEJPKtp0SpA",
         authDomain: "baghveda.firebaseapp.com",
         projectId: "baghveda",
         storageBucket: "baghveda.firebasestorage.app",
         messagingSenderId: "337745712170",
-        appId: "1:337745712170:web:ef2f4e2defe2cde4245f53",
-        measurementId: "G-MTCCY1M83X"
+        appId: "1:337745712170:web:ef2f4e2defe2cde4245f53"
     };
 
-    // Firebase Initialize
     firebase.initializeApp(firebaseConfig);
     const auth = firebase.auth();
 
-    // Auto Check Auth Status
-    auth.onAuthStateChanged((user) => {
-        if (user) {
-            document.getElementById('login-box').style.display = 'none';
-            document.getElementById('dashboard').style.display = 'block';
-        } else {
-            document.getElementById('login-box').style.display = 'block';
-            document.getElementById('dashboard').style.display = 'none';
-        }
-    });
-
-    // Login Function
-    function loginAdmin() {
+    function login() {
         const email = document.getElementById('email').value.trim();
         const password = document.getElementById('password').value;
-        const errorMsg = document.getElementById('error-msg');
-
-        errorMsg.style.display = 'none';
-
-        if (!email || !password) {
-            errorMsg.innerText = "कृपया ईमेल और पासवर्ड दोनों भरें।";
-            errorMsg.style.display = 'block';
-            return;
-        }
+        const err = document.getElementById('err');
+        err.innerText = "";
 
         auth.signInWithEmailAndPassword(email, password)
-            .then((userCredential) => {
-                alert("लॉगिन सफल!");
+            .then(() => {
+                document.getElementById('login-box').style.display = 'none';
+                document.getElementById('dashboard').style.display = 'block';
             })
             .catch((error) => {
-                errorMsg.innerText = "लॉगिन एरर: " + error.message;
-                errorMsg.style.display = 'block';
+                err.innerText = "एरर: " + error.message;
             });
     }
 
-    // Update Prices Placeholder Function
-    function updatePrices() {
-        alert("कीमतें सफलतापूर्वक अपडेट हो गईं!");
-    }
-
-    // Logout Function
-    function logoutAdmin() {
+    function logout() {
         auth.signOut().then(() => {
-            alert("आप लॉगआउट हो चुके हैं।");
-        });
-    }
-</script>
-
-</body>
-</html>
-<!DOCTYPE html>
-<html lang="hi">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>BaghVeda Admin Dashboard</title>
-    <style>
-        :root {
-            --primary: #1b4332;
-            --accent: #2d6a4f;
-            --bg: #081c15;
-            --card-bg: #112a20;
-            --text: #e8f5e9;
-            --gold: #d4af37;
-        }
-
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: var(--bg);
-            color: var(--text);
-            margin: 0;
-            padding: 20px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-            box-sizing: border-box;
-        }
-
-        .container {
-            width: 100%;
-            max-width: 900px;
-            background: var(--card-bg);
-            padding: 30px;
-            border-radius: 12px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-            border: 1px solid rgba(212, 175, 55, 0.2);
-        }
-
-        h1, h2 {
-            text-align: center;
-            color: var(--gold);
-            margin-top: 0;
-        }
-
-        .form-group {
-            margin-bottom: 20px;
-        }
-
-        label {
-            display: block;
-            margin-bottom: 8px;
-            font-weight: 600;
-        }
-
-        input {
-            width: 100%;
-            padding: 12px;
-            border-radius: 6px;
-            border: 1px solid #2d6a4f;
-            background: #081c15;
-            color: #fff;
-            box-sizing: border-box;
-            font-size: 16px;
-        }
-
-        button {
-            width: 100%;
-            padding: 14px;
-            background: var(--gold);
-            color: #000;
-            border: none;
-            border-radius: 6px;
-            font-size: 16px;
-            font-weight: bold;
-            cursor: pointer;
-            transition: 0.3s;
-        }
-
-        button:hover {
-            background: #b89628;
-        }
-
-        #dashboard {
-            display: none;
-        }
-
-        .card {
-            background: rgba(255, 255, 255, 0.05);
-            padding: 20px;
-            border-radius: 8px;
-            margin-bottom: 20px;
-            border: 1px solid rgba(255, 255, 255, 0.1);
-        }
-
-        .price-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 15px;
-        }
-
-        .error-msg {
-            color: #ff6b6b;
-            text-align: center;
-            margin-top: 15px;
-            display: none;
-        }
-    </style>
-
-    <!-- Firebase SDKs -->
-    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
-</head>
-<body>
-
-<div class="container">
-    <!-- Login Box -->
-    <div id="login-box">
-        <h1>🔒 BaghVeda Admin</h1>
-        <div class="form-group">
-            <label for="email">ईमेल ID</label>
-            <input type="email" id="email" placeholder="support@baghveda.in">
-        </div>
-        <div class="form-group">
-            <label for="password">पासवर्ड</label>
-            <input type="password" id="password" placeholder="अपना पासवर्ड दर्ज करें">
-        </div>
-        <button onclick="loginAdmin()">Dashboard खोलें</button>
-        <p id="error-msg" class="error-msg"></p>
-    </div>
-
-    <!-- Admin Dashboard Panel -->
-    <div id="dashboard">
-        <h2>🌿 BaghVeda Admin Dashboard</h2>
-        
-        <div class="card">
-            <h3>💰 उत्पाद दरें प्रबंधित करें (Pricing)</h3>
-            <div class="price-grid">
-                <div class="form-group">
-                    <label>1 KG Pack (₹)</label>
-                    <input type="number" id="price1kg" value="499">
-                </div>
-                <div class="form-group">
-                    <label>2 KG Pack (₹)</label>
-                    <input type="number" id="price2kg" value="899">
-                </div>
-                <div class="form-group">
-                    <label>3 KG Pack (₹)</label>
-                    <input type="number" id="price3kg" value="1299">
-                </div>
-            </div>
-            <button onclick="updatePrices()" style="margin-top: 10px;">कीमतें अपडेट करें</button>
-        </div>
-
-        <div class="card">
-            <h3>📦 ग्राहक ऑर्डर्स (Live Orders)</h3>
-            <div id="orders-list">
-                <p style="text-align: center; color: #888;">अभी कोई नया ऑर्डर नहीं आया है।</p>
-            </div>
-        </div>
-
-        <button onclick="logoutAdmin()" style="background: #e63946; color: white;">लॉगआउट करें</button>
-    </div>
-</div>
-
-<script>
-    // Firebase Configuration
-    const firebaseConfig = {
-        apiKey: "AIzaSyACkgbFe6wwhtMumbJiTCP1iEJPKtp0SpA",
-        authDomain: "baghveda.firebaseapp.com",
-        projectId: "baghveda",
-        storageBucket: "baghveda.firebasestorage.app",
-        messagingSenderId: "337745712170",
-        appId: "1:337745712170:web:ef2f4e2defe2cde4245f53",
-        measurementId: "G-MTCCY1M83X"
-    };
-
-    // Firebase Initialize
-    firebase.initializeApp(firebaseConfig);
-    const auth = firebase.auth();
-
-    // Auto Check Auth Status
-    auth.onAuthStateChanged((user) => {
-        if (user) {
-            document.getElementById('login-box').style.display = 'none';
-            document.getElementById('dashboard').style.display = 'block';
-        } else {
-            document.getElementById('login-box').style.display = 'block';
-            document.getElementById('dashboard').style.display = 'none';
-        }
-    });
-
-    // Login Function
-    function loginAdmin() {
-        const email = document.getElementById('email').value.trim();
-        const password = document.getElementById('password').value;
-        const errorMsg = document.getElementById('error-msg');
-
-        errorMsg.style.display = 'none';
-
-        if (!email || !password) {
-            errorMsg.innerText = "कृपया ईमेल और पासवर्ड दोनों भरें।";
-            errorMsg.style.display = 'block';
-            return;
-        }
-
-        auth.signInWithEmailAndPassword(email, password)
-            .then((userCredential) => {
-                alert("लॉगिन सफल!");
-            })
-            .catch((error) => {
-                errorMsg.innerText = "लॉगिन एरर: " + error.message;
-                errorMsg.style.display = 'block';
-            });
-    }
-
-    // Update Prices Placeholder Function
-    function updatePrices() {
-        alert("कीमतें सफलतापूर्वक अपडेट हो गईं!");
-    }
-
-    // Logout Function
-    function logoutAdmin() {
-        auth.signOut().then(() => {
-            alert("आप लॉगआउट हो चुके हैं।");
+            location.reload();
         });
     }
 </script>
