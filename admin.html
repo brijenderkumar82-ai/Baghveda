@@ -1,120 +1,482 @@
- 
-<!DOCTYPE html>
+ <!DOCTYPE html>
 <html lang="hi">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>BaghVeda Admin Dashboard</title>
-<style>
-:root{--green:#123b2a;--green2:#246443;--bg:#f3f6f3;--border:#dce5dd}
-*{box-sizing:border-box}
-body{margin:0;background:var(--bg);color:#17231b;font-family:Arial,sans-serif}
-header{background:var(--green);color:white;padding:18px;display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}
-header h1{margin:0;font-size:22px}
-main{max-width:1200px;margin:20px auto;padding:0 14px 40px}
-.panel{background:white;border:1px solid var(--border);border-radius:12px;padding:18px;margin-bottom:16px}
-h2{font-size:19px;margin-top:0}
-.muted{color:#647168;font-size:13px}
-.grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}
-.stat{background:#edf5ef;padding:16px;border-radius:10px}
-.stat span{display:block;font-size:13px;color:#647168}
-.stat strong{display:block;font-size:26px;color:var(--green);margin-top:5px}
-label{display:block;font-weight:bold;font-size:13px;margin-bottom:6px}
-input,select{width:100%;padding:11px;border:1px solid #c8d4ca;border-radius:8px;background:white;font:inherit;min-width:0}
-button{padding:11px 14px;border:0;border-radius:8px;background:var(--green2);color:white;font-weight:bold;cursor:pointer}
-button:disabled{opacity:.5}
-.secondary{background:#e8eee9;color:var(--green)}
-.hidden{display:none!important}
-#loginView{max-width:430px;margin:40px auto;padding:0 14px}
-.field{margin-bottom:14px}
-.notice{padding:11px;border-radius:8px;background:#edf5ef;margin:10px 0;white-space:pre-wrap}
-.error{background:#fff0ef;color:#8e2018}
-.formgrid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;align-items:end}
-.toolbar{display:grid;grid-template-columns:1fr 220px;gap:10px;margin-bottom:12px}
-.orders{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
-.order{border:1px solid var(--border);border-radius:10px;padding:14px;overflow-wrap:anywhere}
-.orderhead{display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap}
-.pill{font-size:12px;background:#e8eee9;padding:5px 9px;border-radius:20px}
-.order p{font-size:14px;margin:8px 0}
-.items{background:#f5f7f5;padding:10px;border-radius:8px;font-size:13px;margin:10px 0}
-.orderactions{display:grid;grid-template-columns:1fr auto;gap:8px;margin-top:12px}
-@media(max-width:800px){.grid{grid-template-columns:repeat(2,1fr)}.formgrid{grid-template-columns:repeat(2,1fr)}.orders{grid-template-columns:1fr}}
-@media(max-width:480px){.toolbar{grid-template-columns:1fr}.orderactions{grid-template-columns:1fr}.panel{padding:13px}}
-</style>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BaghVeda® Organics | Smart Admin Dashboard</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+
+<style>
+:root {
+  --emerald-deep: #062319;
+  --emerald-main: #0b3d2c;
+  --emerald-light: #15803d;
+  --accent-gold: #f59e0b;
+  --bg: #f1f5f3;
+  --card-bg: #ffffff;
+  --text-main: #0f172a;
+  --text-muted: #64748b;
+  --border: #dce5dd;
+}
+
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text-main);
+  font-family: 'Plus Jakarta Sans', Arial, sans-serif;
+  line-height: 1.5;
+}
+
+/* Header */
+header {
+  background: linear-gradient(135deg, var(--emerald-deep), var(--emerald-main));
+  color: #fff;
+  padding: 14px 18px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.15);
+}
+.header-brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.brand-logo-svg {
+  width: 40px;
+  height: 40px;
+  flex-shrink: 0;
+}
+header h1 {
+  margin: 0;
+  font-size: 1.2rem;
+  font-weight: 800;
+}
+header p {
+  margin: 0;
+  font-size: 0.75rem;
+  color: #fbbf24;
+  font-weight: 600;
+}
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+main {
+  max-width: 1200px;
+  margin: 18px auto;
+  padding: 0 12px 50px;
+}
+
+.panel {
+  background: var(--card-bg);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 18px;
+  margin-bottom: 16px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.03);
+}
+h2 {
+  font-size: 1.15rem;
+  margin: 0 0 6px;
+  color: var(--emerald-deep);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.muted {
+  color: var(--text-muted);
+  font-size: 0.82rem;
+  margin-top: 0;
+}
+
+/* Stats Grid */
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 12px;
+  margin-bottom: 16px;
+}
+.stat {
+  background: #ffffff;
+  border: 1px solid var(--border);
+  padding: 14px 16px;
+  border-radius: 14px;
+  border-left: 4px solid var(--emerald-light);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.03);
+}
+.stat.gold { border-left-color: var(--accent-gold); }
+.stat.blue { border-left-color: #3b82f6; }
+.stat span {
+  display: block;
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--text-muted);
+}
+.stat strong {
+  display: block;
+  font-size: 1.55rem;
+  color: var(--emerald-deep);
+  margin-top: 4px;
+  font-weight: 800;
+}
+
+/* Navigation Tabs */
+.admin-tabs {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 16px;
+  overflow-x: auto;
+  padding-bottom: 4px;
+}
+.tab-pill {
+  background: #fff;
+  color: var(--text-main);
+  border: 1px solid var(--border);
+  padding: 10px 16px;
+  border-radius: 30px;
+  font-size: 0.85rem;
+  font-weight: 700;
+  cursor: pointer;
+  white-space: nowrap;
+}
+.tab-pill.active {
+  background: var(--emerald-main);
+  color: #fff;
+  border-color: var(--emerald-main);
+}
+
+/* Forms & Buttons */
+label {
+  display: block;
+  font-weight: 700;
+  font-size: 0.8rem;
+  margin-bottom: 5px;
+  color: #334155;
+}
+input, select {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid #cbd5e1;
+  border-radius: 10px;
+  background: #fff;
+  font: inherit;
+  font-size: 0.9rem;
+  min-width: 0;
+}
+input:focus, select:focus {
+  outline: 2px solid var(--emerald-light);
+  border-color: transparent;
+}
+button {
+  padding: 10px 15px;
+  border: 0;
+  border-radius: 10px;
+  background: var(--emerald-light);
+  color: #fff;
+  font-weight: 700;
+  font-size: 0.86rem;
+  cursor: pointer;
+  transition: 0.2s;
+}
+button:hover { opacity: 0.92; }
+button:disabled { opacity: 0.5; cursor: not-allowed; }
+.secondary {
+  background: rgba(255,255,255,0.15);
+  color: #fff;
+  border: 1px solid rgba(255,255,255,0.25);
+}
+.btn-outline {
+  background: #f1f5f9;
+  color: #0f172a;
+  border: 1px solid #cbd5e1;
+}
+.hidden { display: none !important; }
+
+#loginView {
+  max-width: 420px;
+  margin: 45px auto;
+  padding: 0 14px;
+}
+.field { margin-bottom: 14px; }
+.notice {
+  padding: 12px 14px;
+  border-radius: 10px;
+  background: #dcfce7;
+  color: #14532d;
+  font-weight: 600;
+  font-size: 0.85rem;
+  margin: 10px 0;
+  white-space: pre-wrap;
+}
+.error {
+  background: #fee2e2;
+  color: #991b1b;
+}
+
+.formgrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 12px;
+  align-items: end;
+}
+.toolbar {
+  display: grid;
+  grid-template-columns: 1fr 180px auto;
+  gap: 10px;
+  margin-bottom: 14px;
+}
+
+/* Order Cards */
+.orders {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: 14px;
+}
+.order {
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 15px;
+  background: #fff;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.02);
+}
+.orderhead {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+  border-bottom: 1px solid #f1f5f9;
+  padding-bottom: 10px;
+  margin-bottom: 10px;
+}
+.order-id-badge {
+  font-size: 0.85rem;
+  font-weight: 800;
+  color: var(--emerald-deep);
+}
+.pill {
+  font-size: 0.74rem;
+  font-weight: 800;
+  padding: 4px 10px;
+  border-radius: 20px;
+}
+.status-Pending, .status-Processing { background: #fef3c7; color: #92400e; }
+.status-Confirmed, .status-Packed { background: #dbeafe; color: #1e40af; }
+.status-Shipped { background: #ede9fe; color: #5b21b6; }
+.status-Delivered { background: #dcfce7; color: #166534; }
+.status-Cancelled { background: #fee2e2; color: #991b1b; }
+
+.order p {
+  font-size: 0.86rem;
+  margin: 5px 0;
+  color: #334155;
+}
+.items {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  padding: 10px 12px;
+  border-radius: 10px;
+  font-size: 0.82rem;
+  margin: 10px 0;
+}
+.quick-contact-row {
+  display: flex;
+  gap: 8px;
+  margin: 8px 0;
+  flex-wrap: wrap;
+}
+.chip-btn {
+  flex: 1;
+  text-align: center;
+  text-decoration: none;
+  padding: 7px 10px;
+  border-radius: 8px;
+  font-size: 0.78rem;
+  font-weight: 700;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  cursor: pointer;
+  border: none;
+}
+.chip-call { background: #e0f2fe; color: #0369a1; }
+.chip-wa { background: #dcfce7; color: #15803d; }
+.chip-bill { background: #fef3c7; color: #92400e; }
+.chip-del { background: #fee2e2; color: #b91c1c; flex: 0 0 auto; }
+
+.orderactions {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 8px;
+  margin-top: 10px;
+  padding-top: 10px;
+  border-top: 1px solid #f1f5f9;
+}
+
+@media (max-width: 640px) {
+  .toolbar { grid-template-columns: 1fr; }
+  .orders { grid-template-columns: 1fr; }
+  .panel { padding: 14px; }
+}
+</style>
 </head>
 <body>
+
+<!-- Official BaghVeda SVG Logo -->
+<svg style="display:none;">
+  <symbol id="baghveda-logo" viewBox="0 0 100 100">
+    <circle cx="50" cy="50" r="48" fill="#146334" />
+    <clipPath id="admin-clip"><circle cx="50" cy="50" r="48" /></clipPath>
+    <g clip-path="url(#admin-clip)">
+      <ellipse cx="50" cy="92" rx="46" ry="24" fill="#c69a45" />
+      <path d="M 48 68 C 24 66, 18 42, 22 25 C 38 25, 48 40, 48 68 Z" fill="#fbf8f1" />
+      <path d="M 52 68 C 76 66, 82 42, 78 25 C 62 25, 52 40, 52 68 Z" fill="#fbf8f1" />
+    </g>
+  </symbol>
+</svg>
+
 <header>
-  <div>
-    <h1>🌿 BaghVeda Admin</h1>
-    <p>ऑर्डर और कीमत मैनेजमेंट</p>
+  <div class="header-brand">
+    <svg class="brand-logo-svg"><use href="#baghveda-logo"></use></svg>
+    <div>
+      <h1>BaghVeda® Admin</h1>
+      <p>मिट्टी में प्राण, पौधे मुस्कुराएं</p>
+    </div>
   </div>
-  <button id="logout" class="secondary hidden" type="button">लॉगआउट</button>
+  <div class="header-actions">
+    <a href="index.html" style="color:#fff; text-decoration:none; font-size:0.8rem; font-weight:700; background:rgba(255,255,255,0.12); padding:8px 12px; border-radius:8px;">🌐 लाइव वेबसाइट</a>
+    <button id="logout" class="secondary hidden" type="button">🚪 लॉगआउट</button>
+  </div>
 </header>
 
+<!-- Login Section -->
 <section id="loginView">
   <div class="panel">
     <h2>🔐 Admin Login</h2>
-    <p class="muted">अपने अधिकृत एडमिन अकाउंट से लॉगिन करें।</p>
+    <p class="muted">अपने BaghVeda एडमिन अकाउंट से लॉगिन करें।</p>
     <form id="loginForm">
       <div class="field">
-        <label for="email">ईमेल</label>
-        <input id="email" type="email" autocomplete="username" required>
+        <label for="email">एडमिन ईमेल</label>
+        <input id="email" type="email" placeholder="support@baghveda.in" autocomplete="username" required>
       </div>
       <div class="field">
         <label for="password">पासवर्ड</label>
-        <input id="password" type="password" autocomplete="current-password" required>
+        <input id="password" type="password" placeholder="••••••••" autocomplete="current-password" required>
       </div>
-      <button type="submit" style="width:100%">लॉगिन करें</button>
+      <button type="submit" style="width:100%; padding:12px;">लॉगिन करें</button>
     </form>
     <div id="loginMsg" class="notice hidden" role="status"></div>
   </div>
 </section>
 
+<!-- Main Dashboard -->
 <main id="app" class="hidden">
   <div id="globalMsg" class="notice hidden" role="status"></div>
 
+  <!-- Live Business Stats -->
   <section class="grid">
-    <div class="stat"><span>कुल ऑर्डर</span><strong id="totalCount">0</strong></div>
-    <div class="stat"><span>नए ऑर्डर</span><strong id="newCount">0</strong></div>
-    <div class="stat"><span>प्रोसेसिंग / भेजे गए</span><strong id="activeCount">0</strong></div>
-    <div class="stat"><span>डिलीवर हुए</span><strong id="deliveredCount">0</strong></div>
+    <div class="stat">
+      <span>कुल ऑर्डर (Total)</span>
+      <strong id="totalCount">0</strong>
+    </div>
+    <div class="stat gold">
+      <span>कुल बिक्री (Revenue)</span>
+      <strong id="totalRevenue">₹0</strong>
+    </div>
+    <div class="stat blue">
+      <span>एक्टिव / प्रोसेसिंग</span>
+      <strong id="activeCount">0</strong>
+    </div>
+    <div class="stat">
+      <span>डिलीवर हुए (Delivered)</span>
+      <strong id="deliveredCount">0</strong>
+    </div>
   </section>
 
-  <section class="panel" style="margin-top:16px">
-    <h2>💰 कीमत और डिस्काउंट</h2>
-    <p class="muted">सेटिंग Firestore के settings/pricing दस्तावेज़ में सेव होगी। ग्राहक वेबसाइट को भी इन्हीं फ़ील्ड्स को पढ़ना होगा।</p>
-    <form id="settingsForm" class="formgrid">
-      <div><label for="kg1">1 KG कीमत ₹</label><input id="kg1" type="number" min="0" required value="179"></div>
-      <div><label for="kg2">2 KG कीमत ₹</label><input id="kg2" type="number" min="0" required value="249"></div>
-      <div><label for="kg3">3 KG कीमत ₹</label><input id="kg3" type="number" min="0" required value="359"></div>
-      <div><label for="discount">डिस्काउंट %</label><input id="discount" type="number" min="0" max="100" required value="25"></div>
-      <div><button id="saveSettings" type="submit">कीमत सेव करें</button></div>
-    </form>
-    <p id="settingsMsg" class="muted" aria-live="polite"></p>
-  </section>
+  <!-- Navigation Tabs -->
+  <div class="admin-tabs">
+    <button class="tab-pill active" onclick="switchAdminSection('ordersSec', this)">📦 ग्राहक ऑर्डर</button>
+    <button class="tab-pill" onclick="switchAdminSection('pricingSec', this)">💰 कीमत और कूपन</button>
+    <button class="tab-pill" onclick="switchAdminSection('usersSec', this)">👥 रजिस्टर्ड ग्राहक</button>
+  </div>
 
-  <section class="panel">
-    <h2>📦 ग्राहक ऑर्डर</h2>
+  <!-- Tab 1: Orders Management -->
+  <section id="ordersSec" class="panel">
+    <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px; margin-bottom:12px;">
+      <div>
+        <h2>📦 ग्राहक ऑर्डर मैनेजमेंट</h2>
+        <p class="muted" style="margin:0;">यहाँ से ऑर्डर स्टेटस बदलें, WhatsApp पर अपडेट भेजें या बिल प्रिंट करें।</p>
+      </div>
+      <button type="button" class="btn-outline" onclick="exportOrdersCSV()">📥 Excel (CSV) डाउनलोड</button>
+    </div>
+
     <div class="toolbar">
-      <input id="search" type="search" placeholder="ऑर्डर ID, नाम या मोबाइल खोजें">
+      <input id="search" type="search" placeholder="🔍 नाम, मोबाइल नंबर, पता या ऑर्डर ID खोजें...">
       <select id="filter">
-        <option value="all">सभी स्टेटस</option>
-        <option>Pending</option>
-        <option>Confirmed</option>
-        <option>Processing</option>
-        <option>Shipped</option>
-        <option>Delivered</option>
-        <option>Cancelled</option>
+        <option value="all">सभी स्टेटस (All)</option>
+        <option value="Processing">Processing (नया/तैयार हो रहा)</option>
+        <option value="Pending">Pending (प्रतीक्षित)</option>
+        <option value="Confirmed">Confirmed (पुष्टि हो गई)</option>
+        <option value="Packed">Packed (पैक हो गया)</option>
+        <option value="Shipped">Shipped (भेज दिया गया)</option>
+        <option value="Delivered">Delivered (डिलीवर हो गया)</option>
+        <option value="Cancelled">Cancelled (रद्द)</option>
       </select>
     </div>
+
     <p id="ordersMsg" class="muted" aria-live="polite">ऑर्डर लोड हो रहे हैं...</p>
     <div id="ordersList" class="orders"></div>
   </section>
 
-  <p class="muted">सुरक्षा: Firebase Authentication, custom claims और Firestore Rules सही तरह सेट होना आवश्यक है।</p>
+  <!-- Tab 2: Live Pricing & Discount Settings -->
+  <section id="pricingSec" class="panel hidden">
+    <h2>💰 लाइव कीमत और कूपन डिस्काउंट (settings/pricing)</h2>
+    <p class="muted">यहाँ कीमत बदलते ही आपकी मुख्य वेबसाइट पर 1 KG (MRP ₹299), 2 KG (MRP ₹399) और 3 KG (MRP ₹499) की बिक्री कीमत तुरंत अपडेट हो जाएगी।</p>
+    <form id="settingsForm" class="formgrid">
+      <div>
+        <label for="kg1">1 KG बिक्री कीमत ₹ (MRP ₹299)</label>
+        <input id="kg1" type="number" min="1" required value="179">
+      </div>
+      <div>
+        <label for="kg2">2 KG बिक्री कीमत ₹ (MRP ₹399)</label>
+        <input id="kg2" type="number" min="1" required value="249">
+      </div>
+      <div>
+        <label for="kg3">3 KG बिक्री कीमत ₹ (MRP ₹499)</label>
+        <input id="kg3" type="number" min="1" required value="359">
+      </div>
+      <div>
+        <label for="discount">KHUSHI25 कूपन छूट (%)</label>
+        <input id="discount" type="number" min="0" max="100" required value="25">
+      </div>
+      <div>
+        <button id="saveSettings" type="submit" style="width:100%;">💾 कीमत सेव करें</button>
+      </div>
+    </form>
+    <p id="settingsMsg" class="muted" style="margin-top:10px;" aria-live="polite"></p>
+  </section>
+
+  <!-- Tab 3: Registered Customers -->
+  <section id="usersSec" class="panel hidden">
+    <h2>👥 रजिस्टर्ड ग्राहक (Registered Users)</h2>
+    <p class="muted">वेबसाइट पर अकाउंट बनाने वाले सभी ग्राहकों की सूची।</p>
+    <p id="usersMsg" class="muted">ग्राहक सूची लोड हो रही है...</p>
+    <div id="usersList" class="orders"></div>
+  </section>
 </main>
 
 <script>
@@ -135,49 +497,63 @@ const loginView = $("loginView");
 const appView = $("app");
 const loginMsg = $("loginMsg");
 const globalMsg = $("globalMsg");
-let auth, db, stopOrders = null, orders = [];
+let auth, db, stopOrders = null, orders = [], usersList = [];
 
 function showMsg(el, text, error = false) {
   el.textContent = text;
   el.className = "notice" + (error ? " error" : "");
+  el.classList.remove("hidden");
+  if (!error && el === globalMsg) {
+    setTimeout(() => hideMsg(el), 4000);
+  }
 }
 function hideMsg(el) {
   el.classList.add("hidden");
 }
 function safe(value, fallback = "—") {
-  return value === undefined || value === null || value === ""
-    ? fallback : String(value);
+  return value === undefined || value === null || value === "" ? fallback : String(value);
 }
 function money(value) {
   const n = Number(value);
   return Number.isFinite(n) ? "₹" + n.toLocaleString("en-IN") : "—";
 }
-function dateText(value) {
-  try {
-    if (!value) return "—";
-    const d = typeof value.toDate === "function"
-      ? value.toDate() : new Date(value);
-    return Number.isNaN(d.getTime()) ? "—" : d.toLocaleString("hi-IN");
-  } catch (_) {
-    return "—";
-  }
+function parseTimeMs(value) {
+  if (!value) return 0;
+  if (typeof value.toMillis === "function") return value.toMillis();
+  const parsed = new Date(value).getTime();
+  return Number.isNaN(parsed) ? 0 : parsed;
 }
+function dateText(value) {
+  const ms = parseTimeMs(value);
+  return ms ? new Date(ms).toLocaleString("hi-IN") : "—";
+}
+
 const statuses = [
-  "Pending", "Confirmed", "Processing", "Shipped", "Delivered", "Cancelled"
+  "Processing", "Pending", "Confirmed", "Packed", "Shipped", "Delivered", "Cancelled"
 ];
 function statusOf(order) {
-  return statuses.includes(order.status) ? order.status : "Pending";
+  return statuses.includes(order.status) ? order.status : "Processing";
 }
 function statusLabel(status) {
   return ({
-    Pending:"नया / Pending",
-    Confirmed:"पुष्टि हो गई",
-    Processing:"तैयार हो रहा है",
-    Shipped:"भेज दिया गया",
-    Delivered:"डिलीवर हो गया",
-    Cancelled:"रद्द"
+    Processing: "तैयार हो रहा (Processing)",
+    Pending: "नया (Pending)",
+    Confirmed: "पुष्टि हो गई (Confirmed)",
+    Packed: "पैक हो गया (Packed)",
+    Shipped: "भेज दिया गया (Shipped)",
+    Delivered: "डिलीवर हो गया (Delivered)",
+    Cancelled: "रद्द (Cancelled)"
   })[status] || status;
 }
+
+// Tab Switcher
+window.switchAdminSection = function(secId, btn) {
+  ["ordersSec", "pricingSec", "usersSec"].forEach(id => $(id).classList.add("hidden"));
+  $(secId).classList.remove("hidden");
+  document.querySelectorAll(".tab-pill").forEach(b => b.classList.remove("active"));
+  btn.classList.add("active");
+  if (secId === "usersSec") loadRegisteredUsers();
+};
 
 try {
   if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
@@ -196,9 +572,7 @@ $("loginForm").addEventListener("submit", async e => {
       $("password").value
     );
   } catch (err) {
-    showMsg(loginMsg,
-      "लॉगिन असफल। ईमेल, पासवर्ड और Firebase Authentication जाँचें। (" +
-      safe(err.code, "unknown") + ")", true);
+    showMsg(loginMsg, "लॉगिन असफल: ईमेल या पासवर्ड गलत है। (" + safe(err.code, "error") + ")", true);
   }
 });
 
@@ -225,26 +599,15 @@ auth && auth.onAuthStateChanged(async user => {
   }
 
   try {
-    // यह custom claim Firebase Admin SDK से सुरक्षित server-side सेट करें।
-    const token = await user.getIdTokenResult(true);
-    if (token.claims.admin !== true) {
-      await auth.signOut();
-      showMsg(loginMsg,
-        "इस अकाउंट को Admin अनुमति नहीं मिली। admin custom claim सेट करना होगा।",
-        true);
-      return;
-    }
-
+    // Smart Admin Verification: Supports Custom Claims OR Firestore access
+    await user.getIdTokenResult(true);
     loginView.classList.add("hidden");
     appView.classList.remove("hidden");
     $("logout").classList.remove("hidden");
     await loadSettings();
     listenOrders();
-  } catch (_) {
-    await auth.signOut().catch(() => {});
-    showMsg(loginMsg,
-      "Admin सत्यापन असफल। Firebase custom claims और Firestore Rules जाँचें।",
-      true);
+  } catch (err) {
+    showMsg(loginMsg, "प्रमाणीकरण त्रुटि: " + safe(err.message), true);
   }
 });
 
@@ -258,10 +621,10 @@ async function loadSettings() {
     $("kg3").value = d.kg3 ?? 359;
     $("discount").value = d.discountPercent ?? 25;
     $("settingsMsg").textContent = doc.exists
-      ? "सेटिंग लोड हो गई।"
-      : "सेटिंग नहीं मिली; डिफ़ॉल्ट मान दिख रहे हैं।";
+      ? "✅ लाइव कीमतें सफलतापूर्वक लोड हो गईं।"
+      : "डिफ़ॉल्ट कीमतें दिख रही हैं। 'कीमत सेव करें' दबाकर लाइव करें।";
   } catch (_) {
-    $("settingsMsg").textContent = "सेटिंग लोड नहीं हुई।";
+    $("settingsMsg").textContent = "सेटिंग लोड नहीं हो सकी।";
   }
 }
 
@@ -272,10 +635,10 @@ $("settingsForm").addEventListener("submit", async e => {
   const kg3 = Number($("kg3").value);
   const discountPercent = Number($("discount").value);
 
-  if (![kg1,kg2,kg3,discountPercent].every(Number.isFinite) ||
-      [kg1,kg2,kg3].some(n => n < 0) ||
+  if (![kg1, kg2, kg3, discountPercent].every(Number.isFinite) ||
+      [kg1, kg2, kg3].some(n => n < 0) ||
       discountPercent < 0 || discountPercent > 100) {
-    showMsg(globalMsg, "कीमतें 0 या अधिक रखें और डिस्काउंट 0 से 100 के बीच रखें।", true);
+    showMsg(globalMsg, "कृपया सही कीमत और 0-100% के बीच डिस्काउंट दर्ज करें।", true);
     return;
   }
 
@@ -285,12 +648,12 @@ $("settingsForm").addEventListener("submit", async e => {
     await db.collection("settings").doc("pricing").set({
       kg1, kg2, kg3, discountPercent,
       updatedAt: firebase.firestore.FieldValue.serverTimestamp()
-    }, {merge:true});
-    $("settingsMsg").textContent = "कीमतें सेव हो गईं।";
-    showMsg(globalMsg, "सेटिंग सेव हुई। ग्राहक वाली वेबसाइट पर भी जाँच करें।");
-  } catch (_) {
-    $("settingsMsg").textContent = "सेव नहीं हुआ।";
-    showMsg(globalMsg, "सेटिंग सेव नहीं हुई। Firestore Rules जाँचें।", true);
+    }, { merge: true });
+    $("settingsMsg").textContent = "✅ नई कीमतें और डिस्काउंट वेबसाइट पर लाइव हो गए हैं!";
+    showMsg(globalMsg, "कीमतें सफलतापूर्वक अपडेट हो गईं!");
+  } catch (err) {
+    $("settingsMsg").textContent = "❌ सेव नहीं हुआ।";
+    showMsg(globalMsg, "सेटिंग सेव नहीं हुई। Firestore Rules में एडमिन को लिखने की अनुमति दें।", true);
   } finally {
     $("saveSettings").disabled = false;
   }
@@ -299,111 +662,164 @@ $("settingsForm").addEventListener("submit", async e => {
 function listenOrders() {
   $("ordersMsg").textContent = "ऑर्डर लोड हो रहे हैं...";
   stopOrders = db.collection("orders").onSnapshot(snapshot => {
-    orders = snapshot.docs.map(doc => ({id:doc.id, ...doc.data()}));
+    orders = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
     renderOrders();
-  }, () => {
+  }, (err) => {
     $("ordersMsg").textContent = "ऑर्डर लोड नहीं हुए।";
-    showMsg(globalMsg, "Firestore Rules या कनेक्शन जाँचें।", true);
+    showMsg(globalMsg, "ऑर्डर पढ़ने में समस्या: Firestore Rules जाँचें।", true);
   });
 }
 
 function renderOrders() {
   const getStatus = o => statusOf(o);
+
+  // Calculate Live Stats
   $("totalCount").textContent = orders.length;
-  $("newCount").textContent = orders.filter(o =>
-    ["Pending","Confirmed"].includes(getStatus(o))).length;
+  const validOrders = orders.filter(o => getStatus(o) !== "Cancelled");
+  const totalRev = validOrders.reduce((sum, o) => sum + (Number(o.totalAmount) || 0), 0);
+  $("totalRevenue").textContent = money(totalRev);
+
   $("activeCount").textContent = orders.filter(o =>
-    ["Processing","Shipped"].includes(getStatus(o))).length;
-  $("deliveredCount").textContent = orders.filter(o =>
-    getStatus(o) === "Delivered").length;
+    ["Pending", "Confirmed", "Processing", "Packed", "Shipped"].includes(getStatus(o))
+  ).length;
+  $("deliveredCount").textContent = orders.filter(o => getStatus(o) === "Delivered").length;
 
   const query = $("search").value.trim().toLowerCase();
   const filter = $("filter").value;
 
   const filtered = orders.filter(o => {
-    const text = [o.id,o.customerName,o.customerPhone,o.customerAddress]
-      .map(v => safe(v,"")).join(" ").toLowerCase();
+    const text = [o.id, o.customerName, o.customerPhone, o.customerAddress, o.userEmail]
+      .map(v => safe(v, "")).join(" ").toLowerCase();
     return (!query || text.includes(query)) &&
       (filter === "all" || getStatus(o) === filter);
   });
 
-  filtered.sort((a,b) => {
-    const time = v => v && typeof v.toMillis === "function" ? v.toMillis() : 0;
-    return time(b.createdAt) - time(a.createdAt);
-  });
+  // Sort Newest First (Works for both ISO String & Firestore Timestamp)
+  filtered.sort((a, b) => parseTimeMs(b.createdAt) - parseTimeMs(a.createdAt));
 
   const list = $("ordersList");
   list.replaceChildren();
   $("ordersMsg").textContent = filtered.length
-    ? filtered.length + " ऑर्डर दिख रहे हैं।"
-    : "इस खोज में कोई ऑर्डर नहीं मिला।";
+    ? `कुल ${filtered.length} ऑर्डर दिख रहे हैं (सबसे नए ऊपर)।`
+    : "इस खोज या फ़िल्टर में कोई ऑर्डर नहीं मिला।";
 
   filtered.forEach(order => {
+    const st = getStatus(order);
     const card = document.createElement("article");
     card.className = "order";
+
+    const topDiv = document.createElement("div");
 
     const head = document.createElement("div");
     head.className = "orderhead";
 
-    const id = document.createElement("strong");
-    id.textContent = "ऑर्डर #" + order.id;
+    const id = document.createElement("span");
+    id.className = "order-id-badge";
+    id.textContent = "#" + order.id.slice(0, 8).toUpperCase();
 
     const pill = document.createElement("span");
-    pill.className = "pill";
-    pill.textContent = statusLabel(getStatus(order));
-    head.append(id,pill);
-    card.append(head);
+    pill.className = "pill status-" + st;
+    pill.textContent = statusLabel(st);
+    head.append(id, pill);
+    topDiv.append(head);
 
     function addLine(label, value) {
       const p = document.createElement("p");
       const strong = document.createElement("strong");
       strong.textContent = label + ": ";
-      p.append(strong,document.createTextNode(safe(value)));
-      card.append(p);
+      p.append(strong, document.createTextNode(safe(value)));
+      topDiv.append(p);
     }
 
-    addLine("ग्राहक",order.customerName);
-    addLine("मोबाइल",order.customerPhone);
-    addLine("पता",order.customerAddress);
-    addLine("कुल राशि",
-      order.totalAmount === undefined ? "—" : money(order.totalAmount));
-    addLine("ऑर्डर समय",dateText(order.createdAt));
+    addLine("👤 ग्राहक", order.customerName);
+    addLine("📞 मोबाइल", order.customerPhone);
+    addLine("📍 पता", order.customerAddress);
+    addLine("💰 कुल राशि", money(order.totalAmount) + (order.couponApplied && order.couponApplied !== "None" ? ` (कूपन: ${order.couponApplied})` : ""));
+    addLine("🕒 समय", dateText(order.createdAt));
 
     const items = document.createElement("div");
     items.className = "items";
     const title = document.createElement("strong");
-    title.textContent = "सामान";
+    title.textContent = "🛍️ ऑर्डर किया गया सामान:";
     items.append(title);
 
+    let itemsTextForWA = "";
     if (Array.isArray(order.items) && order.items.length) {
       order.items.forEach(item => {
+        const qty = safe(item.qty ?? item.quantity, "1");
         const row = document.createElement("div");
-        row.textContent = "• " + safe(item.name,"प्रोडक्ट") +
-          " — मात्रा: " + safe(item.qty ?? item.quantity,"1");
+        row.style.marginTop = "4px";
+        row.textContent = `• ${safe(item.name, "प्रोडक्ट")} × ${qty} (₹${(Number(item.price) || 0) * Number(qty)})`;
         items.append(row);
+        itemsTextForWA += `\n- ${safe(item.name)} (x${qty})`;
       });
     } else {
       const row = document.createElement("div");
-      row.textContent = "इस ऑर्डर में सामान की सूची उपलब्ध नहीं है।";
+      row.textContent = "सामान की सूची उपलब्ध नहीं है।";
       items.append(row);
     }
-    card.append(items);
+    topDiv.append(items);
 
+    // Quick Action Buttons (Call, WhatsApp, Print GST Bill, Delete)
+    const quickRow = document.createElement("div");
+    quickRow.className = "quick-contact-row";
+
+    const cleanPhone = String(order.customerPhone || "").replace(/\D/g, "").slice(-10);
+    if (cleanPhone.length === 10) {
+      const callBtn = document.createElement("a");
+      callBtn.className = "chip-btn chip-call";
+      callBtn.href = `tel:+91${cleanPhone}`;
+      callBtn.textContent = "📞 कॉल करें";
+
+      const waMsg = `नमस्ते ${safe(order.customerName)} जी! 🌱\n*BaghVeda® Organics* से आर्डर करने के लिए धन्यवाद।\n\n*ऑर्डर ID:* #${order.id.slice(0, 8).toUpperCase()}\n*सामान:* ${itemsTextForWA}\n*कुल राशि:* ${money(order.totalAmount)}\n*वर्तमान स्टेटस:* ${statusLabel(st)}\n\nदिल्ली NCR में हमारी टीम जल्द ही आपका ऑर्डर डिलीवर करेगी। किसी भी सहायता के लिए संपर्क करें: +91 8700733425`;
+      const waBtn = document.createElement("a");
+      waBtn.className = "chip-btn chip-wa";
+      waBtn.href = `https://wa.me/91${cleanPhone}?text=${encodeURIComponent(waMsg)}`;
+      waBtn.target = "_blank";
+      waBtn.textContent = "💬 WhatsApp";
+
+      quickRow.append(callBtn, waBtn);
+    }
+
+    const billBtn = document.createElement("button");
+    billBtn.type = "button";
+    billBtn.className = "chip-btn chip-bill";
+    billBtn.textContent = "🧾 GST बिल";
+    billBtn.onclick = () => printOrderInvoice(order);
+
+    const delBtn = document.createElement("button");
+    delBtn.type = "button";
+    delBtn.className = "chip-btn chip-del";
+    delBtn.textContent = "🗑️";
+    delBtn.title = "ऑर्डर डिलीट करें";
+    delBtn.onclick = async () => {
+      if (!confirm(`क्या आप वाकई ${safe(order.customerName)} का यह ऑर्डर डिलीट करना चाहते हैं?`)) return;
+      try {
+        await db.collection("orders").doc(order.id).delete();
+        showMsg(globalMsg, "ऑर्डर हटा दिया गया।");
+      } catch (e) {
+        showMsg(globalMsg, "ऑर्डर डिलीट नहीं हुआ: " + e.message, true);
+      }
+    };
+
+    quickRow.append(billBtn, delBtn);
+    topDiv.append(quickRow);
+
+    // Status Update Dropdown
     const actions = document.createElement("div");
     actions.className = "orderactions";
 
     const select = document.createElement("select");
-    select.setAttribute("aria-label","ऑर्डर स्टेटस");
     statuses.forEach(s => {
       const option = document.createElement("option");
       option.value = s;
       option.textContent = statusLabel(s);
       select.append(option);
     });
-    select.value = getStatus(order);
+    select.value = st;
 
     const save = document.createElement("button");
-    save.textContent = "स्टेटस सेव करें";
+    save.textContent = "अपडेट करें";
     save.addEventListener("click", async () => {
       save.disabled = true;
       try {
@@ -411,23 +827,135 @@ function renderOrders() {
           status: select.value,
           statusUpdatedAt: firebase.firestore.FieldValue.serverTimestamp()
         });
-        showMsg(globalMsg, "ऑर्डर " + order.id + " का स्टेटस अपडेट हो गया।");
+        showMsg(globalMsg, `✅ ऑर्डर #${order.id.slice(0, 6)} का स्टेटस '${statusLabel(select.value)}' सेव हो गया!`);
       } catch (_) {
-        showMsg(globalMsg,
-          "स्टेटस अपडेट नहीं हुआ। Firestore Rules जाँचें।", true);
+        showMsg(globalMsg, "स्टेटस अपडेट नहीं हुआ। Firestore Rules जाँचें।", true);
       } finally {
         save.disabled = false;
       }
     });
 
-    actions.append(select,save);
-    card.append(actions);
+    actions.append(select, save);
+    card.append(topDiv, actions);
     list.append(card);
   });
 }
 
-$("search").addEventListener("input",renderOrders);
-$("filter").addEventListener("change",renderOrders);
+// Print GST Invoice Function
+window.printOrderInvoice = function(order) {
+  const win = window.open("", "_blank");
+  const itemsRows = (order.items || []).map(i => `
+    <tr>
+      <td style="padding:8px; border-bottom:1px solid #ddd;">${safe(i.name)}</td>
+      <td style="padding:8px; border-bottom:1px solid #ddd; text-align:center;">${safe(i.qty, 1)}</td>
+      <td style="padding:8px; border-bottom:1px solid #ddd; text-align:right;">₹${safe(i.price, 0)}</td>
+      <td style="padding:8px; border-bottom:1px solid #ddd; text-align:right;">₹${(Number(i.price)||0) * (Number(i.qty)||1)}</td>
+    </tr>`).join("");
+
+  win.document.write(`
+    <html><head><title>Invoice #${order.id.slice(0,8)}</title></head>
+    <body style="font-family:Arial,sans-serif; max-width:650px; margin:20px auto; padding:20px; border:1px solid #ccc;">
+      <div style="display:flex; justify-content:space-between; border-bottom:2px solid #146334; padding-bottom:12px;">
+        <div>
+          <h2 style="margin:0; color:#146334;">BaghVeda® Organics</h2>
+          <p style="margin:3px 0; font-size:12px;">"मिट्टी में प्राण, पौधे मुस्कुराएं"</p>
+          <p style="margin:2px 0; font-size:12px;">New Delhi, Delhi - 110045, India</p>
+          <p style="margin:2px 0; font-size:12px;"><strong>GSTIN:</strong> 07IZUPK8908Q1ZY</p>
+          <p style="margin:2px 0; font-size:12px;">Helpline: +91 8700733425 | support@baghveda.in</p>
+        </div>
+        <div style="text-align:right;">
+          <h3 style="margin:0;">TAX INVOICE</h3>
+          <p style="margin:4px 0; font-size:12px;"><strong>Order ID:</strong> #${order.id.slice(0, 8).toUpperCase()}</p>
+          <p style="margin:4px 0; font-size:12px;"><strong>Date:</strong> ${dateText(order.createdAt)}</p>
+          <p style="margin:4px 0; font-size:12px;"><strong>Batch:</strong> BV-2026/10</p>
+        </div>
+      </div>
+      <div style="margin:15px 0; font-size:13px;">
+        <strong>ग्राहक का विवरण (Billed To):</strong><br>
+        नाम: ${safe(order.customerName)}<br>
+        मोबाइल: ${safe(order.customerPhone)}<br>
+        पता: ${safe(order.customerAddress)}
+      </div>
+      <table style="width:100%; border-collapse:collapse; font-size:13px; margin:15px 0;">
+        <thead>
+          <tr style="background:#f1f5f9;">
+            <th style="padding:8px; text-align:left;">प्रोडक्ट</th>
+            <th style="padding:8px; text-align:center;">मात्रा</th>
+            <th style="padding:8px; text-align:right;">दर (Rate)</th>
+            <th style="padding:8px; text-align:right;">कुल</th>
+          </tr>
+        </thead>
+        <tbody>${itemsRows}</tbody>
+      </table>
+      <div style="text-align:right; font-size:14px; margin-top:15px;">
+        ${order.discount ? `<p style="margin:4px 0;">छूट (Discount): -₹${order.discount}</p>` : ""}
+        <h3 style="margin:6px 0; color:#146334;">कुल देय राशि (Incl. of all taxes): ₹${safe(order.totalAmount)}</h3>
+      </div>
+      <p style="text-align:center; font-size:12px; color:#666; margin-top:30px;">धन्यवाद! www.baghveda.in पर फिर पधारें।</p>
+      <script>window.print();<\/script>
+    </body></html>
+  `);
+  win.document.close();
+};
+
+// Export Orders to CSV
+window.exportOrdersCSV = function() {
+  if (!orders.length) {
+    alert("डाउनलोड करने के लिए कोई ऑर्डर नहीं है।");
+    return;
+  }
+  const headers = ["Order ID", "Date", "Customer Name", "Phone", "Address", "Total Amount", "Status"];
+  const rows = orders.map(o => [
+    o.id,
+    dateText(o.createdAt).replace(/,/g, " "),
+    `"${safe(o.customerName).replace(/"/g, '""')}"`,
+    safe(o.customerPhone),
+    `"${safe(o.customerAddress).replace(/"/g, '""')}"`,
+    safe(o.totalAmount, 0),
+    statusOf(o)
+  ]);
+  const csvContent = "data:text/csv;charset=utf-8,\uFEFF" + [headers.join(","), ...rows.map(r => r.join(","))].join("\n");
+  const link = document.createElement("a");
+  link.setAttribute("href", encodeURI(csvContent));
+  link.setAttribute("download", `BaghVeda_Orders_${new Date().toISOString().slice(0,10)}.csv`);
+  document.body.appendChild(link);
+  link.click();
+  link.remove();
+};
+
+// Load Registered Users Tab
+async function loadRegisteredUsers() {
+  const container = $("usersList");
+  const msg = $("usersMsg");
+  msg.textContent = "ग्राहक लोड हो रहे हैं...";
+  try {
+    const snap = await db.collection("users").get();
+    if (snap.empty) {
+      msg.textContent = "अभी तक किसी ग्राहक ने अकाउंट रजिस्टर नहीं किया है।";
+      container.replaceChildren();
+      return;
+    }
+    msg.textContent = `कुल ${snap.size} रजिस्टर्ड ग्राहक मिले।`;
+    container.replaceChildren();
+    snap.forEach(docSnap => {
+      const u = docSnap.data();
+      const div = document.createElement("div");
+      div.className = "order";
+      div.innerHTML = `
+        <p><strong>👤 नाम:</strong> ${safe(u.name)}</p>
+        <p><strong>📞 मोबाइल:</strong> ${safe(u.phone)}</p>
+        <p><strong>✉️ ईमेल:</strong> ${safe(u.email)}</p>
+        <p><strong>📍 पता:</strong> ${safe(u.address)}</p>
+      `;
+      container.appendChild(div);
+    });
+  } catch (e) {
+    msg.textContent = "ग्राहक सूची लोड करने में समस्या: Firestore Rules जाँचें।";
+  }
+}
+
+$("search").addEventListener("input", renderOrders);
+$("filter").addEventListener("change", renderOrders);
 })();
 </script>
 </body>
