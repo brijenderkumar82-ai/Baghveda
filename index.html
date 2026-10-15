@@ -30,7 +30,8 @@ window.currentUser = null;
 window.userData = null;
 window.dbPrices = { kg1: 179, kg2: 249, kg3: 359 };
 window.activeDiscountPercent = 25;
-window.merchantUpiId = "8700733425@ybl";
+// आपकी आधिकारिक UPI ID सेट कर दी गई है
+window.merchantUpiId = "9310703102@ptaxis";
 window.ordersUnsubscribe = null;
 window.customerOrders = [];
 
@@ -102,6 +103,12 @@ function populateProfileUI(data) {
   if (document.getElementById('prof-phone')) document.getElementById('prof-phone').value = data.phone || "";
   if (document.getElementById('prof-email')) document.getElementById('prof-email').value = data.email || (window.currentUser ? window.currentUser.email : "");
   if (document.getElementById('prof-address')) document.getElementById('prof-address').value = data.address || "";
+
+  // Update Profile Header Subtitle
+  const headerSub = document.getElementById('app-prof-user-subtitle');
+  if (headerSub) {
+    headerSub.innerText = data.name ? `${data.name} • +91 ${data.phone || ''}` : "अपने ऑर्डर और पते मैनेज करें";
+  }
 }
 
 const savedLocalProfile = localStorage.getItem("baghveda_profile");
@@ -119,7 +126,7 @@ window.lookupCustomerByPhone = async function(rawPhone, source = "checkout") {
   const statusEl = document.getElementById(source === "checkout" ? "phone-lookup-msg" : "track-lookup-msg");
   if (statusEl) {
     statusEl.style.display = "block";
-    statusEl.style.color = "#fbbf24";
+    statusEl.style.color = "#d97706";
     statusEl.innerText = "🔍 आपका सेव्ड रिकॉर्ड ढूँढा जा रहा है...";
   }
 
@@ -167,7 +174,7 @@ window.lookupCustomerByPhone = async function(rawPhone, source = "checkout") {
     }
 
     if (statusEl) {
-      statusEl.style.color = "#fbbf24";
+      statusEl.style.color = "#10b981";
       statusEl.innerText = "✨ नया नंबर: बस एक बार नाम और पता भरें, अगली बार यह अपने-आप आ जाएगा!";
     }
   } catch (err) {
@@ -179,12 +186,14 @@ window.lookupCustomerByPhone = async function(rawPhone, source = "checkout") {
 onAuthStateChanged(auth, async (user) => {
   const authBtn = document.getElementById('auth-nav-btn');
   const logoutBtn = document.getElementById('logout-profile-btn');
+  const loginTriggerRow = document.getElementById('prof-auth-trigger-row');
 
   if (user) {
     window.currentUser = user;
-    authBtn.innerHTML = "👤 मेरी प्रोफ़ाइल";
-    authBtn.onclick = () => openCustomerHub('profile');
+    authBtn.innerHTML = "👤 Profile";
+    authBtn.onclick = () => openCustomerHub('main');
     if (logoutBtn) logoutBtn.style.display = "block";
+    if (loginTriggerRow) loginTriggerRow.style.display = "none";
 
     try {
       const userDocRef = doc(db, "users", user.uid);
@@ -202,14 +211,12 @@ onAuthStateChanged(auth, async (user) => {
   } else {
     window.currentUser = null;
     if (logoutBtn) logoutBtn.style.display = "none";
+    if (loginTriggerRow) loginTriggerRow.style.display = "flex";
     const localPhone = cleanMobile(window.userData?.phone);
+    authBtn.innerHTML = "👤 Profile";
+    authBtn.onclick = () => openCustomerHub('main');
     if (localPhone.length === 10) {
-      authBtn.innerHTML = `👤 ${window.userData.name ? window.userData.name.split(" ")[0] : "मेरी प्रोफ़ाइल"}`;
-      authBtn.onclick = () => openCustomerHub('profile');
       startLiveOrdersListener(null, localPhone);
-    } else {
-      authBtn.innerHTML = "🔑 Login / Profile";
-      authBtn.onclick = openAuthModal;
     }
   }
 });
@@ -271,15 +278,15 @@ function getOrderStepInfo(status) {
 
 function buildOrderCardHTML(ord, isCurrentHighlight = false) {
   const info = getOrderStepInfo(ord.status);
-  let badgeBg = "#f59e0b";
-  let badgeColor = "#000";
-  if (info.currentStatus === "Confirmed" || info.currentStatus === "Packed") { badgeBg = "#3b82f6"; badgeColor = "#fff"; }
-  if (info.currentStatus === "Shipped") { badgeBg = "#8b5cf6"; badgeColor = "#fff"; }
-  if (info.currentStatus === "Delivered") { badgeBg = "#10b981"; badgeColor = "#fff"; }
-  if (info.currentStatus === "Cancelled") { badgeBg = "#ef4444"; badgeColor = "#fff"; }
+  let badgeBg = "#fef3c7";
+  let badgeColor = "#92400e";
+  if (info.currentStatus === "Confirmed" || info.currentStatus === "Packed") { badgeBg = "#dbeafe"; badgeColor = "#1e40af"; }
+  if (info.currentStatus === "Shipped") { badgeBg = "#ede9fe"; badgeColor = "#5b21b6"; }
+  if (info.currentStatus === "Delivered") { badgeBg = "#dcfce7"; badgeColor = "#166534"; }
+  if (info.currentStatus === "Cancelled") { badgeBg = "#fee2e2"; badgeColor = "#991b1b"; }
 
   const itemsHtml = (ord.items || []).map(i =>
-    `<div style="display:flex; justify-content:space-between; font-size:0.84rem; padding:3px 0; color:#e2e8f0;">
+    `<div style="display:flex; justify-content:space-between; font-size:0.84rem; padding:3px 0; color:#334155;">
       <span>• ${i.name} × ${i.qty}</span>
       <strong>₹${(Number(i.price) || 0) * (Number(i.qty) || 1)}</strong>
     </div>`
@@ -287,23 +294,23 @@ function buildOrderCardHTML(ord, isCurrentHighlight = false) {
 
   let stepperHtml = "";
   if (info.isCancelled) {
-    stepperHtml = `<div style="background:rgba(239,68,68,0.15); border:1px solid #ef4444; color:#fca5a5; padding:10px; border-radius:10px; font-size:0.82rem; margin:10px 0; font-weight:700;">${info.message}</div>`;
+    stepperHtml = `<div style="background:#fef2f2; border:1px solid #fecaca; color:#b91c1c; padding:10px; border-radius:10px; font-size:0.82rem; margin:10px 0; font-weight:700;">${info.message}</div>`;
   } else {
     const dotsHtml = info.steps.map((s, idx) => {
       const done = idx <= info.activeIdx;
       const isCurrent = idx === info.activeIdx;
       return `
-        <div class="track-step ${done ? 'done' : ''} ${isCurrent ? 'current' : ''}">
-          <div class="track-dot">${done ? s.icon : (idx + 1)}</div>
-          <div class="track-label">${s.label}</div>
+        <div class="track-step-light ${done ? 'done' : ''} ${isCurrent ? 'current' : ''}">
+          <div class="track-dot-light">${done ? s.icon : (idx + 1)}</div>
+          <div class="track-label-light">${s.label}</div>
         </div>
       `;
     }).join("");
 
     stepperHtml = `
-      <div class="live-tracker-box">
-        <div style="font-size:0.8rem; color:#fbbf24; font-weight:700; margin-bottom:10px;">
-          📍 लाइव स्टेटस: <span style="color:#fff;">${info.message}</span>
+      <div class="live-tracker-box-light">
+        <div style="font-size:0.8rem; color:#0f172a; font-weight:700; margin-bottom:10px;">
+          📍 लाइव स्टेटस: <span style="color:#15803d;">${info.message}</span>
         </div>
         <div class="track-steps-row">${dotsHtml}</div>
       </div>
@@ -313,35 +320,35 @@ function buildOrderCardHTML(ord, isCurrentHighlight = false) {
   const payMethodText = ord.paymentMethod || "Cash on Delivery (COD)";
 
   return `
-    <div class="cust-order-card ${isCurrentHighlight ? 'highlight-order' : ''}">
-      <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:6px; border-bottom:1px solid rgba(255,255,255,0.1); padding-bottom:8px; margin-bottom:8px;">
+    <div class="app-order-card ${isCurrentHighlight ? 'highlight' : ''}">
+      <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:6px; border-bottom:1px solid #e2e8f0; padding-bottom:8px; margin-bottom:8px;">
         <div>
-          <span style="font-size:0.8rem; color:#94a3b8;">ऑर्डर ID:</span>
-          <strong style="color:#fff; font-size:0.9rem;">#${ord.id.slice(0, 8).toUpperCase()}</strong>
-          <div style="font-size:0.74rem; color:#fbbf24;">🕒 ${formatHindiDate(ord.createdAt)}</div>
+          <span style="font-size:0.78rem; color:#64748b;">ऑर्डर ID:</span>
+          <strong style="color:#0f172a; font-size:0.9rem;">#${ord.id.slice(0, 8).toUpperCase()}</strong>
+          <div style="font-size:0.74rem; color:#64748b;">🕒 ${formatHindiDate(ord.createdAt)}</div>
         </div>
-        <span style="background:${badgeBg}; color:${badgeColor}; padding:4px 10px; border-radius:20px; font-size:0.75rem; font-weight:800;">
+        <span style="background:${badgeBg}; color:${badgeColor}; padding:4px 10px; border-radius:20px; font-size:0.74rem; font-weight:800;">
           ${info.currentStatus}
         </span>
       </div>
 
       ${stepperHtml}
 
-      <div style="background:rgba(0,0,0,0.25); padding:10px; border-radius:10px; margin:8px 0;">
-        <div style="font-size:0.76rem; color:#94a3b8; margin-bottom:4px; font-weight:700;">खरीदा गया सामान:</div>
+      <div style="background:#f8fafc; border:1px solid #e2e8f0; padding:10px; border-radius:10px; margin:8px 0;">
+        <div style="font-size:0.75rem; color:#64748b; margin-bottom:4px; font-weight:700;">खरीदा गया सामान:</div>
         ${itemsHtml}
-        <div style="border-top:1px solid rgba(255,255,255,0.1); margin-top:6px; padding-top:6px; display:flex; justify-content:space-between; font-weight:800; color:#10b981; font-size:0.95rem;">
+        <div style="border-top:1px solid #e2e8f0; margin-top:6px; padding-top:6px; display:flex; justify-content:space-between; font-weight:800; color:#15803d; font-size:0.95rem;">
           <span>कुल राशि ${ord.couponApplied && ord.couponApplied !== 'None' ? `(${ord.couponApplied})` : ''}:</span>
           <span>₹${ord.totalAmount}</span>
         </div>
-        <div style="font-size:0.76rem; color:#fbbf24; margin-top:4px;">
-          💳 <strong>पेमेंट मोड:</strong> ${payMethodText} ${ord.transactionId ? `(Ref: ${ord.transactionId})` : ''}
+        <div style="font-size:0.75rem; color:#475569; margin-top:4px;">
+          💳 <strong>पेमेंट मोड:</strong> ${payMethodText}
         </div>
       </div>
 
-      <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px; font-size:0.78rem; color:#cbd5e1; margin-top:6px;">
+      <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px; font-size:0.78rem; color:#475569; margin-top:6px;">
         <span>📍 <strong>डिलीवरी पता:</strong> ${ord.customerAddress}</span>
-        <a href="https://wa.me/918700733425?text=${encodeURIComponent('नमस्ते BaghVeda! मेरे ऑर्डर #' + ord.id.slice(0,8).toUpperCase() + ' का अपडेट बताएं।')}" target="_blank" style="color:#10b981; text-decoration:none; font-weight:700;">💬 WhatsApp सहायता</a>
+        <a href="https://wa.me/918700733425?text=${encodeURIComponent('नमस्ते BaghVeda! मेरे ऑर्डर #' + ord.id.slice(0,8).toUpperCase() + ' का अपडेट बताएं।')}" target="_blank" style="color:#15803d; text-decoration:none; font-weight:800;">💬 WhatsApp सहायता</a>
       </div>
     </div>
   `;
@@ -350,20 +357,17 @@ function buildOrderCardHTML(ord, isCurrentHighlight = false) {
 // 7. Render Profile Stats, Active Order & Past Orders History
 function renderCustomerOrdersAndStats() {
   const list = window.customerOrders || [];
-  const totalOrdersEl = document.getElementById("stat-total-orders");
-  const activeOrdersEl = document.getElementById("stat-active-orders");
-  const lastOrderEl = document.getElementById("stat-last-order");
-  const currentOrderContainer = document.getElementById("current-order-container");
-  const allOrdersContainer = document.getElementById("all-orders-container");
-  const navOrderBadge = document.getElementById("nav-active-order-badge");
-
   const activeOrders = list.filter(o => !["Delivered", "Cancelled"].includes(o.status));
   const lastOrder = list[0] || null;
 
-  if (totalOrdersEl) totalOrdersEl.innerText = list.length;
-  if (activeOrdersEl) activeOrdersEl.innerText = activeOrders.length;
-  if (lastOrderEl) lastOrderEl.innerText = lastOrder ? formatHindiDate(lastOrder.createdAt) : "कोई नहीं";
+  const countBadge = document.getElementById("prof-orders-count-sub");
+  if (countBadge) {
+    countBadge.innerText = list.length > 0
+      ? `${list.length} ऑर्डर (${activeOrders.length} चालू)`
+      : "ट्रैक और हिस्ट्री देखें";
+  }
 
+  const navOrderBadge = document.getElementById("nav-active-order-badge");
   if (navOrderBadge) {
     if (activeOrders.length > 0) {
       navOrderBadge.style.display = "inline-block";
@@ -373,26 +377,35 @@ function renderCustomerOrdersAndStats() {
     }
   }
 
+  // Update Reward Cash Badge dynamically (₹20 base + ₹10 per order)
+  const rewardEl = document.getElementById("prof-reward-points");
+  if (rewardEl) {
+    rewardEl.innerText = `₹${20 + (list.length * 10)}`;
+  }
+
+  const currentOrderContainer = document.getElementById("current-order-container");
+  const allOrdersContainer = document.getElementById("all-orders-container");
+
   if (currentOrderContainer) {
     if (activeOrders.length > 0) {
       currentOrderContainer.innerHTML = `
-        <div style="margin-bottom:10px; font-size:0.85rem; color:#10b981; font-weight:700;">
+        <div style="margin-bottom:10px; font-size:0.85rem; color:#15803d; font-weight:800;">
           🟢 आपके ${activeOrders.length} चालू (Active) ऑर्डर का लाइव स्टेटस:
         </div>
         ${activeOrders.map(o => buildOrderCardHTML(o, true)).join("")}
       `;
     } else if (lastOrder) {
       currentOrderContainer.innerHTML = `
-        <div style="margin-bottom:10px; font-size:0.85rem; color:#fbbf24; font-weight:700;">
-          ✨ आपका कोई पेंडिंग ऑर्डर नहीं है। आपका आखिरी ऑर्डर यहाँ है:
+        <div style="margin-bottom:10px; font-size:0.85rem; color:#b45309; font-weight:800;">
+          ✨ अभी कोई पेंडिंग ऑर्डर नहीं है। आपका आखिरी ऑर्डर:
         </div>
         ${buildOrderCardHTML(lastOrder, false)}
       `;
     } else {
       currentOrderContainer.innerHTML = `
-        <div style="text-align:center; padding:25px 10px; color:var(--text-dim);">
-          <div style="font-size:2rem; margin-bottom:8px;">📦</div>
-          <p style="margin:0;">इस नंबर पर अभी कोई ऑर्डर नहीं मिला है।</p>
+        <div style="text-align:center; padding:25px 10px; color:#64748b;">
+          <div style="font-size:2.2rem; margin-bottom:6px;">📦</div>
+          <p style="margin:0; font-size:0.88rem;">इस नंबर पर अभी कोई ऑर्डर नहीं मिला है। ऊपर अपना 10 अंकों का मोबाइल नंबर डालकर खोजें।</p>
         </div>
       `;
     }
@@ -400,11 +413,11 @@ function renderCustomerOrdersAndStats() {
 
   if (allOrdersContainer) {
     if (list.length === 0) {
-      allOrdersContainer.innerHTML = `<p style="text-align:center; color:var(--text-dim); padding:20px;">आपने अभी तक कोई ऑर्डर नहीं किया है।</p>`;
+      allOrdersContainer.innerHTML = `<p style="text-align:center; color:#64748b; padding:16px; font-size:0.85rem;">आपने अभी तक कोई ऑर्डर नहीं किया है।</p>`;
     } else {
       allOrdersContainer.innerHTML = list.map((o, idx) => `
-        <div style="font-size:0.75rem; color:#94a3b8; margin-bottom:4px; font-weight:700;">
-          ${idx === 0 ? "🌟 सबसे नया ऑर्डर (Latest Order)" : `ऑर्डर #${list.length - idx}`}
+        <div style="font-size:0.76rem; color:#64748b; margin:10px 0 4px; font-weight:800;">
+          ${idx === 0 ? "🌟 सबसे नया ऑर्डर (Latest Order)" : `पुराना ऑर्डर #${list.length - idx}`}
         </div>
         ${buildOrderCardHTML(o, idx === 0)}
       `).join("");
@@ -473,7 +486,7 @@ window.handleRegister = async function(event) {
     populateProfileUI(profileData);
     showToast("🎉 खाता बन गया! अब आपको दोबारा पता भरने की ज़रूरत नहीं पड़ेगी।");
     closeAuthModal();
-    openCustomerHub('profile');
+    openCustomerHub('main');
   } catch (error) {
     alert("रजिस्ट्रेशन में समस्या: " + error.message);
   }
@@ -488,7 +501,7 @@ window.handleLogin = async function(event) {
     await signInWithEmailAndPassword(auth, email, pass);
     showToast("✅ सफलतापूर्वक लॉग-इन हो गए हैं!");
     closeAuthModal();
-    openCustomerHub('profile');
+    openCustomerHub('main');
   } catch (error) {
     alert("लॉग-इन असफल: गलत ईमेल या पासवर्ड।");
   }
@@ -500,7 +513,7 @@ window.handleLogout = async function() {
   closeCustomerHub();
 };
 
-// 10. Submit Order with Payment Options (Cash / UPI / Card)
+// 10. Submit Order with Payment Options (Cash / UPI 9310703102@ptaxis / Card)
 window.submitCartOrder = async function(event) {
   event.preventDefault();
   if (window.cart.length === 0) {
@@ -523,7 +536,7 @@ window.submitCartOrder = async function(event) {
 
   if (selectedPay === "UPI") {
     const utr = document.getElementById("upi-utr-input")?.value.trim() || "";
-    paymentMethodLabel = utr ? `UPI Paid (UTR: ${utr})` : "UPI (Scan / App Payment)";
+    paymentMethodLabel = utr ? `UPI Paid to 9310703102@ptaxis (UTR: ${utr})` : "UPI (9310703102@ptaxis)";
     transactionId = utr;
   } else if (selectedPay === "CARD") {
     const cardSubMode = document.getElementById("card-sub-mode")?.value || "online";
@@ -543,7 +556,6 @@ window.submitCartOrder = async function(event) {
   const discount = window.appliedCoupon ? Math.round(subtotal * (window.activeDiscountPercent / 100)) : 0;
   const finalAmount = subtotal - discount;
 
-  // Address includes Payment Badge so Admin sees it immediately in existing admin.html too!
   const addressWithPaymentInfo = `${rawAddress} [💳 ${paymentMethodLabel}]`;
 
   try {
@@ -581,15 +593,9 @@ window.submitCartOrder = async function(event) {
     window.updateCartUI();
     closeCheckoutModal();
 
-    const authBtn = document.getElementById('auth-nav-btn');
-    if (authBtn && !window.currentUser) {
-      authBtn.innerHTML = `👤 ${name.split(" ")[0]}`;
-      authBtn.onclick = () => openCustomerHub('profile');
-    }
-
     startLiveOrdersListener(window.currentUser ? window.currentUser.uid : null, phone);
     showToast(`🎉 ऑर्डर सफल (${paymentMethodLabel})! लाइव स्टेटस देखें।`);
-    openCustomerHub('track');
+    openCustomerHub('orders');
   } catch (e) {
     alert("ऑर्डर सेव करने में समस्या: " + e.message);
   }
@@ -691,14 +697,15 @@ nav {
   display: none;
 }
 .auth-btn-nav {
-  background: rgba(255,255,255,0.08);
-  color: #fff;
-  border: 1px solid rgba(255,255,255,0.2);
-  padding: 8px 12px;
+  background: #ffffff;
+  color: #0f172a;
+  border: none;
+  padding: 8px 14px;
   border-radius: 30px;
-  font-weight: 700;
+  font-weight: 800;
   cursor: pointer;
   font-size: 0.78rem;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.25);
 }
 .cart-btn-nav {
   background: linear-gradient(135deg, #10b981, #059669);
@@ -859,74 +866,307 @@ nav {
 .step-card h4 { margin: 0 0 6px; font-size: 1.05rem; color: #fff; }
 .step-card p { margin: 0; font-size: 0.84rem; color: var(--text-dim); }
 
-/* Visual Live Order Tracker */
-.cust-order-card {
-  background: rgba(255,255,255,0.04);
-  border: 1px solid rgba(255,255,255,0.12);
-  border-radius: 16px;
-  padding: 15px;
-  margin-bottom: 14px;
+/* ==========================================================================
+   NEW APP-STYLE PROFILE UI (MATCHING UPLOADED SCREENSHOT 100%)
+   ========================================================================== */
+#customer-hub-modal {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0,0,0,0.75);
+  z-index: 4200;
+  justify-content: flex-end;
 }
-.cust-order-card.highlight-order {
-  border-color: var(--accent-green);
-  background: rgba(16, 185, 129, 0.07);
+.app-profile-drawer {
+  width: 100%;
+  max-width: 440px;
+  height: 100%;
+  background: #ffffff;
+  color: #1e293b;
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+  box-shadow: -8px 0 30px rgba(0,0,0,0.5);
+  animation: slideInRight 0.25s ease-out;
 }
-.live-tracker-box {
-  background: rgba(5, 28, 20, 0.85);
-  border: 1px solid var(--border-glow);
+@keyframes slideInRight {
+  from { transform: translateX(100%); }
+  to { transform: translateX(0); }
+}
+
+/* Top White Header with Back Arrow, 'Profile' Title & ₹20 Green Cash Pill */
+.app-prof-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px 18px 12px;
+  background: #ffffff;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+.app-prof-header-left {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+.app-back-btn {
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  color: #0f172a;
+  cursor: pointer;
+  padding: 0;
+  line-height: 1;
+}
+.app-prof-title {
+  font-size: 1.2rem;
+  font-weight: 800;
+  color: #0f172a;
+  margin: 0;
+}
+.app-reward-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 3px 10px rgba(0,0,0,0.08);
+  padding: 5px 12px;
+  border-radius: 30px;
+  font-weight: 800;
+  font-size: 0.88rem;
+  color: #0f172a;
+  cursor: pointer;
+}
+.app-reward-note {
+  background: #10b981;
+  color: #fff;
+  font-size: 0.72rem;
+  padding: 2px 5px;
+  border-radius: 4px;
+  font-weight: 800;
+}
+
+/* Horizontal Quick Filter Pills: Basics >, Garden Size >, Plant & Soil > */
+.app-top-pills {
+  display: flex;
+  gap: 10px;
+  padding: 4px 18px 16px;
+  overflow-x: auto;
+  background: #ffffff;
+}
+.app-pill-tag {
+  background: #ffffff;
+  border: 1px solid #cbd5e1;
+  border-radius: 30px;
+  padding: 7px 14px;
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: #1e293b;
+  white-space: nowrap;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+.app-pill-tag:hover, .app-pill-tag.active {
+  border-color: #0f172a;
+  background: #f8fafc;
+}
+
+/* 2x2 Action Grid: Orders, Insider, Help Center, Coupons */
+.app-grid-2x2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  padding: 4px 18px 18px;
+  background: #ffffff;
+  border-bottom: 6px solid #f1f5f9;
+}
+.app-grid-box {
+  background: #ffffff;
+  border: 1px solid #cbd5e1;
   border-radius: 12px;
-  padding: 12px 10px;
+  padding: 13px 14px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  cursor: pointer;
+  transition: 0.15s;
+}
+.app-grid-box:hover {
+  border-color: #15803d;
+  background: #f8fafc;
+}
+.app-grid-box-left {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.app-grid-icon {
+  font-size: 1.25rem;
+  color: #334155;
+}
+.app-grid-label {
+  font-size: 0.95rem;
+  font-weight: 800;
+  color: #0f172a;
+}
+.app-grid-sub {
+  display: block;
+  font-size: 0.68rem;
+  color: #15803d;
+  font-weight: 700;
+}
+.app-chevron {
+  color: #64748b;
+  font-weight: 700;
+  font-size: 1rem;
+}
+
+/* Vertical Menu List Items */
+.app-menu-list {
+  display: flex;
+  flex-direction: column;
+  background: #ffffff;
+}
+.app-menu-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 18px;
+  border-bottom: 1px solid #f1f5f9;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+.app-menu-item:hover {
+  background: #f8fafc;
+}
+.app-menu-left {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+}
+.app-menu-icon {
+  font-size: 1.3rem;
+  color: #475569;
+  margin-top: 2px;
+  width: 26px;
+  text-align: center;
+}
+.app-menu-title-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.app-menu-title {
+  font-size: 0.96rem;
+  font-weight: 800;
+  color: #0f172a;
+}
+.app-new-badge {
+  background: #ff3f6c;
+  color: #ffffff;
+  font-size: 0.65rem;
+  font-weight: 800;
+  padding: 2px 8px;
+  border-radius: 20px;
+  text-transform: uppercase;
+}
+.app-menu-sub {
+  font-size: 0.8rem;
+  color: #64748b;
+  margin-top: 2px;
+}
+
+/* Expandable Sub-Panels inside Profile */
+.app-subview {
+  display: none;
+  padding: 16px 18px 25px;
+  background: #ffffff;
+  flex: 1;
+}
+.app-subview.active {
+  display: block;
+}
+.app-subview-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 14px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid #e2e8f0;
+}
+.app-subview-back {
+  background: #f1f5f9;
+  color: #0f172a;
+  border: 1px solid #cbd5e1;
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-size: 0.78rem;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+/* Light-Themed Order Card & Live Tracker inside App Profile */
+.app-order-card {
+  background: #ffffff;
+  border: 1px solid #cbd5e1;
+  border-radius: 14px;
+  padding: 14px;
+  margin-bottom: 14px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+}
+.app-order-card.highlight {
+  border: 2px solid #15803d;
+  background: #f0fdf4;
+}
+.live-tracker-box-light {
+  background: #ffffff;
+  border: 1px solid #cbd5e1;
+  border-radius: 12px;
+  padding: 12px 8px;
   margin: 10px 0;
 }
 .track-steps-row { display: grid; grid-template-columns: repeat(6, 1fr); gap: 4px; text-align: center; }
-.track-step { display: flex; flex-direction: column; align-items: center; opacity: 0.4; }
-.track-step.done { opacity: 1; }
-.track-dot {
-  width: 30px; height: 30px; border-radius: 50%;
-  background: #1e293b; border: 2px solid #475569;
+.track-step-light { display: flex; flex-direction: column; align-items: center; opacity: 0.35; }
+.track-step-light.done { opacity: 1; }
+.track-dot-light {
+  width: 28px; height: 28px; border-radius: 50%;
+  background: #f1f5f9; border: 2px solid #94a3b8; color: #334155;
   display: flex; align-items: center; justify-content: center;
-  font-size: 0.8rem; margin-bottom: 4px;
+  font-size: 0.78rem; margin-bottom: 4px; font-weight: 700;
 }
-.track-step.done .track-dot { background: #064e3b; border-color: var(--accent-green); }
-.track-step.current .track-dot {
-  background: var(--accent-gold); border-color: #fff; color: #000;
-  transform: scale(1.12); box-shadow: 0 0 12px rgba(245, 158, 11, 0.7);
+.track-step-light.done .track-dot-light { background: #dcfce7; border-color: #15803d; color: #14532d; }
+.track-step-light.current .track-dot-light {
+  background: #f59e0b; border-color: #0f172a; color: #000;
+  transform: scale(1.12); box-shadow: 0 0 10px rgba(245, 158, 11, 0.5);
 }
-.track-label { font-size: 0.65rem; font-weight: 700; color: #cbd5e1; line-height: 1.2; }
-.track-step.current .track-label { color: #fbbf24; }
+.track-label-light { font-size: 0.63rem; font-weight: 800; color: #334155; line-height: 1.15; }
+.track-step-light.current .track-label-light { color: #b45309; }
 
-.prof-stats-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 16px; }
-.prof-stat-box {
-  background: rgba(5, 28, 20, 0.8); border: 1px solid var(--border-glow);
-  border-radius: 12px; padding: 10px; text-align: center;
+/* Light Form Controls inside Profile */
+.light-form-group { margin-bottom: 12px; text-align: left; }
+.light-form-group label { display: block; font-size: 0.8rem; color: #334155; margin-bottom: 4px; font-weight: 700; }
+.light-form-group input, .light-form-group textarea {
+  width: 100%; padding: 10px 12px; border-radius: 10px;
+  background: #f8fafc; border: 1px solid #cbd5e1; color: #0f172a; font-size: 0.9rem; font-family: inherit;
 }
-.prof-stat-box span { display: block; font-size: 0.72rem; color: var(--text-dim); }
-.prof-stat-box strong { display: block; font-size: 1.05rem; color: #fbbf24; margin-top: 3px; }
 
 /* Payment Selector Styles */
-.pay-methods-grid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 8px;
-  margin-bottom: 12px;
-}
+.pay-methods-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 12px; }
 .pay-option-card {
-  background: #051c14;
-  border: 2px solid rgba(255,255,255,0.15);
-  border-radius: 12px;
-  padding: 10px 6px;
-  text-align: center;
-  cursor: pointer;
-  transition: 0.2s;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 4px;
+  background: #051c14; border: 2px solid rgba(255,255,255,0.15); border-radius: 12px;
+  padding: 10px 6px; text-align: center; cursor: pointer; transition: 0.2s;
+  display: flex; flex-direction: column; align-items: center; gap: 4px;
 }
 .pay-option-card input { display: none; }
 .pay-option-card.active {
-  border-color: var(--accent-green);
-  background: rgba(16, 185, 129, 0.15);
+  border-color: var(--accent-green); background: rgba(16, 185, 129, 0.15);
   box-shadow: 0 0 12px rgba(16, 185, 129, 0.25);
 }
 .pay-option-card .pay-icon { font-size: 1.35rem; }
@@ -934,44 +1174,27 @@ nav {
 .pay-option-card .pay-sub { font-size: 0.65rem; color: var(--text-dim); }
 
 .pay-detail-box {
-  background: rgba(5, 28, 20, 0.9);
-  border: 1px solid var(--border-glow);
-  border-radius: 12px;
-  padding: 12px;
-  margin-bottom: 14px;
-  text-align: center;
+  background: rgba(5, 28, 20, 0.9); border: 1px solid var(--border-glow);
+  border-radius: 12px; padding: 12px; margin-bottom: 14px; text-align: center;
 }
 .upi-qr-img {
-  width: 155px;
-  height: 155px;
-  background: #fff;
-  padding: 6px;
-  border-radius: 10px;
-  margin: 8px auto;
-  display: block;
+  width: 155px; height: 155px; background: #fff; padding: 6px;
+  border-radius: 10px; margin: 8px auto; display: block;
 }
 .upi-app-btn {
-  display: inline-block;
-  background: #fbbf24;
-  color: #000;
-  font-weight: 800;
-  font-size: 0.82rem;
-  padding: 9px 16px;
-  border-radius: 8px;
-  text-decoration: none;
-  margin: 6px 0 10px;
+  display: inline-block; background: #fbbf24; color: #000; font-weight: 800;
+  font-size: 0.82rem; padding: 9px 16px; border-radius: 8px; text-decoration: none; margin: 6px 0 10px;
 }
 
 /* Modals & Drawers */
 .custom-modal {
   display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-  background: rgba(0,0,0,0.82); z-index: 4000; align-items: center; justify-content: center; padding: 12px;
+  background: rgba(0,0,0,0.82); z-index: 4300; align-items: center; justify-content: center; padding: 12px;
 }
 .modal-content {
   background: #0b3d2c; padding: 22px; border-radius: 20px; width: 100%; max-width: 450px;
   border: 1px solid var(--accent-green); position: relative; max-height: 92vh; overflow-y: auto;
 }
-.modal-content.wide-modal { max-width: 600px; }
 .modal-content h3 { color: #fff; margin: 0 0 12px; font-size: 1.22rem; }
 .form-group { margin-bottom: 12px; text-align: left; }
 .form-group label { display: block; font-size: 0.8rem; color: var(--text-dim); margin-bottom: 4px; font-weight: 600; }
@@ -1088,10 +1311,10 @@ footer { background: #03110b; color: var(--text-dim); padding: 40px 15px 25px; b
     </div>
   </a>
   <div class="nav-right">
-    <button class="track-btn-nav" onclick="openCustomerHub('track')">
+    <button class="track-btn-nav" onclick="openCustomerHub('orders')">
       📍 Track Order <span id="nav-active-order-badge" class="badge-dot">0</span>
     </button>
-    <button id="auth-nav-btn" class="auth-btn-nav" onclick="openAuthModal()">🔑 Login / Profile</button>
+    <button id="auth-nav-btn" class="auth-btn-nav" onclick="openCustomerHub('main')">👤 Profile</button>
     <button class="cart-btn-nav" onclick="toggleCart()">🛒 (<span id="cart-count">0</span>)</button>
   </div>
 </nav>
@@ -1335,7 +1558,7 @@ footer { background: #03110b; color: var(--text-dim); padding: 40px 15px 25px; b
       नमस्ते! 🌱 मैं <strong>BaghVeda® Smart AI</strong> हूँ। आप मुझसे अलग-अलग सवाल पूछ सकते हैं:<br>
       • <strong>पौधों की देखभाल</strong> (तुलसी, गुलाब, इनडोर प्लांट्स, सब्जियां)<br>
       • <strong>पैक की कीमतें और कूपन कोड</strong><br>
-      • <strong>Cash, UPI और Card पेमेंट</strong><br>
+      • <strong>Cash, UPI (9310703102@ptaxis) और Card पेमेंट</strong><br>
       • <strong>आपके लाइव ऑर्डर का स्टेटस</strong>
     </div>
   </div>
@@ -1367,77 +1590,365 @@ footer { background: #03110b; color: var(--text-dim); padding: 40px 15px 25px; b
   </div>
 </div>
 
-<!-- 1. Unified Customer Hub Modal (Profile + Live Order Tracker + Past Orders History) -->
-<div id="customer-hub-modal" class="custom-modal">
-  <div class="modal-content wide-modal">
-    <span class="close-btn" onclick="closeCustomerHub()">×</span>
-    <h3>🌿 मेरा बागवेदा अकाउंट और ऑर्डर्स</h3>
+<!-- ==========================================================================
+     1. APP-STYLE PROFILE DRAWER (DESIGNED EXACTLY LIKE UPLOADED SCREENSHOT)
+     ========================================================================== -->
+<div id="customer-hub-modal">
+  <div class="app-profile-drawer">
 
-    <div class="prof-stats-grid">
-      <div class="prof-stat-box">
-        <span>कुल ऑर्डर्स</span>
-        <strong id="stat-total-orders">0</strong>
+    <!-- Top Header: ← Profile & ₹20 Green Cash Badge -->
+    <div class="app-prof-header">
+      <div class="app-prof-header-left">
+        <button class="app-back-btn" onclick="handleProfileBack()">←</button>
+        <div>
+          <h3 class="app-prof-title" id="app-prof-header-title">Profile</h3>
+          <div id="app-prof-user-subtitle" style="font-size:0.72rem; color:#64748b; font-weight:600;">अपने ऑर्डर और पते मैनेज करें</div>
+        </div>
       </div>
-      <div class="prof-stat-box">
-        <span>चालू (Active) ऑर्डर</span>
-        <strong id="stat-active-orders" style="color:#10b981;">0</strong>
-      </div>
-      <div class="prof-stat-box">
-        <span>आखिरी ऑर्डर</span>
-        <strong id="stat-last-order" style="font-size:0.78rem;">कोई नहीं</strong>
+      <div class="app-reward-pill" onclick="switchHubView('earn')" title="BaghVeda Green Cash">
+        <span id="prof-reward-points">₹20</span>
+        <span class="app-reward-note">₹</span>
       </div>
     </div>
 
-    <div class="tab-row">
-      <button class="tab-btn active" id="hub-tab-track-btn" onclick="switchHubTab('track')">📍 ट्रैक ऑर्डर (Live)</button>
-      <button class="tab-btn" id="hub-tab-history-btn" onclick="switchHubTab('history')">📦 सारे ऑर्डर्स</button>
-      <button class="tab-btn" id="hub-tab-profile-btn" onclick="switchHubTab('profile')">👤 मेरी प्रोफ़ाइल</button>
+    <!-- MAIN MENU VIEW (Matches Screenshot 100%) -->
+    <div id="hub-view-main">
+      <!-- Top Horizontal Pills: Basics >, Size Details >, Skin & Hair > adapted for BaghVeda -->
+      <div class="app-top-pills">
+        <button class="app-pill-tag" onclick="switchHubView('account')">Basics <span>›</span></button>
+        <button class="app-pill-tag" onclick="switchHubView('orders')">Order Status <span>›</span></button>
+        <button class="app-pill-tag" onclick="switchHubView('suggests')">Plant & Soil <span>›</span></button>
+      </div>
+
+      <!-- 2x2 Action Grid: Orders, Insider, Help Center, Coupons -->
+      <div class="app-grid-2x2">
+        <div class="app-grid-box" onclick="switchHubView('orders')">
+          <div class="app-grid-box-left">
+            <span class="app-grid-icon">📦</span>
+            <div>
+              <span class="app-grid-label">Orders</span>
+              <span class="app-grid-sub" id="prof-orders-count-sub">ट्रैक और हिस्ट्री देखें</span>
+            </div>
+          </div>
+          <span class="app-chevron">›</span>
+        </div>
+
+        <div class="app-grid-box" onclick="switchHubView('insider')">
+          <div class="app-grid-box-left">
+            <span class="app-grid-icon">👑</span>
+            <div>
+              <span class="app-grid-label">Insider</span>
+              <span class="app-grid-sub">VIP मेंबरशिप</span>
+            </div>
+          </div>
+          <span class="app-chevron">›</span>
+        </div>
+
+        <div class="app-grid-box" onclick="switchHubView('help')">
+          <div class="app-grid-box-left">
+            <span class="app-grid-icon">🎧</span>
+            <div>
+              <span class="app-grid-label">Help Center</span>
+              <span class="app-grid-sub">24x7 सहायता</span>
+            </div>
+          </div>
+          <span class="app-chevron">›</span>
+        </div>
+
+        <div class="app-grid-box" onclick="switchHubView('coupons')">
+          <div class="app-grid-box-left">
+            <span class="app-grid-icon">🎟️</span>
+            <div>
+              <span class="app-grid-label">Coupons</span>
+              <span class="app-grid-sub">KHUSHI25 (25% छूट)</span>
+            </div>
+          </div>
+          <span class="app-chevron">›</span>
+        </div>
+      </div>
+
+      <!-- Vertical List Menu Items -->
+      <div class="app-menu-list">
+        <div class="app-menu-item" onclick="switchHubView('insider')">
+          <div class="app-menu-left">
+            <span class="app-menu-icon">✳️</span>
+            <div>
+              <div class="app-menu-title-row">
+                <span class="app-menu-title">Ultimate Green Clan</span>
+                <span class="app-new-badge">NEW</span>
+              </div>
+              <div class="app-menu-sub">BaghVeda Ambassador program for plant lovers</div>
+            </div>
+          </div>
+          <span class="app-chevron">›</span>
+        </div>
+
+        <div class="app-menu-item" onclick="switchHubView('orders')">
+          <div class="app-menu-left">
+            <span class="app-menu-icon">🚚</span>
+            <div>
+              <div class="app-menu-title-row">
+                <span class="app-menu-title">Live Order Tracker</span>
+                <span class="app-new-badge">LIVE</span>
+              </div>
+              <div class="app-menu-sub">Track Processing, Packed, Shipped & Delivery status</div>
+            </div>
+          </div>
+          <span class="app-chevron">›</span>
+        </div>
+
+        <div class="app-menu-item" onclick="switchHubView('payments')">
+          <div class="app-menu-left">
+            <span class="app-menu-icon">💵</span>
+            <div>
+              <div class="app-menu-title-row">
+                <span class="app-menu-title">Payments & Currencies</span>
+              </div>
+              <div class="app-menu-sub">UPI (9310703102@ptaxis), Cash (COD) & Card methods</div>
+            </div>
+          </div>
+          <span class="app-chevron">⌄</span>
+        </div>
+
+        <div class="app-menu-item" onclick="switchHubView('earn')">
+          <div class="app-menu-left">
+            <span class="app-menu-icon">👛</span>
+            <div>
+              <div class="app-menu-title-row">
+                <span class="app-menu-title">Earn & Redeem</span>
+              </div>
+              <div class="app-menu-sub">View Green Cash prizes and earn gardening rewards</div>
+            </div>
+          </div>
+          <span class="app-chevron">⌄</span>
+        </div>
+
+        <div class="app-menu-item" onclick="switchHubView('account')">
+          <div class="app-menu-left">
+            <span class="app-menu-icon">📝</span>
+            <div>
+              <div class="app-menu-title-row">
+                <span class="app-menu-title">Manage Account</span>
+              </div>
+              <div class="app-menu-sub">Manage your account, mobile number and saved addresses</div>
+            </div>
+          </div>
+          <span class="app-chevron">⌄</span>
+        </div>
+
+        <div class="app-menu-item" onclick="switchHubView('challenges')">
+          <div class="app-menu-left">
+            <span class="app-menu-icon">🎯</span>
+            <div>
+              <div class="app-menu-title-row">
+                <span class="app-menu-title">Challenges</span>
+              </div>
+              <div class="app-menu-sub">Earn prizes by completing fun gardening tasks</div>
+            </div>
+          </div>
+          <span class="app-chevron">›</span>
+        </div>
+
+        <div class="app-menu-item" onclick="switchHubView('wishlist')">
+          <div class="app-menu-left">
+            <span class="app-menu-icon">🤍</span>
+            <div>
+              <div class="app-menu-title-row">
+                <span class="app-menu-title">Wishlist</span>
+              </div>
+              <div class="app-menu-sub">Your most loved organic potting soil packs</div>
+            </div>
+          </div>
+          <span class="app-chevron">›</span>
+        </div>
+
+        <div class="app-menu-item" onclick="switchHubView('suggests')">
+          <div class="app-menu-left">
+            <span class="app-menu-icon">✪</span>
+            <div>
+              <div class="app-menu-title-row">
+                <span class="app-menu-title">BaghVeda Suggests</span>
+              </div>
+              <div class="app-menu-sub">100% personalized organic care feed just for you</div>
+            </div>
+          </div>
+          <span class="app-chevron">›</span>
+        </div>
+      </div>
+
+      <!-- Bottom Login/Logout Bar inside Main Profile -->
+      <div style="padding:18px; background:#f8fafc;">
+        <div id="prof-auth-trigger-row" style="display:flex; gap:10px;">
+          <button class="buy-now-btn" style="width:100%;" onclick="closeCustomerHub(); openAuthModal();">🔑 Login / 1-Time Register</button>
+        </div>
+        <button id="logout-profile-btn" class="buy-now-btn" onclick="handleLogout()" style="width:100%; background:#ef4444; display:none;">🚪 लॉग-आउट (Logout)</button>
+      </div>
     </div>
 
-    <!-- TAB 1: Track Current Order -->
-    <div id="hub-sec-track">
+    <!-- SUBVIEW 1: ORDERS & LIVE TRACKER -->
+    <div id="hub-view-orders" class="app-subview">
+      <div class="app-subview-header">
+        <strong style="font-size:1rem; color:#0f172a;">📦 मेरे ऑर्डर्स और लाइव ट्रैकिंग</strong>
+        <button class="app-subview-back" onclick="switchHubView('main')">← Back to Profile</button>
+      </div>
+
       <form onsubmit="trackByPhoneSubmit(event)" style="display:flex; gap:8px; margin-bottom:12px;">
-        <input type="tel" id="track-phone-input" placeholder="मोबाइल नंबर डालकर ऑर्डर ट्रैक करें (10 अंक)" maxlength="10" style="flex:1; padding:10px; border-radius:8px; background:#051c14; border:1px solid rgba(255,255,255,0.2); color:#fff; font-size:0.85rem;">
+        <input type="tel" id="track-phone-input" placeholder="10 अंकों का मोबाइल नंबर डालें..." maxlength="10" style="flex:1; padding:10px 12px; border-radius:10px; background:#f8fafc; border:1px solid #cbd5e1; color:#0f172a; font-size:0.88rem;">
         <button type="submit" class="buy-now-btn" style="flex:0 0 auto; padding:10px 16px;">🔍 खोजें</button>
       </form>
       <div id="track-lookup-msg" style="display:none; font-size:0.78rem; margin-bottom:10px; font-weight:700;"></div>
 
-      <div id="current-order-container">
-        <p style="text-align:center; color:var(--text-dim);">अपना मोबाइल नंबर डालें या लॉगिन करें।</p>
-      </div>
+      <div id="current-order-container"></div>
+      <hr style="border:0; border-top:1px solid #e2e8f0; margin:16px 0;">
+      <h4 style="margin:0 0 10px; color:#0f172a; font-size:0.95rem;">📜 आपके सभी ऑर्डर्स की हिस्ट्री:</h4>
+      <div id="all-orders-container"></div>
     </div>
 
-    <!-- TAB 2: All Past Orders History -->
-    <div id="hub-sec-history" style="display:none;">
-      <div id="all-orders-container">
-        <p style="text-align:center; color:var(--text-dim);">आपका कोई पुराना ऑर्डर नहीं मिला है।</p>
+    <!-- SUBVIEW 2: MANAGE ACCOUNT & SAVED ADDRESSES -->
+    <div id="hub-view-account" class="app-subview">
+      <div class="app-subview-header">
+        <strong style="font-size:1rem; color:#0f172a;">📝 Manage Account & Address</strong>
+        <button class="app-subview-back" onclick="switchHubView('main')">← Back</button>
       </div>
-    </div>
-
-    <!-- TAB 3: Customer Saved Profile & Address -->
-    <div id="hub-sec-profile" style="display:none;">
-      <p style="font-size:0.8rem; color:#fbbf24; margin-top:0;">✨ एक बार अपनी डिटेल सेव कर दें, हर ऑर्डर में यह अपने-आप भर जाएगी!</p>
+      <p style="font-size:0.8rem; color:#15803d; font-weight:700; margin-top:0;">✨ एक बार अपना मोबाइल नंबर और पता सेव कर दें, हर ऑर्डर में यह अपने-आप आ जाएगा!</p>
       <form onsubmit="saveCustomerProfile(event)">
-        <div class="form-group">
-          <label>आपका नाम</label>
-          <input type="text" id="prof-name" placeholder="पूरा नाम" required>
-        </div>
-        <div class="form-group">
-          <label>मोबाइल नंबर (इसी नंबर से आपके सारे ऑर्डर जुड़ेंगे)</label>
+        <div class="light-form-group">
+          <label>मोबाइल नंबर (10 अंक - डालते ही पुराना रिकॉर्ड आ जाएगा)</label>
           <input type="tel" id="prof-phone" placeholder="10 अंकों का मोबाइल नंबर" maxlength="10" oninput="if(this.value.length>=10) window.lookupCustomerByPhone(this.value, 'track')" required>
         </div>
-        <div class="form-group">
+        <div class="light-form-group">
+          <label>आपका पूरा नाम</label>
+          <input type="text" id="prof-name" placeholder="पूरा नाम" required>
+        </div>
+        <div class="light-form-group">
           <label>ईमेल (वैकल्पिक)</label>
           <input type="email" id="prof-email" placeholder="example@gmail.com">
         </div>
-        <div class="form-group">
+        <div class="light-form-group">
           <label>डिफ़ॉल्ट डिलीवरी पता (Full Address with Pincode)</label>
           <textarea id="prof-address" rows="3" placeholder="मकान नंबर, गली/कॉलोनी, लैंडमार्क, दिल्ली पिनकोड..." required></textarea>
         </div>
-        <button type="submit" class="buy-now-btn" style="width:100%; padding:12px; margin-bottom:10px;">💾 प्रोफ़ाइल और पता सेव करें</button>
+        <button type="submit" class="buy-now-btn" style="width:100%; padding:13px;">💾 प्रोफ़ाइल और पता हमेशा के लिए सेव करें</button>
       </form>
-      <button id="logout-profile-btn" class="buy-now-btn" onclick="handleLogout()" style="width:100%; background:#ef4444; display:none;">🚪 लॉग-आउट (Logout)</button>
     </div>
+
+    <!-- SUBVIEW 3: COUPONS -->
+    <div id="hub-view-coupons" class="app-subview">
+      <div class="app-subview-header">
+        <strong style="font-size:1rem; color:#0f172a;">🎟️ मेरे कूपन और ऑफर्स</strong>
+        <button class="app-subview-back" onclick="switchHubView('main')">← Back</button>
+      </div>
+      <div style="border:2px dashed #15803d; background:#f0fdf4; border-radius:14px; padding:16px; text-align:center;">
+        <div style="font-size:0.75rem; font-weight:800; color:#15803d; text-transform:uppercase;">Special Gardening Offer</div>
+        <div style="font-size:1.5rem; font-weight:800; color:#0f172a; margin:6px 0;">KHUSHI25</div>
+        <p style="font-size:0.84rem; color:#334155; margin:0 0 12px;">सभी ऑर्गेनिक पॉटिंग मिक्स पैक्स पर तुरंत <strong>25% की अतिरिक्त छूट</strong> पाएं!</p>
+        <button class="buy-now-btn" onclick="window.appliedCoupon=true; window.updateCartUI(); showToast('🎉 KHUSHI25 कूपन लागू हो गया!'); closeCustomerHub();">⚡ अभी कूपन लागू करें (Apply Coupon)</button>
+      </div>
+    </div>
+
+    <!-- SUBVIEW 4: PAYMENTS & CURRENCIES -->
+    <div id="hub-view-payments" class="app-subview">
+      <div class="app-subview-header">
+        <strong style="font-size:1rem; color:#0f172a;">💵 Payments & Currencies</strong>
+        <button class="app-subview-back" onclick="switchHubView('main')">← Back</button>
+      </div>
+      <div class="app-order-card">
+        <h4 style="margin:0 0 6px; color:#15803d;">📱 आधिकारिक UPI पेमेंट आईडी</h4>
+        <p style="margin:0 0 8px; font-size:0.9rem; font-weight:800; color:#0f172a;">UPI ID: <span style="color:#15803d;">9310703102@ptaxis</span></p>
+        <p style="margin:0; font-size:0.8rem; color:#64748b;">आप Google Pay, PhonePe या Paytm से इस UPI ID पर सीधा पेमेंट कर सकते हैं।</p>
+      </div>
+      <div class="app-order-card">
+        <h4 style="margin:0 0 6px; color:#0f172a;">💵 Cash on Delivery (COD)</h4>
+        <p style="margin:0; font-size:0.8rem; color:#64748b;">दिल्ली NCR में ऑर्डर आपके घर पहुँचने पर नकद भुगतान की सुविधा उपलब्ध है।</p>
+      </div>
+      <div class="app-order-card">
+        <h4 style="margin:0 0 6px; color:#0f172a;">💳 Debit / Credit Cards</h4>
+        <p style="margin:0; font-size:0.8rem; color:#64748b;">सभी Visa, MasterCard और RuPay कार्ड स्वीकार किए जाते हैं।</p>
+      </div>
+    </div>
+
+    <!-- SUBVIEW 5: HELP CENTER -->
+    <div id="hub-view-help" class="app-subview">
+      <div class="app-subview-header">
+        <strong style="font-size:1rem; color:#0f172a;">🎧 BaghVeda Help Center</strong>
+        <button class="app-subview-back" onclick="switchHubView('main')">← Back</button>
+      </div>
+      <div class="app-order-card">
+        <h4 style="margin:0 0 6px; color:#0f172a;">💬 WhatsApp कस्टमर सपोर्ट</h4>
+        <p style="font-size:0.82rem; color:#64748b; margin:0 0 10px;">ऑर्डर या डिलीवरी से जुड़े किसी भी सवाल के लिए तुरंत हमारे WhatsApp पर जुड़ें।</p>
+        <a href="https://wa.me/918700733425" target="_blank" class="buy-now-btn" style="display:inline-block; text-decoration:none;">💬 WhatsApp (+91 8700733425)</a>
+      </div>
+      <div class="app-order-card">
+        <h4 style="margin:0 0 6px; color:#0f172a;">📞 डायरेक्ट हेल्पलाइन कॉल</h4>
+        <p style="font-size:0.82rem; color:#64748b; margin:0 0 10px;">सुबह 9 बजे से रात 8 बजे तक सीधे बात करें।</p>
+        <a href="tel:+918700733425" class="buy-now-btn" style="display:inline-block; text-decoration:none; background:#0284c7;">📞 Call +91 8700733425</a>
+      </div>
+    </div>
+
+    <!-- SUBVIEW 6: INSIDER / EARN / CHALLENGES / WISHLIST / SUGGESTS -->
+    <div id="hub-view-insider" class="app-subview">
+      <div class="app-subview-header">
+        <strong style="font-size:1rem; color:#0f172a;">👑 BaghVeda Insider & Green Clan</strong>
+        <button class="app-subview-back" onclick="switchHubView('main')">← Back</button>
+      </div>
+      <div class="app-order-card highlight">
+        <h4 style="margin:0 0 6px; color:#15803d;">🌿 VIP Gardener Status: Active</h4>
+        <p style="font-size:0.84rem; color:#334155; margin:0;">आपको हर ऑर्डर पर <strong>Free 24-Hour Express Delivery</strong> और <strong>₹10 Green Cash</strong> बोनस मिलता है!</p>
+      </div>
+    </div>
+
+    <div id="hub-view-earn" class="app-subview">
+      <div class="app-subview-header">
+        <strong style="font-size:1rem; color:#0f172a;">👛 Earn & Redeem Rewards</strong>
+        <button class="app-subview-back" onclick="switchHubView('main')">← Back</button>
+      </div>
+      <div class="app-order-card highlight" style="text-align:center;">
+        <div style="font-size:0.8rem; color:#15803d; font-weight:800;">आपका Green Cash बैलेंस</div>
+        <div style="font-size:2rem; font-weight:800; color:#0f172a; margin:6px 0;">₹20</div>
+        <p style="font-size:0.82rem; color:#475569; margin:0 0 12px;">कूपन कोड <strong>KHUSHI25</strong> के साथ चेकआउट पर अतिरिक्त 25% की बचत करें!</p>
+      </div>
+    </div>
+
+    <div id="hub-view-challenges" class="app-subview">
+      <div class="app-subview-header">
+        <strong style="font-size:1rem; color:#0f172a;">🎯 Gardening Challenges</strong>
+        <button class="app-subview-back" onclick="switchHubView('main')">← Back</button>
+      </div>
+      <div class="app-order-card">
+        <h4 style="margin:0 0 6px; color:#0f172a;">🌱 5 गमलों को ऑर्गेनिक बनाएं</h4>
+        <p style="font-size:0.82rem; color:#64748b; margin:0 0 10px;">3 KG वैल्यू पैक ऑर्डर करें और अपने छत के बगीचे को 100% केमिकल-मुक्त बनाएं।</p>
+        <button class="buy-now-btn" onclick="closeCustomerHub(); buyInstant('Organic Potting Mix - 3 KG', window.dbPrices.kg3);">⚡ 3 KG पैक आर्डर करें</button>
+      </div>
+    </div>
+
+    <div id="hub-view-wishlist" class="app-subview">
+      <div class="app-subview-header">
+        <strong style="font-size:1rem; color:#0f172a;">🤍 Your Wishlist Packs</strong>
+        <button class="app-subview-back" onclick="switchHubView('main')">← Back</button>
+      </div>
+      <div class="app-order-card">
+        <div style="display:flex; justify-content:space-between; align-items:center;">
+          <div>
+            <strong style="color:#0f172a;">Organic Potting Mix - 2 KG (Most Popular)</strong>
+            <div style="font-size:0.82rem; color:#15803d; font-weight:800;">स्पेशल प्राइस: ₹249 <del style="color:#94a3b8;">₹399</del></div>
+          </div>
+          <button class="buy-now-btn" style="flex:0 0 auto; padding:8px 14px;" onclick="closeCustomerHub(); buyInstant('Organic Potting Mix - 2 KG', window.dbPrices.kg2);">Buy Now</button>
+        </div>
+      </div>
+    </div>
+
+    <div id="hub-view-suggests" class="app-subview">
+      <div class="app-subview-header">
+        <strong style="font-size:1rem; color:#0f172a;">✪ BaghVeda Suggests</strong>
+        <button class="app-subview-back" onclick="switchHubView('main')">← Back</button>
+      </div>
+      <div class="app-order-card highlight">
+        <h4 style="margin:0 0 6px; color:#15803d;">🪴 आपके पौधों के लिए पर्सनलाइज्ड सुझाव</h4>
+        <p style="font-size:0.82rem; color:#334155; margin:0 0 10px;">• <strong>1-2 छोटे इनडोर पौधे:</strong> 1 KG पैक चुनें<br>• <strong>4-6 बालकनी के गमले:</strong> 2 KG पैक (Bestseller) चुनें<br>• <strong>सब्जियां और टेरेस गार्डन:</strong> 3 KG पैक चुनें</p>
+        <button class="buy-now-btn" onclick="closeCustomerHub(); document.getElementById('products').scrollIntoView({behavior:'smooth'});">🛍️ पैक चुनें</button>
+      </div>
+    </div>
+
   </div>
 </div>
 
@@ -1454,7 +1965,7 @@ footer { background: #03110b; color: var(--text-dim); padding: 40px 15px 25px; b
       <div class="form-group"><label>Email</label><input type="email" id="login-email" required></div>
       <div class="form-group"><label>Password</label><input type="password" id="login-pass" required></div>
       <button type="submit" class="buy-now-btn" style="width:100%; padding:12px; margin-bottom:10px;">Login करें</button>
-      <button type="button" class="add-to-cart-btn" style="width:100%;" onclick="closeAuthModal(); openCustomerHub('track');">📱 बिना पासवर्ड मोबाइल नंबर से ऑर्डर ट्रैक करें</button>
+      <button type="button" class="add-to-cart-btn" style="width:100%;" onclick="closeAuthModal(); openCustomerHub('orders');">📱 बिना पासवर्ड मोबाइल नंबर से ऑर्डर ट्रैक करें</button>
     </form>
 
     <form id="register-form" onsubmit="handleRegister(event)" style="display:none;">
@@ -1469,7 +1980,7 @@ footer { background: #03110b; color: var(--text-dim); padding: 40px 15px 25px; b
   </div>
 </div>
 
-<!-- 3. Smart Checkout Modal with Cash (COD), UPI & Card Payment Options -->
+<!-- 3. Smart Checkout Modal with Cash (COD), UPI (9310703102@ptaxis) & Card Options -->
 <div id="order-modal" class="custom-modal">
   <div class="modal-content">
     <span class="close-btn" onclick="closeCheckoutModal()">×</span>
@@ -1524,14 +2035,15 @@ footer { background: #03110b; color: var(--text-dim); padding: 40px 15px 25px; b
         <p style="font-size:0.76rem; color:#cbd5e1; margin:4px 0 0;">अभी कोई ऑनलाइन पेमेंट नहीं करना है। जब ऑर्डर आपके घर पहुँच जाए, तब कैश में भुगतान करें।</p>
       </div>
 
-      <!-- 2. UPI QR & App Payment Box -->
+      <!-- 2. UPI QR & App Payment Box (Connected to 9310703102@ptaxis) -->
       <div id="pay-box-upi" class="pay-detail-box" style="display:none;">
         <div style="font-size:0.82rem; color:#fbbf24; font-weight:700;">📱 UPI से तुरंत पेमेंट करें (GPay / PhonePe / Paytm)</div>
+        <div style="font-size:0.75rem; color:#a7f3d0; margin-top:3px;">UPI ID: <strong>9310703102@ptaxis</strong></div>
         <img id="dynamic-upi-qr" class="upi-qr-img" src="" alt="BaghVeda UPI QR">
         <a id="dynamic-upi-link" href="#" class="upi-app-btn">⚡ फोन में UPI ऐप खोलकर पे करें</a>
         <div class="form-group" style="margin:6px 0 0; text-align:left;">
-          <label style="font-size:0.75rem;">पेमेंट के बाद UTR / Reference No. के आखिरी 4-12 अंक लिखें (वैकल्पिक):</label>
-          <input type="text" id="upi-utr-input" placeholder="उदा. 4125XXXX (या खाली छोड़ें)">
+          <label style="font-size:0.75rem;">पेमेंट के बाद UTR / Reference No. के आखिरी 4 अंक लिखें (वैकल्पिक):</label>
+          <input type="text" id="upi-utr-input" placeholder="उदा. 4125 (या खाली छोड़ें)">
         </div>
       </div>
 
@@ -1595,6 +2107,7 @@ footer { background: #03110b; color: var(--text-dim); padding: 40px 15px 25px; b
 <script>
 window.cart = [];
 window.appliedCoupon = false;
+window.currentHubView = 'main';
 
 function toggleCart() {
   document.getElementById('cart-drawer').classList.toggle('open');
@@ -1605,7 +2118,7 @@ function toggleAIChat() {
 }
 
 // ============================================================================
-// SMART MULTI-TOPIC BAGHVEDA AI ENGINE (Gives dynamic, unique replies always!)
+// SMART MULTI-TOPIC BAGHVEDA AI ENGINE
 // ============================================================================
 function generateSmartBaghVedaReply(queryText) {
   const q = queryText.toLowerCase().trim();
@@ -1614,67 +2127,47 @@ function generateSmartBaghVedaReply(queryText) {
   const p3 = window.dbPrices?.kg3 || 359;
   const disc = window.activeDiscountPercent || 25;
 
-  // 1. Live Order Status Check inside Chat
   if (/(order|track|status|kaha|kab aayega|ऑर्डर|स्टेटस|ट्रैक|कहाँ)/.test(q) && !/(kaise kare|how to order|ऑर्डर कैसे)/.test(q)) {
     if (window.customerOrders && window.customerOrders.length > 0) {
       const latest = window.customerOrders[0];
-      return `📦 <strong>आपका लेटेस्ट ऑर्डर अपडेट:</strong><br>• <strong>ऑर्डर ID:</strong> #${latest.id.slice(0,8).toUpperCase()}<br>• <strong>स्टेटस:</strong> <span style="color:#fbbf24; font-weight:800;">${latest.status || 'Processing'}</span><br>• <strong>कुल राशि:</strong> ₹${latest.totalAmount} (${latest.paymentMethod || 'COD'})<br><br>आप ऊपर <strong>'📍 Track Order'</strong> बटन दबाकर पूरा लाइव प्रोग्रेस बार भी देख सकते हैं!`;
+      return `📦 <strong>आपका लेटेस्ट ऑर्डर अपडेट:</strong><br>• <strong>ऑर्डर ID:</strong> #${latest.id.slice(0,8).toUpperCase()}<br>• <strong>स्टेटस:</strong> <span style="color:#fbbf24; font-weight:800;">${latest.status || 'Processing'}</span><br>• <strong>कुल राशि:</strong> ₹${latest.totalAmount} (${latest.paymentMethod || 'COD'})<br><br>आप ऊपर <strong>'👤 Profile → Orders'</strong> में जाकर पूरा लाइव प्रोग्रेस बार देख सकते हैं!`;
     }
-    return `📦 अपना लाइव ऑर्डर ट्रैक करने के लिए ऊपर पीले रंग के <strong>'📍 Track Order'</strong> बटन पर टैप करें और अपना 10 अंकों का मोबाइल नंबर डालें—आपको तुरंत पता चल जाएगा कि आपका ऑर्डर कहाँ पहुँचा है!`;
+    return `📦 अपना लाइव ऑर्डर ट्रैक करने के लिए ऊपर <strong>'📍 Track Order'</strong> या <strong>'👤 Profile → Orders'</strong> पर टैप करें और अपना 10 अंकों का मोबाइल नंबर डालें!`;
   }
 
-  // 2. Payment Options (Cash, Card, UPI)
   if (/(payment|pay|upi|cod|cash|card|gpay|phonepe|paytm|qr|पेमेंट|कैश|कार्ड|यूपीआई|पैसे)/.test(q)) {
-    return `💳 <strong>BaghVeda® पर पेमेंट के तीनों विकल्प उपलब्ध हैं:</strong><br>1. <strong>💵 Cash on Delivery (COD):</strong> सामान घर आने पर नकद पैसे दें।<br>2. <strong>📱 UPI / QR Code:</strong> Google Pay, PhonePe या Paytm से तुरंत स्कैन या ऐप द्वारा पेमेंट करें।<br>3. <strong>💳 Debit / Credit Card:</strong> कार्ड से ऑनलाइन या डिलीवरी के समय पेमेंट करें।`;
+    return `💳 <strong>BaghVeda® पर पेमेंट के तीनों विकल्प उपलब्ध हैं:</strong><br>1. <strong>💵 Cash on Delivery (COD):</strong> सामान घर आने पर नकद पैसे दें।<br>2. <strong>📱 UPI / QR Code:</strong> हमारी आधिकारिक UPI ID <strong>9310703102@ptaxis</strong> पर Google Pay, PhonePe या Paytm से पेमेंट करें।<br>3. <strong>💳 Debit / Credit Card:</strong> कार्ड से ऑनलाइन या डिलीवरी के समय पेमेंट करें।`;
   }
 
-  // 3. Coupon / Discount / Offer
   if (/(coupon|discount|offer|code|sasta|chhoot|khushi|कूपन|डिस्काउंट|ऑफर|छूट)/.test(q)) {
     return `🎉 <strong>स्पेशल ऑफर!</strong> कार्ट में चेकआउट करते समय कूपन कोड <strong>KHUSHI25</strong> लगाएं और अपने ऑर्डर पर तुरंत <strong>${disc}% की अतिरिक्त छूट</strong> पाएं!`;
   }
 
-  // 4. Prices & Packs Comparison
   if (/(price|rate|cost|kitne|mrp|pack|1kg|2kg|3kg|1 kg|2 kg|3 kg|कीमत|रेट|प्राइस|कितने का)/.test(q)) {
     return `🌱 <strong>हमारे तीनों प्रीमियम ज़िप-लॉक पैक्स की लाइव कीमतें:</strong><br>• <strong>1 KG पैक:</strong> ₹${p1} <del style="color:#94a3b8;">(MRP ₹299)</del> – छोटे इनडोर पौधों के लिए<br>• <strong>2 KG पैक:</strong> ₹${p2} <del style="color:#94a3b8;">(MRP ₹399)</del> – (Most Popular) बालकनी व फूलों के लिए<br>• <strong>3 KG पैक:</strong> ₹${p3} <del style="color:#94a3b8;">(MRP ₹499)</del> – (Best Value) बड़े गमलों व सब्जियों के लिए<br><br>💡 <em>टिप: <strong>KHUSHI25</strong> कूपन से आपको ${disc}% की और बचत मिलेगी!</em>`;
   }
 
-  // 5. Ingredients / Formula
   if (/(ingredient|formula|kya mila|cocopeat|vermi|khad|neem|sarson|perlite|सामग्री|क्या मिला|खाद|कोकोपीट|नीम)/.test(q)) {
     return `🧪 <strong>BaghVeda® का 100% ऑर्गेनिक वैज्ञानिक फ़ॉर्मूला:</strong><br>• <strong>40% कोकोपीट:</strong> मिट्टी में नमी और पोलापन बनाए रखने के लिए<br>• <strong>35% वर्मीकम्पोस्ट:</strong> शुद्ध केंचुआ खाद (संपूर्ण पोषण)<br>• <strong>15% उपजाऊ गार्डन मिट्टी:</strong> जड़ों को मज़बूती देने के लिए<br>• <strong>7% नीम खली व सरसों खली:</strong> फंगस व कीड़ों से सुरक्षा और तेज़ ग्रोथ<br>• <strong>3% परलाइट व माइक्रोन्यूट्रिएंट्स:</strong> जड़ों तक हवा व सूक्ष्म पोषक तत्व पहुँचाने के लिए।`;
   }
 
-  // 6. How to use in Pots (New or Old)
   if (/(how to use|kaise use|kaise dale|gamla|gamle|pot|repot|tarika|उपयोग|कैसे डालें|गमले|तरीका)/.test(q)) {
-    return `🪴 <strong>इस्तेमाल करने का सही तरीका:</strong><br>1. <strong>नए पौधे के लिए:</strong> यह Ready-to-Use मिक्स है। गमले को 80% इस मिक्स से भरें, पौधा लगाएं और हल्का पानी दें।<br>2. <strong>पुराने गमले के लिए:</strong> गमले की ऊपरी 2-3 इंच पुरानी मिट्टी निकालें, उसकी जगह BaghVeda मिक्स भरें और पानी दें।`;
+    return `🪴 <strong>इस्तेमाल करने का सही तरीका:</strong><br>1. <strong>नए पौधे के लिए:</strong> गमले को 80% इस मिक्स से भरें, पौधा लगाएं और हल्का पानी दें।<br>2. <strong>पुराने गमले के लिए:</strong> गमले की ऊपरी 2-3 इंच पुरानी मिट्टी निकालें, उसकी जगह BaghVeda मिक्स भरें और पानी दें।`;
   }
 
-  // 7. Watering Guide
   if (/(water|paani|pani|kab de|sukha|पानी|सिंचाई)/.test(q)) {
-    return `💧 <strong>पानी देने का नियम:</strong><br>पॉटिंग मिक्स डालने के बाद पहली बार अच्छी तरह पानी दें। चूंकि इसमें 40% कोकोपीट है जो नमी रोककर रखता है, इसलिए अगली बार तभी पानी दें जब ऊपर की मिट्टी छूने पर हल्की सूखी महसूस हो। ओवर-वॉटरिंग से बचें!`;
+    return `💧 <strong>पानी देने का नियम:</strong><br>पॉटिंग मिक्स डालने के बाद पहली बार अच्छी तरह पानी दें। उसके बाद तभी पानी दें जब ऊपर की मिट्टी छूने पर हल्की सूखी महसूस हो।`;
   }
 
-  // 8. Specific Plants (Tulsi, Rose, Indoor, Vegetables, Yellow leaves)
   if (/(tulsi|rose|gulab|money plant|indoor|sabji|vegetable|tomato|flower|peele|yellow|growth|तुलसी|गुलाब|पौधे|पीले|फूल|सब्जी)/.test(q)) {
-    return `🌿 <strong>पौधों के लिए विशेष सलाह:</strong><br>BaghVeda® मिक्स तुलसी, गुलाब, गुड़हल, मनी प्लांट, जेड प्लांट और छत की सब्जियों (टमाटर, मिर्च, धनिया) सभी के लिए परफेक्ट है।<br>• इसमें मौजूद <strong>सरसों की खली</strong> फूलों व फलों की संख्या बढ़ाती है।<br>• <strong>नीम खली</strong> जड़ों में फंगस नहीं लगने देती और पत्तों को पीला होने से बचाती है।`;
+    return `🌿 <strong>पौधों के लिए विशेष सलाह:</strong><br>BaghVeda® मिक्स तुलसी, गुलाब, गुड़हल, मनी प्लांट और छत की सब्जियों सभी के लिए परफेक्ट है। इसमें मौजूद सरसों खली फूलों की संख्या बढ़ाती है और नीम खली जड़ों को फंगस से बचाती है।`;
   }
 
-  // 9. Delivery Area & Timing
   if (/(delivery|shipping|delhi|ncr|noida|gurgaon|faridabad|ghaziabad|time|डिलीवरी|दिल्ली|कब तक)/.test(q)) {
-    return `🚚 <strong>एक्सप्रेस डिलीवरी:</strong><br>दिल्ली और पूरे Delhi NCR (Noida, Gurugram, Ghaziabad, Faridabad) में हम <strong>24 घंटे के अंदर</strong> होम डिलीवरी करते हैं!`;
+    return `🚚 <strong>एक्सप्रेस डिलीवरी:</strong><br>दिल्ली और पूरे Delhi NCR में हम <strong>24 घंटे के अंदर</strong> होम डिलीवरी करते हैं!`;
   }
 
-  // 10. GST / Company / Bulk Order / Contact
-  if (/(gst|bill|invoice|bulk|wholesale|contact|number|whatsapp|call|address|जीएसटी|बिल|थोक|संपर्क|नंबर)/.test(q)) {
-    return `🏢 <strong>BaghVeda® Organics (आधिकारिक जानकारी):</strong><br>• <strong>GSTIN:</strong> 07IZUPK8908Q1ZY (पक्का GST बिल उपलब्ध है)<br>• <strong>पता:</strong> New Delhi, Delhi - 110045<br>• <strong>Helpline / WhatsApp:</strong> <a href="https://wa.me/918700733425" target="_blank" style="color:#fbbf24;">+91 8700733425</a><br>• <strong>Email:</strong> support@baghveda.in`;
-  }
-
-  // 11. Greetings
-  if (/^(hi|hello|hey|namaste|namaskar|ram ram|hlo|नमस्ते|हेलो|हाय)/.test(q)) {
-    return `नमस्ते! 🙏 <strong>BaghVeda® Organics</strong> में आपका स्वागत है। बताइए, आज मैं आपके पौधों की देखभाल या ऑर्डर में कैसे मदद कर सकता हूँ? आप ऊपर दिए गए किसी भी बटन पर टैप कर सकते हैं! 🌱`;
-  }
-
-  // 12. Smart Conversational Fallback (Never repeats a single boring line)
-  return `🌱 आपके सवाल <em>"${queryText}"</em> के लिए धन्यवाद!<br>मैं आपको बता दूँ कि हमारा <strong>100% ऑर्गेनिक पॉटिंग मिक्स</strong> तीन पैक्स में आता है: <strong>1 KG (₹${p1})</strong>, <strong>2 KG (₹${p2})</strong> और <strong>3 KG (₹${p3})</strong>।<br><br>क्या आप इसकी <strong>उपयोग विधि</strong>, <strong>कूपन कोड (KHUSHI25)</strong> या <strong>पेमेंट विकल्प (Cash/UPI/Card)</strong> के बारे में जानना चाहते हैं? अधिक सहायता के लिए <a href="https://wa.me/918700733425" target="_blank" style="color:#fbbf24;">+91 8700733425</a> पर WhatsApp करें।`;
+  return `🌱 आपके सवाल <em>"${queryText}"</em> के लिए धन्यवाद!<br>हमारा 100% ऑर्गेनिक पॉटिंग मिक्स तीन पैक्स में उपलब्ध है: <strong>1 KG (₹${p1})</strong>, <strong>2 KG (₹${p2})</strong> और <strong>3 KG (₹${p3})</strong>। पेमेंट के लिए <strong>Cash, Card और UPI (9310703102@ptaxis)</strong> उपलब्ध हैं। अधिक सहायता के लिए +91 8700733425 पर WhatsApp करें।`;
 }
 
 function askQuickQuestion(text) {
@@ -1702,7 +2195,7 @@ function sendAIMessage() {
     const reply = generateSmartBaghVedaReply(userText);
     chatContainer.innerHTML += `<div class="ai-msg bot">${reply}</div>`;
     chatContainer.scrollTop = chatContainer.scrollHeight;
-  }, 450);
+  }, 400);
 }
 
 function handleAIPress(e) {
@@ -1710,7 +2203,7 @@ function handleAIPress(e) {
 }
 
 // ============================================================================
-// CART & CHECKOUT PAYMENT CONTROLS
+// CART & CHECKOUT PAYMENT CONTROLS (UPI: 9310703102@ptaxis)
 // ============================================================================
 function getFinalPayableAmount() {
   let subtotal = window.cart.reduce((sum, item) => sum + (item.price * item.qty), 0);
@@ -1741,7 +2234,7 @@ function selectPaymentMode(mode) {
 }
 
 function updateLiveUpiQR(amount) {
-  const upiId = window.merchantUpiId || "8700733425@ybl";
+  const upiId = window.merchantUpiId || "9310703102@ptaxis";
   const upiUri = `upi://pay?pa=${encodeURIComponent(upiId)}&pn=${encodeURIComponent("BaghVeda Organics")}&am=${amount}&cu=INR&tn=${encodeURIComponent("BaghVeda Soil Mix Order")}`;
   const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(upiUri)}`;
 
@@ -1851,25 +2344,42 @@ window.updateCartUI = function() {
   });
 };
 
-// Modals & Hub Controls
-function openCustomerHub(defaultTab = 'track') {
+// ============================================================================
+// APP-STYLE PROFILE HUB NAVIGATION CONTROLS
+// ============================================================================
+function openCustomerHub(view = 'main') {
   document.getElementById('customer-hub-modal').style.display = 'flex';
   if (window.userData && window.userData.phone && document.getElementById('track-phone-input')) {
     document.getElementById('track-phone-input').value = window.userData.phone;
   }
-  switchHubTab(defaultTab);
+  switchHubView(view);
 }
+
 function closeCustomerHub() {
   document.getElementById('customer-hub-modal').style.display = 'none';
 }
-function switchHubTab(tab) {
-  document.getElementById('hub-sec-track').style.display = tab === 'track' ? 'block' : 'none';
-  document.getElementById('hub-sec-history').style.display = tab === 'history' ? 'block' : 'none';
-  document.getElementById('hub-sec-profile').style.display = tab === 'profile' ? 'block' : 'none';
 
-  document.getElementById('hub-tab-track-btn').classList.toggle('active', tab === 'track');
-  document.getElementById('hub-tab-history-btn').classList.toggle('active', tab === 'history');
-  document.getElementById('hub-tab-profile-btn').classList.toggle('active', tab === 'profile');
+function handleProfileBack() {
+  if (window.currentHubView && window.currentHubView !== 'main') {
+    switchHubView('main');
+  } else {
+    closeCustomerHub();
+  }
+}
+
+function switchHubView(viewName) {
+  window.currentHubView = viewName;
+  const allViews = ['main', 'orders', 'account', 'coupons', 'payments', 'help', 'insider', 'earn', 'challenges', 'wishlist', 'suggests'];
+  allViews.forEach(v => {
+    const el = document.getElementById(`hub-view-${v}`);
+    if (el) {
+      if (v === 'main') {
+        el.style.display = (viewName === 'main') ? 'block' : 'none';
+      } else {
+        el.classList.toggle('active', v === viewName);
+      }
+    }
+  });
 }
 
 function openAuthModal() { document.getElementById('auth-modal').style.display = 'flex'; }
