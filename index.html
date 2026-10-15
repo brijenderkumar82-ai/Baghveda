@@ -3,8 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>BaghVeda® Organics | मिट्टी में प्राण, पौधे मुस्कुराएं | Premium Organic Potting Soil Mix</title>
-<meta name="description" content="BaghVeda® Organics - 100% Ready-to-Use Premium Organic Potting Soil Mix. 40% Cocopeat, 35% Vermicompost, 15% Fertile Garden Soil, 7% Neem & Mustard Cake, 3% Perlite. 24-hour express delivery in Delhi NCR!">
+<title>BaghVeda® Organics | India's Premium Plant Care & Organic Potting Soil Store</title>
+<meta name="description" content="BaghVeda® Organics - 100% Ready-to-Use Premium Organic Potting Soil Mix, Vermicompost & Plant Care Essentials. 24-hour express delivery in Delhi NCR!">
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 
 <!-- Firebase SDK Integration -->
@@ -28,7 +28,7 @@ const db = getFirestore(app);
 
 window.currentUser = null;
 window.userData = null;
-window.dbPrices = { kg1: 179, kg2: 249, kg3: 359 };
+window.dbPrices = { kg1: 179, kg2: 249, kg3: 359, kit: 599 };
 window.activeDiscountPercent = 25;
 window.merchantUpiId = "brijender@ptaxis";
 window.ordersUnsubscribe = null;
@@ -50,6 +50,7 @@ function fetchSettings() {
         if (document.getElementById('price-1kg')) document.getElementById('price-1kg').innerText = `₹${window.dbPrices.kg1}`;
         if (document.getElementById('price-2kg')) document.getElementById('price-2kg').innerText = `₹${window.dbPrices.kg2}`;
         if (document.getElementById('price-3kg')) document.getElementById('price-3kg').innerText = `₹${window.dbPrices.kg3}`;
+        if (document.getElementById('price-kit')) document.getElementById('price-kit').innerText = `₹${window.dbPrices.kit}`;
       }
     });
   } catch (e) {
@@ -623,6 +624,18 @@ window.submitCartOrder = async function(event) {
     openCustomerHub('orders');
   } catch (e) { alert("Error saving order: " + e.message); }
 };
+
+window.filterProducts = function(cat, btn) {
+  document.querySelectorAll('.cat-pill').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  document.querySelectorAll('.product-card').forEach(card => {
+    if (cat === 'all' || card.dataset.category === cat) {
+      card.style.display = 'flex';
+    } else {
+      card.style.display = 'none';
+    }
+  });
+};
 </script>
 
 <style>
@@ -640,7 +653,7 @@ window.submitCartOrder = async function(event) {
 html, body { width: 100%; max-width: 100%; overflow-x: hidden; margin: 0; padding: 0; box-sizing: border-box; font-family: 'Plus Jakarta Sans', sans-serif; background-color: var(--emerald-deep); color: var(--text-light); line-height: 1.6; }
 * { box-sizing: border-box; }
 .top-bar { background: linear-gradient(90deg, #0d4734, #10b981, #0d4734); color: #ffffff; text-align: center; padding: 9px 12px; font-size: 0.82rem; font-weight: 700; }
-nav { background: rgba(6, 35, 25, 0.92); backdrop-filter: blur(12px); padding: 12px 5%; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 1000; border-bottom: 1px solid var(--border-glow); }
+nav { background: rgba(6, 35, 25, 0.95); backdrop-filter: blur(12px); padding: 12px 5%; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 1000; border-bottom: 1px solid var(--border-glow); }
 .brand-logo-wrap { display: flex; align-items: center; gap: 10px; text-decoration: none; }
 .brand-svg-icon { width: 40px; height: 40px; flex-shrink: 0; }
 .logo-title { font-size: 1.35rem; font-weight: 800; color: #ffffff; line-height: 1.1; }
@@ -649,21 +662,27 @@ nav { background: rgba(6, 35, 25, 0.92); backdrop-filter: blur(12px); padding: 1
 .nav-right { display: flex; align-items: center; gap: 10px; }
 .auth-btn-nav { background: #ffffff; color: #0f172a; border: none; padding: 8px 16px; border-radius: 30px; font-weight: 800; cursor: pointer; font-size: 0.82rem; box-shadow: 0 2px 8px rgba(0,0,0,0.25); }
 .cart-btn-nav { background: var(--accent-green); color: #fff; border: none; padding: 8px 15px; border-radius: 30px; font-weight: 700; cursor: pointer; display: flex; align-items: center; gap: 6px; font-size: 0.82rem; }
-.hero { position: relative; padding: 50px 15px 40px; text-align: center; background: radial-gradient(circle at top, rgba(16, 185, 129, 0.18) 0%, transparent 70%); }
-.brand-seal { display: inline-flex; align-items: center; gap: 8px; background: rgba(245, 158, 11, 0.1); color: var(--accent-gold); padding: 6px 16px; border-radius: 30px; font-size: 0.78rem; font-weight: 800; border: 1px solid rgba(245, 158, 11, 0.3); margin-bottom: 16px; text-transform: uppercase; }
-.hero h1 { font-size: clamp(1.9rem, 5vw, 2.9rem); font-weight: 800; color: #ffffff; margin: 0 0 8px; }
-.hero-tagline { font-size: clamp(1.2rem, 3.5vw, 1.55rem); color: var(--accent-gold); font-weight: 700; margin-bottom: 14px; }
-.hero p { font-size: 0.95rem; color: var(--text-dim); max-width: 720px; margin: 0 auto 24px; }
-.hero-badges { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; }
-.hero-badge-pill { background: rgba(255,255,255,0.06); border: 1px solid var(--border-glow); padding: 6px 14px; border-radius: 20px; font-size: 0.78rem; font-weight: 600; }
-.section-header { text-align: center; margin-bottom: 32px; padding: 0 15px; }
+
+/* Nursery Style Hero Carousel Banner */
+.nursery-hero { background: linear-gradient(135deg, #072218 0%, #0b3d2c 100%); border-bottom: 1px solid var(--border-glow); padding: 50px 5%; text-align: center; position: relative; overflow: hidden; }
+.nursery-hero h1 { font-size: clamp(2rem, 5vw, 3.2rem); font-weight: 800; color: #fff; margin: 0 0 10px; }
+.nursery-hero p { font-size: 1.05rem; color: var(--text-dim); max-width: 680px; margin: 0 auto 24px; }
+.hero-cta-btn { background: var(--accent-green); color: #fff; font-weight: 800; padding: 12px 28px; border-radius: 30px; border: none; font-size: 1rem; cursor: pointer; box-shadow: 0 10px 20px rgba(16,185,129,0.3); }
+
+/* Category Navigation Filter Pills */
+.category-filter-bar { display: flex; justify-content: center; gap: 10px; padding: 25px 15px; overflow-x: auto; max-width: 1000px; margin: 0 auto; }
+.cat-pill { background: rgba(255,255,255,0.06); border: 1px solid var(--border-glow); color: #fff; padding: 8px 18px; border-radius: 30px; font-size: 0.84rem; font-weight: 700; cursor: pointer; white-space: nowrap; transition: 0.2s; }
+.cat-pill.active, .cat-pill:hover { background: var(--accent-green); border-color: var(--accent-green); }
+
+.section-header { text-align: center; margin-bottom: 28px; padding: 0 15px; }
 .section-subtitle { color: var(--accent-green); font-size: 0.82rem; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; }
 .section-title { font-size: clamp(1.5rem, 4vw, 2.1rem); font-weight: 800; color: #ffffff; margin: 5px 0 0; }
+
 .product-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(285px, 1fr)); gap: 24px; max-width: 1140px; margin: 0 auto 55px; padding: 0 15px; }
 .product-card { background: linear-gradient(180deg, rgba(15, 51, 37, 0.9) 0%, rgba(8, 30, 22, 0.95) 100%); border-radius: 24px; overflow: hidden; border: 1px solid var(--border-glow); position: relative; box-shadow: 0 15px 35px rgba(0,0,0,0.4); display: flex; flex-direction: column; }
 .product-badge { position: absolute; top: 15px; right: 15px; background: var(--accent-gold); color: #000000; font-weight: 800; font-size: 0.72rem; padding: 5px 12px; border-radius: 50px; z-index: 2; }
 .discount-badge-left { position: absolute; top: 15px; left: 15px; background: #ef4444; color: #fff; font-weight: 800; font-size: 0.72rem; padding: 5px 11px; border-radius: 50px; z-index: 2; }
-.product-img-wrap { width: 100%; height: 280px; background: radial-gradient(circle, #0b3d2c 0%, #041810 100%); display: flex; align-items: center; justify-content: center; padding: 20px; }
+.product-img-wrap { width: 100%; height: 260px; background: radial-gradient(circle, #0b3d2c 0%, #041810 100%); display: flex; align-items: center; justify-content: center; padding: 20px; }
 .real-green-pouch { width: 172px; height: 240px; background: linear-gradient(135deg, #22c55e 0%, #15803d 45%, #166534 100%); border-radius: 10px 10px 18px 18px; box-shadow: 0 18px 32px rgba(0,0,0,0.65), inset 0 2px 6px rgba(255,255,255,0.35); position: relative; display: flex; flex-direction: column; align-items: center; padding-top: 25px; border: 1px solid rgba(255,255,255,0.25); }
 .real-green-pouch::before { content: ""; position: absolute; top: 11px; left: 8px; right: 8px; height: 5px; background: rgba(255,255,255,0.35); border-radius: 2px; }
 .pouch-sticker { width: 140px; height: 192px; background: var(--sticker-cream); border-radius: 8px; padding: 10px 8px; display: flex; flex-direction: column; align-items: center; justify-content: space-between; text-align: center; color: #14532d; }
@@ -677,8 +696,8 @@ nav { background: rgba(6, 35, 25, 0.92); backdrop-filter: blur(12px); padding: 1
 .product-body { padding: 20px; flex: 1; display: flex; flex-direction: column; justify-content: space-between; }
 .rating { color: var(--accent-gold); font-size: 0.86rem; margin-bottom: 6px; font-weight: 700; }
 .rating span { color: var(--text-dim); font-weight: 400; font-size: 0.78rem; }
-.product-title { font-size: 1.2rem; font-weight: 800; margin-bottom: 6px; color: #fff; }
-.product-desc { font-size: 0.86rem; color: var(--text-dim); margin-bottom: 15px; }
+.product-title { font-size: 1.15rem; font-weight: 800; margin-bottom: 6px; color: #fff; }
+.product-desc { font-size: 0.84rem; color: var(--text-dim); margin-bottom: 15px; }
 .price-row { display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 16px; border-top: 1px solid rgba(255,255,255,0.08); padding-top: 12px; }
 .price-label { font-size: 0.74rem; color: var(--text-dim); }
 .mrp-strike { font-size: 0.92rem; color: #94a3b8; text-decoration: line-through; margin-right: 6px; }
@@ -689,13 +708,7 @@ nav { background: rgba(6, 35, 25, 0.92); backdrop-filter: blur(12px); padding: 1
 .buy-now-btn:disabled { background: #475569; cursor: not-allowed; opacity: 0.6; }
 .add-to-cart-btn { flex: 1; background: rgba(255,255,255,0.09); color: #fff; padding: 12px; border-radius: 12px; font-weight: 700; font-size: 0.88rem; border: 1px solid rgba(255,255,255,0.2); cursor: pointer; }
 
-/* Enhanced Trust & Testimonials Section */
-.trust-banner { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; max-width: 1100px; margin: 0 auto 50px; padding: 0 15px; }
-.trust-card { background: rgba(15, 51, 37, 0.8); border: 1px solid var(--border-glow); padding: 18px; border-radius: 16px; text-align: center; }
-.trust-icon { font-size: 1.8rem; margin-bottom: 8px; }
-.trust-card h4 { margin: 0 0 4px; font-size: 0.95rem; color: #fff; }
-.trust-card p { margin: 0; font-size: 0.78rem; color: var(--text-dim); }
-
+/* Ingredients & Guide Section */
 .info-section { max-width: 1100px; margin: 0 auto 55px; padding: 0 15px; }
 .ingredients-box { background: linear-gradient(145deg, rgba(13, 52, 37, 0.85), rgba(6, 28, 20, 0.95)); border: 1px solid var(--border-glow); border-radius: 24px; padding: 26px 22px; }
 .ing-row { margin-bottom: 14px; }
@@ -710,13 +723,11 @@ nav { background: rgba(6, 35, 25, 0.92); backdrop-filter: blur(12px); padding: 1
 .step-card h4 { margin: 0 0 6px; font-size: 1.05rem; color: #fff; }
 .step-card p { margin: 0; font-size: 0.84rem; color: var(--text-dim); }
 
-/* Sticky Bottom Action Bar for Mobile */
+/* Sticky Bottom Bar */
 .sticky-bottom-bar { display: none; position: fixed; bottom: 0; left: 0; width: 100%; background: rgba(6, 35, 25, 0.98); backdrop-filter: blur(10px); border-top: 1px solid var(--border-glow); padding: 10px 15px; z-index: 2900; justify-content: space-between; align-items: center; gap: 10px; }
-@media (max-width: 768px) {
-  .sticky-bottom-bar { display: flex; }
-}
+@media (max-width: 768px) { .sticky-bottom-bar { display: flex; } }
 
-/* App Profile Drawer */
+/* App Profile Drawer & Modals */
 #customer-hub-modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.75); z-index: 4200; justify-content: flex-end; }
 .app-profile-drawer { width: 100%; max-width: 440px; height: 100%; background: #ffffff; color: #1e293b; display: flex; flex-direction: column; overflow-y: auto; box-shadow: -8px 0 30px rgba(0,0,0,0.5); }
 .app-prof-header { display: flex; justify-content: space-between; align-items: center; padding: 16px 18px 12px; background: #ffffff; position: sticky; top: 0; z-index: 10; border-bottom: 1px solid #f1f5f9; }
@@ -857,51 +868,38 @@ footer { background: #03110b; color: var(--text-dim); padding: 40px 15px 25px; b
     </div>
   </a>
   <div class="nav-right">
-    <button id="auth-nav-btn" class="auth-btn-nav" onclick="openCustomerHub('main')">👤 Profile</button>
+    <button id="auth-nav-btn" class="auth-nav-btn" onclick="openCustomerHub('main')">👤 Profile</button>
     <button class="cart-btn-nav" onclick="toggleCart()">🛒 Cart (<span id="cart-count">0</span>)</button>
   </div>
 </nav>
 
-<section class="hero">
-  <div class="brand-seal">⭐ 100% Organic & Ready-To-Use • Delhi NCR</div>
-  <h1>BaghVeda® Organics Potting Soil Mix</h1>
-  <div class="hero-tagline">"मिट्टी में प्राण, पौधे मुस्कुराएं"</div>
-  <p>Scientific blend of 40% Premium Cocopeat, 35% Pure Vermicompost, 15% Fertile Garden Soil, 7% Neem & Mustard Cake, and 3% Perlite & Organic Micronutrients.</p>
-  <div class="hero-badges">
-    <div class="hero-badge-pill">✅ 100% Organic & Chemical-Free</div>
-    <div class="hero-badge-pill">🌿 Ready-to-Use Potting Medium</div>
-    <div class="hero-badge-pill">🚚 24-Hour Express Delivery in Delhi NCR</div>
-  </div>
+<!-- Nursery Style Hero Banner -->
+<section class="nursery-hero">
+  <div class="brand-seal">⭐ India's Trusted Organic Plant Care Brand</div>
+  <h1>Bring Life to Your Soil, Smiles to Your Plants</h1>
+  <div class="hero-tagline" style="color: var(--accent-gold); font-size: 1.25rem; font-weight: 700; margin-bottom: 12px;">"मिट्टी में प्राण, पौधे मुस्कुराएं"</div>
+  <p>Explore our scientific blend of 40% Cocopeat, 35% Vermicompost, 15% Garden Soil, 7% Neem & Mustard Cake, and 3% Perlite.</p>
+  <button class="hero-cta-btn" onclick="document.getElementById('products').scrollIntoView({behavior: 'smooth'})">🌿 Shop Organic Mixes</button>
 </section>
 
-<!-- Trust Banner -->
-<div class="trust-banner">
-  <div class="trust-card">
-    <div class="trust-icon">🌱</div>
-    <h4>100% Organic</h4>
-    <p>Zero artificial chemicals or urea added</p>
-  </div>
-  <div class="trust-card">
-    <div class="trust-icon">🚀</div>
-    <h4>Express Delivery</h4>
-    <p>Fast dispatch across Delhi NCR</p>
-  </div>
-  <div class="trust-card">
-    <div class="trust-icon">🧾</div>
-    <h4>GST Verified</h4>
-    <p>Official tax invoice with every order</p>
-  </div>
+<!-- Category Filter Pills Bar -->
+<div class="category-filter-bar">
+  <button class="cat-pill active" onclick="filterProducts('all', this)">🌟 All Products</button>
+  <button class="cat-pill" onclick="filterProducts('soil', this)">🪴 Potting Soil Mix</button>
+  <button class="cat-pill" onclick="filterProducts('compost', this)">🪱 Vermicompost & Manure</button>
+  <button class="cat-pill" onclick="filterProducts('kit', this)">🌿 Garden Care Kits</button>
 </div>
 
 <section id="products">
   <div class="section-header">
-    <div class="section-subtitle">Our Exclusive Packs</div>
-    <h2 class="section-title">Choose the Right Pack for Your Plants</h2>
+    <div class="section-subtitle">Plant Nursery Store</div>
+    <h2 class="section-title">Choose Your Potting Soil & Combo Packs</h2>
   </div>
 
   <div class="product-grid">
-    <div class="product-card">
-      <span class="discount-badge-left" id="save-1kg">40% OFF</span>
+    <!-- 1 KG Product -->
+    <div class="product-card" data-category="soil">
+      <span class="discount-badge-left">40% OFF</span>
       <span class="product-badge">Trial Pack</span>
       <div class="product-img-wrap">
         <div class="real-green-pouch">
@@ -934,14 +932,15 @@ footer { background: #03110b; color: var(--text-dim); padding: 40px 15px 25px; b
           </div>
           <div class="btn-group">
             <button class="buy-now-btn" onclick="buyInstant('Organic Potting Mix - 1 KG', window.dbPrices.kg1)">⚡ Buy Now</button>
-            <button class="add-to-cart-btn" onclick="addToCartSilent('Organic Potting Mix - 1 KG', window.dbPrices.kg1)">🛒 Add to Cart</button>
+            <button class="add-to-cart-btn" onclick="addToCartSilent('Organic Potting Mix - 1 KG', window.dbPrices.kg1)">🛒 Add</button>
           </div>
         </div>
       </div>
     </div>
 
-    <div class="product-card" style="border-color: var(--accent-gold);">
-      <span class="discount-badge-left" id="save-2kg">38% OFF</span>
+    <!-- 2 KG Product -->
+    <div class="product-card" style="border-color: var(--accent-gold);" data-category="soil">
+      <span class="discount-badge-left">38% OFF</span>
       <span class="product-badge" style="background:#10b981; color:#fff;">Most Popular</span>
       <div class="product-img-wrap">
         <div class="real-green-pouch">
@@ -974,14 +973,15 @@ footer { background: #03110b; color: var(--text-dim); padding: 40px 15px 25px; b
           </div>
           <div class="btn-group">
             <button class="buy-now-btn" onclick="buyInstant('Organic Potting Mix - 2 KG', window.dbPrices.kg2)">⚡ Buy Now</button>
-            <button class="add-to-cart-btn" onclick="addToCartSilent('Organic Potting Mix - 2 KG', window.dbPrices.kg2)">🛒 Add to Cart</button>
+            <button class="add-to-cart-btn" onclick="addToCartSilent('Organic Potting Mix - 2 KG', window.dbPrices.kg2)">🛒 Add</button>
           </div>
         </div>
       </div>
     </div>
 
-    <div class="product-card">
-      <span class="discount-badge-left" id="save-3kg">28% OFF</span>
+    <!-- 3 KG Product -->
+    <div class="product-card" data-category="soil">
+      <span class="discount-badge-left">28% OFF</span>
       <span class="product-badge">Best Value</span>
       <div class="product-img-wrap">
         <div class="real-green-pouch">
@@ -1014,11 +1014,53 @@ footer { background: #03110b; color: var(--text-dim); padding: 40px 15px 25px; b
           </div>
           <div class="btn-group">
             <button class="buy-now-btn" onclick="buyInstant('Organic Potting Mix - 3 KG', window.dbPrices.kg3)">⚡ Buy Now</button>
-            <button class="add-to-cart-btn" onclick="addToCartSilent('Organic Potting Mix - 3 KG', window.dbPrices.kg3)">🛒 Add to Cart</button>
+            <button class="add-to-cart-btn" onclick="addToCartSilent('Organic Potting Mix - 3 KG', window.dbPrices.kg3)">🛒 Add</button>
           </div>
         </div>
       </div>
     </div>
+
+    <!-- Garden Care Kit Combo -->
+    <div class="product-card" data-category="kit" style="border-color: #3b82f6;">
+      <span class="discount-badge-left">35% OFF</span>
+      <span class="product-badge" style="background:#3b82f6; color:#fff;">Combo Kit</span>
+      <div class="product-img-wrap" style="background: radial-gradient(circle, #0f2942 0%, #041018 100%);">
+        <div class="real-green-pouch" style="background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);">
+          <div class="pouch-sticker">
+            <svg class="sticker-logo-svg"><use href="#baghveda-logo"></use></svg>
+            <div>
+              <div class="sticker-brand">BaghVeda® Organics</div>
+              <div class="sticker-tagline">Complete Garden Care</div>
+            </div>
+            <div class="sticker-product">Soil Mix + Organic<br>Booster Kit</div>
+            <div class="sticker-bottom-row">
+              <span class="sticker-wt">Combo Pack</span>
+              <span class="sticker-mrp">MRP ₹899</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="product-body">
+        <div>
+          <div class="rating">★★★★★ <span>(38 Reviews)</span></div>
+          <div class="product-title">BaghVeda Complete Garden Care Kit</div>
+          <div class="product-desc">3 KG Soil Mix + Extra Neem Khali & Pure Vermicompost booster for flowering plants.</div>
+        </div>
+        <div>
+          <div class="price-row">
+            <div>
+              <div class="price-label">Price (Incl. of all taxes)</div>
+              <div><span class="mrp-strike">₹899</span><span class="price-val" id="price-kit">₹599</span><small>Only</small></div>
+            </div>
+          </div>
+          <div class="btn-group">
+            <button class="buy-now-btn" onclick="buyInstant('BaghVeda Complete Garden Care Kit', window.dbPrices.kit)">⚡ Buy Now</button>
+            <button class="add-to-cart-btn" onclick="addToCartSilent('BaghVeda Complete Garden Care Kit', window.dbPrices.kit)">🛒 Add</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
   </div>
 </section>
 
