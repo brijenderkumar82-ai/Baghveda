@@ -3,15 +3,271 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>BaghVeda® Organics | मिट्टी में प्राण, पौधे मुस्कुराएं | Premium Organic Potting Soil Mix</title>
-<meta name="description" content="BaghVeda® Organics - 100% Ready-to-Use Premium Organic Potting Soil Mix. 40% Cocopeat, 35% Vermicompost, 15% Fertile Garden Soil, 7% Neem & Mustard Cake, 3% Perlite. 24-hour express delivery in Delhi NCR!">
+<title>BaghVeda® Organics | Smart Admin Dashboard</title>
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
 
-<!-- Firebase SDK Integration -->
-<script type="module">
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
-import { getFirestore, collection, addDoc, setDoc, updateDoc, doc, getDoc, query, where, getDocs, onSnapshot } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+<style>
+:root {
+  --emerald-deep: #062319;
+  --emerald-main: #0b3d2c;
+  --emerald-light: #15803d;
+  --accent-gold: #f59e0b;
+  --bg: #f1f5f3;
+  --card-bg: #ffffff;
+  --text-main: #0f172a;
+  --text-muted: #64748b;
+  --border: #dce5dd;
+}
+
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text-main);
+  font-family: 'Plus Jakarta Sans', Arial, sans-serif;
+  line-height: 1.5;
+}
+
+header {
+  background: linear-gradient(135deg, var(--emerald-deep), var(--emerald-main));
+  color: #fff;
+  padding: 14px 18px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.15);
+}
+.header-brand { display: flex; align-items: center; gap: 10px; }
+.brand-logo-svg { width: 40px; height: 40px; flex-shrink: 0; }
+header h1 { margin: 0; font-size: 1.2rem; font-weight: 800; }
+header p { margin: 0; font-size: 0.75rem; color: #fbbf24; font-weight: 600; }
+.header-actions { display: flex; align-items: center; gap: 8px; }
+
+main { max-width: 1220px; margin: 18px auto; padding: 0 12px 50px; }
+
+.panel {
+  background: var(--card-bg);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 18px;
+  margin-bottom: 16px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.03);
+}
+h2 { font-size: 1.15rem; margin: 0 0 6px; color: var(--emerald-deep); display: flex; align-items: center; gap: 8px; }
+.muted { color: var(--text-muted); font-size: 0.82rem; margin-top: 0; }
+
+.grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(155px, 1fr)); gap: 12px; margin-bottom: 16px; }
+.stat {
+  background: #ffffff; border: 1px solid var(--border); padding: 14px 16px;
+  border-radius: 14px; border-left: 4px solid var(--emerald-light); box-shadow: 0 2px 8px rgba(0,0,0,0.03);
+}
+.stat.gold { border-left-color: var(--accent-gold); }
+.stat.blue { border-left-color: #3b82f6; }
+.stat.red { border-left-color: #ef4444; cursor: pointer; }
+.stat span { display: block; font-size: 0.76rem; font-weight: 700; color: var(--text-muted); }
+.stat strong { display: block; font-size: 1.5rem; color: var(--emerald-deep); margin-top: 4px; font-weight: 800; }
+
+.admin-tabs { display: flex; gap: 8px; margin-bottom: 16px; overflow-x: auto; padding-bottom: 4px; }
+.tab-pill {
+  background: #fff; color: var(--text-main); border: 1px solid var(--border);
+  padding: 10px 16px; border-radius: 30px; font-size: 0.84rem; font-weight: 700; cursor: pointer; white-space: nowrap;
+}
+.tab-pill.active { background: var(--emerald-main); color: #fff; border-color: var(--emerald-main); }
+
+label { display: block; font-weight: 700; font-size: 0.8rem; margin-bottom: 5px; color: #334155; }
+input, select {
+  width: 100%; padding: 10px 12px; border: 1px solid #cbd5e1; border-radius: 10px;
+  background: #fff; font: inherit; font-size: 0.88rem; min-width: 0;
+}
+input:focus, select:focus { outline: 2px solid var(--emerald-light); border-color: transparent; }
+button {
+  padding: 10px 15px; border: 0; border-radius: 10px; background: var(--emerald-light);
+  color: #fff; font-weight: 700; font-size: 0.86rem; cursor: pointer; transition: 0.2s;
+}
+button:hover { opacity: 0.92; }
+button:disabled { opacity: 0.5; cursor: not-allowed; }
+.secondary { background: rgba(255,255,255,0.15); color: #fff; border: 1px solid rgba(255,255,255,0.25); }
+.btn-outline { background: #f1f5f9; color: #0f172a; border: 1px solid #cbd5e1; }
+.hidden { display: none !important; }
+
+#loginView { max-width: 420px; margin: 45px auto; padding: 0 14px; }
+.field { margin-bottom: 14px; }
+.notice { padding: 12px 14px; border-radius: 10px; background: #dcfce7; color: #14532d; font-weight: 600; font-size: 0.85rem; margin: 10px 0; white-space: pre-wrap; }
+.error { background: #fee2e2; color: #991b1b; }
+
+.formgrid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; align-items: end; }
+.toolbar { display: grid; grid-template-columns: 1fr 220px; gap: 10px; margin-bottom: 14px; }
+
+.orders { display: grid; grid-template-columns: repeat(auto-fit, minmax(330px, 1fr)); gap: 14px; }
+.order { border: 1px solid var(--border); border-radius: 14px; padding: 15px; background: #fff; display: flex; flex-direction: column; justify-content: space-between; box-shadow: 0 2px 6px rgba(0,0,0,0.03); }
+.order.has-return { border: 2px solid #f59e0b; background: #fffdf9; }
+.orderhead { display: flex; justify-content: space-between; align-items: center; gap: 8px; border-bottom: 1px solid #f1f5f9; padding-bottom: 10px; margin-bottom: 10px; flex-wrap: wrap; }
+.order-id-badge { font-size: 0.88rem; font-weight: 800; color: var(--emerald-deep); }
+.pill { font-size: 0.74rem; font-weight: 800; padding: 4px 10px; border-radius: 20px; }
+.status-Pending, .status-Processing { background: #fef3c7; color: #92400e; }
+.status-Confirmed, .status-Packed { background: #dbeafe; color: #1e40af; }
+.status-Shipped { background: #ede9fe; color: #5b21b6; }
+.status-Delivered { background: #dcfce7; color: #166534; }
+.status-Cancelled { background: #fee2e2; color: #991b1b; }
+
+.order p { font-size: 0.85rem; margin: 5px 0; color: #334155; }
+.payment-info-box { background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 10px; padding: 8px 10px; margin: 8px 0; font-size: 0.8rem; color: #14532d; }
+.gst-lock-tag { display: inline-block; font-size: 0.72rem; font-weight: 700; padding: 3px 8px; border-radius: 6px; margin-top: 4px; }
+.gst-locked { background: #f1f5f9; color: #64748b; }
+.gst-unlocked { background: #dcfce7; color: #15803d; }
+
+.return-alert-box { background: #fffbeb; border: 1px solid #f59e0b; border-radius: 10px; padding: 10px 12px; margin: 10px 0; }
+.return-alert-head { display: flex; justify-content: space-between; align-items: center; font-size: 0.8rem; font-weight: 800; color: #b45309; margin-bottom: 4px; }
+.return-actions-row { display: grid; grid-template-columns: 1fr auto; gap: 6px; margin-top: 8px; }
+.return-actions-row select { padding: 7px 10px; font-size: 0.8rem; }
+.return-actions-row button { padding: 7px 12px; font-size: 0.78rem; background: #d97706; }
+
+.items { background: #f8fafc; border: 1px solid #e2e8f0; padding: 10px 12px; border-radius: 10px; font-size: 0.82rem; margin: 8px 0; }
+.quick-contact-row { display: flex; gap: 8px; margin: 8px 0; flex-wrap: wrap; }
+.chip-btn { flex: 1; text-align: center; text-decoration: none; padding: 7px 10px; border-radius: 8px; font-size: 0.78rem; font-weight: 700; display: inline-flex; align-items: center; justify-content: center; gap: 4px; cursor: pointer; border: none; }
+.chip-call { background: #e0f2fe; color: #0369a1; }
+.chip-wa { background: #dcfce7; color: #15803d; }
+.chip-bill { background: #fef3c7; color: #92400e; }
+.chip-del { background: #fee2e2; color: #b91c1c; flex: 0 0 auto; }
+
+.orderactions { display: grid; grid-template-columns: 1fr auto; gap: 8px; margin-top: 10px; padding-top: 10px; border-top: 1px solid #f1f5f9; }
+
+@media (max-width: 640px) {
+  .toolbar { grid-template-columns: 1fr; }
+  .orders { grid-template-columns: 1fr; }
+  .panel { padding: 14px; }
+}
+</style>
+</head>
+<body>
+
+<svg style="display:none;">
+  <symbol id="baghveda-logo" viewBox="0 0 100 100">
+    <circle cx="50" cy="50" r="48" fill="#146334" />
+    <clipPath id="admin-clip"><circle cx="50" cy="50" r="48" /></clipPath>
+    <g clip-path="url(#admin-clip)">
+      <ellipse cx="50" cy="92" rx="46" ry="24" fill="#c69a45" />
+      <path d="M 48 68 C 24 66, 18 42, 22 25 C 38 25, 48 40, 48 68 Z" fill="#fbf8f1" />
+      <path d="M 52 68 C 76 66, 82 42, 78 25 C 62 25, 52 40, 52 68 Z" fill="#fbf8f1" />
+    </g>
+  </symbol>
+</svg>
+
+<header>
+  <div class="header-brand">
+    <svg class="brand-svg-icon"><use href="#baghveda-logo"></use></svg>
+    <div>
+      <h1>BaghVeda® Admin</h1>
+      <p>मिट्टी में प्राण, पौधे मुस्कुराएं</p>
+    </div>
+  </div>
+  <div class="header-actions">
+    <a href="index.html" style="color:#fff; text-decoration:none; font-size:0.8rem; font-weight:700; background:rgba(255,255,255,0.12); padding:8px 12px; border-radius:8px;">🌐 Live Store</a>
+    <button id="logout" class="secondary hidden" type="button">🚪 Logout</button>
+  </div>
+</header>
+
+<!-- Login Section -->
+<section id="loginView">
+  <div class="panel">
+    <h2>🔐 Admin Login</h2>
+    <p class="muted">Sign in with your authorized BaghVeda Admin account.</p>
+    <form id="loginForm">
+      <div class="field">
+        <label for="email">Admin Email</label>
+        <input id="email" type="email" placeholder="support@baghveda.in" autocomplete="username" required>
+      </div>
+      <div class="field">
+        <label for="password">Password</label>
+        <input id="password" type="password" placeholder="••••••••" autocomplete="current-password" required>
+      </div>
+      <button type="submit" style="width:100%; padding:12px; margin-bottom:10px;">Login to Dashboard</button>
+      <button type="button" id="resetPassBtn" class="btn-outline" style="width:100%; padding:10px;">🔑 Forgot Password? Reset via Email</button>
+    </form>
+    <div id="loginMsg" class="notice hidden" role="status"></div>
+  </div>
+</section>
+
+<!-- Main Dashboard -->
+<main id="app" class="hidden">
+  <div id="globalMsg" class="notice hidden" role="status"></div>
+
+  <section class="grid">
+    <div class="stat"><span>Total Orders</span><strong id="totalCount">0</strong></div>
+    <div class="stat gold"><span>Total Revenue</span><strong id="totalRevenue">₹0</strong></div>
+    <div class="stat blue"><span>Active / Processing</span><strong id="activeCount">0</strong></div>
+    <div class="stat"><span>Delivered (GST Unlocked)</span><strong id="deliveredCount">0</strong></div>
+    <div class="stat red" onclick="filterReturnOrdersOnly()" title="Click to view Return/Exchange requests">
+      <span>🔄 Return / Exchange</span>
+      <strong id="returnCount" style="color:#dc2626;">0</strong>
+    </div>
+  </section>
+
+  <div class="admin-tabs">
+    <button class="tab-pill active" id="tabBtnOrders" onclick="switchAdminSection('ordersSec', this)">📦 Orders & Returns</button>
+    <button class="tab-pill" onclick="switchAdminSection('pricingSec', this)">💰 Live Pricing & Coupon</button>
+    <button class="tab-pill" onclick="switchAdminSection('usersSec', this)">👥 Saved Customers</button>
+  </div>
+
+  <section id="ordersSec" class="panel">
+    <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px; margin-bottom:12px;">
+      <div>
+        <h2>📦 Customer Orders & Return Requests</h2>
+        <p class="muted" style="margin:0;">Note: Customer GST Bill automatically unlocks when you mark an order as <strong>Delivered</strong>.</p>
+      </div>
+      <button type="button" class="btn-outline" onclick="exportOrdersCSV()">📥 Download Excel (CSV)</button>
+    </div>
+
+    <div class="toolbar">
+      <input id="search" type="search" placeholder="🔍 Search by Name, Mobile, Order ID, UTR, or Address...">
+      <select id="filter">
+        <option value="all">All Orders</option>
+        <option value="RETURNS_ONLY">🔄 Return / Exchange Requests Only</option>
+        <option value="Processing">Processing (New)</option>
+        <option value="Pending">Pending</option>
+        <option value="Confirmed">Confirmed</option>
+        <option value="Packed">Packed</option>
+        <option value="Shipped">Shipped</option>
+        <option value="Delivered">Delivered (GST Bill Unlocked)</option>
+        <option value="Cancelled">Cancelled</option>
+      </select>
+    </div>
+
+    <p id="ordersMsg" class="muted" aria-live="polite">Loading orders...</p>
+    <div id="ordersList" class="orders"></div>
+  </section>
+
+  <section id="pricingSec" class="panel hidden">
+    <h2>💰 Live Pack Prices & Coupon Discount</h2>
+    <p class="muted">Changes saved here update instantaneously on your live website for 1 KG (MRP ₹299), 2 KG (MRP ₹399), and 3 KG (MRP ₹499).</p>
+    <form id="settingsForm" class="formgrid">
+      <div><label for="kg1">1 KG Selling Price ₹ (MRP ₹299)</label><input id="kg1" type="number" min="1" required value="179"></div>
+      <div><label for="kg2">2 KG Selling Price ₹ (MRP ₹399)</label><input id="kg2" type="number" min="1" required value="249"></div>
+      <div><label for="kg3">3 KG Selling Price ₹ (MRP ₹499)</label><input id="kg3" type="number" min="1" required value="359"></div>
+      <div><label for="discount">Coupon Discount (%)</label><input id="discount" type="number" min="0" max="100" required value="25"></div>
+      <div><button id="saveSettings" type="submit" style="width:100%;">💾 Save Live Prices</button></div>
+    </form>
+    <p id="settingsMsg" class="muted" style="margin-top:10px;" aria-live="polite"></p>
+  </section>
+
+  <section id="usersSec" class="panel hidden">
+    <h2>👥 Saved Customer Profiles</h2>
+    <p class="muted">List of all customers whose mobile numbers & addresses are saved in your database.</p>
+    <p id="usersMsg" class="muted">Loading customer profiles...</p>
+    <div id="usersList" class="orders"></div>
+  </section>
+</main>
+
+<script>
+(() => {
+"use strict";
 
 const firebaseConfig = {
   apiKey: "AIzaSyACkgbFe5wwhtMumbJiTCP1iEJPKtp0SpA",
@@ -22,2376 +278,310 @@ const firebaseConfig = {
   appId: "1:337745712170:web:ef2f4e2defe2cde4245f53"
 };
 
-const app = initializeApp(firebaseConfig);
-const auth = getAuth(app);
-const db = getFirestore(app);
+const $ = id => document.getElementById(id);
+const loginView = $("loginView");
+const appView = $("app");
+const loginMsg = $("loginMsg");
+const globalMsg = $("globalMsg");
+let auth, db, stopOrders = null, orders = [];
 
-window.currentUser = null;
-window.userData = null;
-window.dbPrices = { kg1: 179, kg2: 249, kg3: 359 };
-window.activeDiscountPercent = 25;
-// Updated Official UPI ID
-window.merchantUpiId = "brijender@ptaxis";
-window.ordersUnsubscribe = null;
-window.customerOrders = [];
-window.isPaymentVerified = true; // True for COD by default, requires verification for UPI/Card
-window.verifiedPaymentDetails = "";
-
-// 1. Load Live Prices from Firestore
-function fetchSettings() {
-  try {
-    const docRef = doc(db, "settings", "pricing");
-    onSnapshot(docRef, (docSnap) => {
-      if (docSnap.exists()) {
-        const data = docSnap.data();
-        if (data.kg1) window.dbPrices.kg1 = Number(data.kg1);
-        if (data.kg2) window.dbPrices.kg2 = Number(data.kg2);
-        if (data.kg3) window.dbPrices.kg3 = Number(data.kg3);
-        if (data.discountPercent !== undefined) window.activeDiscountPercent = Number(data.discountPercent);
-
-        if (document.getElementById('price-1kg')) document.getElementById('price-1kg').innerText = `₹${window.dbPrices.kg1}`;
-        if (document.getElementById('price-2kg')) document.getElementById('price-2kg').innerText = `₹${window.dbPrices.kg2}`;
-        if (document.getElementById('price-3kg')) document.getElementById('price-3kg').innerText = `₹${window.dbPrices.kg3}`;
-
-        if (document.getElementById('save-1kg')) {
-          document.getElementById('save-1kg').innerText = `${Math.round(((299 - window.dbPrices.kg1) / 299) * 100)}% OFF`;
-        }
-        if (document.getElementById('save-2kg')) {
-          document.getElementById('save-2kg').innerText = `${Math.round(((399 - window.dbPrices.kg2) / 399) * 100)}% OFF`;
-        }
-        if (document.getElementById('save-3kg')) {
-          document.getElementById('save-3kg').innerText = `${Math.round(((499 - window.dbPrices.kg3) / 499) * 100)}% OFF`;
-        }
-      }
-    });
-  } catch (e) {
-    console.error("Error loading settings:", e);
+function showMsg(el, text, error = false) {
+  el.textContent = text;
+  el.className = "notice" + (error ? " error" : "");
+  el.classList.remove("hidden");
+  if (!error && el === globalMsg) {
+    setTimeout(() => hideMsg(el), 4000);
   }
 }
-fetchSettings();
-
-function cleanMobile(num) {
-  return String(num || "").replace(/\D/g, "").slice(-10);
+function hideMsg(el) { el.classList.add("hidden"); }
+function safe(value, fallback = "—") { return value === undefined || value === null || value === "" ? fallback : String(value); }
+function money(value) {
+  const n = Number(value);
+  return Number.isFinite(n) ? "₹" + n.toLocaleString("en-IN") : "—";
 }
-
-function parseTimeMs(val) {
-  if (!val) return 0;
-  if (typeof val.toMillis === "function") return val.toMillis();
-  const ms = new Date(val).getTime();
-  return Number.isNaN(ms) ? 0 : ms;
+function parseTimeMs(value) {
+  if (!value) return 0;
+  if (typeof value.toMillis === "function") return value.toMillis();
+  const parsed = new Date(value).getTime();
+  return Number.isNaN(parsed) ? 0 : parsed;
 }
-
-function formatOrderDate(val) {
-  const ms = parseTimeMs(val);
-  if (!ms) return "Just now";
-  return new Date(ms).toLocaleString("en-IN", {
+function dateText(value) {
+  const ms = parseTimeMs(value);
+  return ms ? new Date(ms).toLocaleString("en-IN", {
     day: "2-digit", month: "short", year: "numeric",
     hour: "2-digit", minute: "2-digit"
-  });
+  }) : "—";
 }
 
-// 2. Smart Auto-Fill Profile into UI & Forms
-function populateProfileUI(data) {
-  if (!data) return;
-  window.userData = { ...(window.userData || {}), ...data };
-  localStorage.setItem("baghveda_profile", JSON.stringify(window.userData));
+const statuses = ["Processing", "Pending", "Confirmed", "Packed", "Shipped", "Delivered", "Cancelled"];
+function statusOf(order) { return statuses.includes(order.status) ? order.status : "Processing"; }
 
-  if (document.getElementById('cust-name') && data.name) document.getElementById('cust-name').value = data.name;
-  if (document.getElementById('cust-phone') && data.phone) document.getElementById('cust-phone').value = data.phone;
-  if (document.getElementById('cust-address') && data.address) document.getElementById('cust-address').value = data.address;
-
-  if (document.getElementById('prof-name')) document.getElementById('prof-name').value = data.name || "";
-  if (document.getElementById('prof-phone')) document.getElementById('prof-phone').value = data.phone || "";
-  if (document.getElementById('prof-email')) document.getElementById('prof-email').value = data.email || (window.currentUser ? window.currentUser.email : "");
-  if (document.getElementById('prof-address')) document.getElementById('prof-address').value = data.address || "";
-
-  const headerSub = document.getElementById('app-prof-user-subtitle');
-  if (headerSub) {
-    headerSub.innerText = data.name ? `${data.name} • +91 ${data.phone || ''}` : "Manage your orders, returns & address";
-  }
-}
-
-const savedLocalProfile = localStorage.getItem("baghveda_profile");
-if (savedLocalProfile) {
-  try {
-    populateProfileUI(JSON.parse(savedLocalProfile));
-  } catch (_) {}
-}
-
-// 3. Auto-detect Saved Customer Profile by Mobile Number
-window.lookupCustomerByPhone = async function(rawPhone, source = "checkout") {
-  const phone = cleanMobile(rawPhone);
-  if (phone.length !== 10) return;
-
-  const statusEl = document.getElementById(source === "checkout" ? "phone-lookup-msg" : "track-lookup-msg");
-  if (statusEl) {
-    statusEl.style.display = "block";
-    statusEl.style.color = "#d97706";
-    statusEl.innerText = "🔍 Checking saved profile...";
-  }
-
-  try {
-    const phoneDoc = await getDoc(doc(db, "phone_profiles", phone));
-    if (phoneDoc.exists()) {
-      const pData = phoneDoc.data();
-      populateProfileUI(pData);
-      if (statusEl) {
-        statusEl.style.color = "#10b981";
-        statusEl.innerText = `✅ Welcome back, ${pData.name}! Your saved address is auto-filled.`;
-      }
-      startLiveOrdersListener(window.currentUser ? window.currentUser.uid : null, phone);
-      return;
-    }
-
-    const uQuery = query(collection(db, "users"), where("phone", "==", phone));
-    const uSnap = await getDocs(uQuery);
-    if (!uSnap.empty) {
-      const uData = uSnap.docs[0].data();
-      populateProfileUI(uData);
-      if (statusEl) {
-        statusEl.style.color = "#10b981";
-        statusEl.innerText = `✅ Welcome back, ${uData.name}! Profile loaded.`;
-      }
-      startLiveOrdersListener(window.currentUser ? window.currentUser.uid : null, phone);
-      return;
-    }
-
-    const oQuery = query(collection(db, "orders"), where("customerPhone", "==", phone));
-    const oSnap = await getDocs(oQuery);
-    if (!oSnap.empty) {
-      const latestOrd = oSnap.docs.map(d => d.data()).sort((a,b) => parseTimeMs(b.createdAt) - parseTimeMs(a.createdAt))[0];
-      const cleanAddr = String(latestOrd.customerAddress || "").replace(/\[💳.*\]/, "").trim();
-      populateProfileUI({
-        name: latestOrd.customerName,
-        phone: latestOrd.customerPhone,
-        address: cleanAddr
-      });
-      if (statusEl) {
-        statusEl.style.color = "#10b981";
-        statusEl.innerText = `✅ Welcome back, ${latestOrd.customerName}! Address auto-filled.`;
-      }
-      startLiveOrdersListener(window.currentUser ? window.currentUser.uid : null, phone);
-      return;
-    }
-
-    if (statusEl) {
-      statusEl.style.color = "#10b981";
-      statusEl.innerText = "✨ New number: Enter details once, and we'll save them for next time!";
-    }
-  } catch (err) {
-    if (statusEl) statusEl.style.display = "none";
-  }
+window.switchAdminSection = function(secId, btn) {
+  ["ordersSec", "pricingSec", "usersSec"].forEach(id => $(id).classList.add("hidden"));
+  $(secId).classList.remove("hidden");
+  document.querySelectorAll(".tab-pill").forEach(b => b.classList.remove("active"));
+  if (btn) btn.classList.add("active");
+  if (secId === "usersSec") loadRegisteredUsers();
 };
 
-// 4. Auth State Listener
-onAuthStateChanged(auth, async (user) => {
-  const authBtn = document.getElementById('auth-nav-btn');
-  const logoutBtn = document.getElementById('logout-profile-btn');
-  const loginTriggerRow = document.getElementById('prof-auth-trigger-row');
+window.filterReturnOrdersOnly = function() {
+  window.switchAdminSection('ordersSec', $("tabBtnOrders"));
+  $("filter").value = "RETURNS_ONLY";
+  renderOrders();
+};
 
-  if (user) {
-    window.currentUser = user;
-    authBtn.innerHTML = "👤 Profile";
-    authBtn.onclick = () => openCustomerHub('main');
-    if (logoutBtn) logoutBtn.style.display = "block";
-    if (loginTriggerRow) loginTriggerRow.style.display = "none";
+try {
+  if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
+  auth = firebase.auth();
+  db = firebase.firestore();
+} catch (e) {
+  showMsg(loginMsg, "Firebase initialization failed.", true);
+}
 
-    try {
-      const userDocRef = doc(db, "users", user.uid);
-      const userSnap = await getDoc(userDocRef);
-      if (userSnap.exists()) {
-        const data = userSnap.data();
-        populateProfileUI({ ...data, email: user.email });
-        startLiveOrdersListener(user.uid, cleanMobile(data.phone));
-      } else {
-        startLiveOrdersListener(user.uid, cleanMobile(window.userData?.phone));
-      }
-    } catch (err) {
-      startLiveOrdersListener(user.uid, cleanMobile(window.userData?.phone));
-    }
-  } else {
-    window.currentUser = null;
-    if (logoutBtn) logoutBtn.style.display = "none";
-    if (loginTriggerRow) loginTriggerRow.style.display = "flex";
-    const localPhone = cleanMobile(window.userData?.phone);
-    authBtn.innerHTML = "👤 Profile";
-    authBtn.onclick = () => openCustomerHub('main');
-    if (localPhone.length === 10) {
-      startLiveOrdersListener(null, localPhone);
-    }
+$("loginForm").addEventListener("submit", async e => {
+  e.preventDefault();
+  hideMsg(loginMsg);
+  try {
+    await auth.signInWithEmailAndPassword($("email").value.trim(), $("password").value);
+  } catch (err) {
+    showMsg(loginMsg, "Login failed: Incorrect Email or Password.", true);
   }
 });
 
-// 5. LIVE Real-Time Order Tracking Listener
-window.startLiveOrdersListener = function(uid, phone) {
-  if (window.ordersUnsubscribe) {
-    window.ordersUnsubscribe();
-    window.ordersUnsubscribe = null;
+$("resetPassBtn").addEventListener("click", async () => {
+  const email = $("email").value.trim();
+  if (!email) { showMsg(loginMsg, "Please enter your Admin Email above first.", true); return; }
+  try {
+    await auth.sendPasswordResetEmail(email);
+    showMsg(loginMsg, `✅ Password reset link sent to ${email}.`);
+  } catch (err) {
+    showMsg(loginMsg, "Could not send reset email: " + err.message, true);
   }
+});
 
-  const cleanPh = cleanMobile(phone);
-  if (!uid && cleanPh.length !== 10) return;
+$("logout").addEventListener("click", async () => {
+  try { await auth.signOut(); } catch (_) { showMsg(globalMsg, "Logout failed.", true); }
+});
 
-  const ordersRef = collection(db, "orders");
-  const q = cleanPh.length === 10
-    ? query(ordersRef, where("customerPhone", "==", cleanPh))
-    : query(ordersRef, where("userId", "==", uid));
+auth && auth.onAuthStateChanged(async user => {
+  if (stopOrders) { stopOrders(); stopOrders = null; }
+  hideMsg(globalMsg);
+  if (!user) {
+    appView.classList.add("hidden");
+    loginView.classList.remove("hidden");
+    $("logout").classList.add("hidden");
+    return;
+  }
+  try {
+    await user.getIdTokenResult(true);
+    loginView.classList.add("hidden");
+    appView.classList.remove("hidden");
+    $("logout").classList.remove("hidden");
+    await loadSettings();
+    listenOrders();
+  } catch (err) {
+    showMsg(loginMsg, "Auth error: " + err.message, true);
+  }
+});
 
-  window.ordersUnsubscribe = onSnapshot(q, (snapshot) => {
-    const map = new Map();
-    snapshot.docs.forEach(d => map.set(d.id, { id: d.id, ...d.data() }));
-    const list = Array.from(map.values());
-    list.sort((a, b) => parseTimeMs(b.createdAt) - parseTimeMs(a.createdAt));
-    window.customerOrders = list;
-    renderCustomerOrdersAndStats();
-  }, (err) => {
-    console.error("Live orders error:", err);
+async function loadSettings() {
+  $("settingsMsg").textContent = "Loading live prices...";
+  try {
+    const doc = await db.collection("settings").doc("pricing").get();
+    const d = doc.exists ? doc.data() : {};
+    $("kg1").value = d.kg1 ?? 179;
+    $("kg2").value = d.kg2 ?? 249;
+    $("kg3").value = d.kg3 ?? 359;
+    $("discount").value = d.discountPercent ?? 25;
+    $("settingsMsg").textContent = doc.exists ? "✅ Live pricing loaded." : "Showing defaults.";
+  } catch (_) {
+    $("settingsMsg").textContent = "Could not load pricing.";
+  }
+}
+
+$("settingsForm").addEventListener("submit", async e => {
+  e.preventDefault();
+  const kg1 = Number($("kg1").value), kg2 = Number($("kg2").value), kg3 = Number($("kg3").value), discountPercent = Number($("discount").value);
+  $("saveSettings").disabled = true;
+  $("settingsMsg").textContent = "Saving...";
+  try {
+    await db.collection("settings").doc("pricing").set({ kg1, kg2, kg3, discountPercent, updatedAt: firebase.firestore.FieldValue.serverTimestamp() }, { merge: true });
+    $("settingsMsg").textContent = "✅ Live prices updated!";
+    showMsg(globalMsg, "Prices updated successfully!");
+  } catch (err) {
+    $("settingsMsg").textContent = "❌ Could not save.";
+    showMsg(globalMsg, "Error saving settings. Check Firestore Rules.", true);
+  } finally {
+    $("saveSettings").disabled = false;
+  }
+});
+
+function listenOrders() {
+  $("ordersMsg").textContent = "Loading orders...";
+  stopOrders = db.collection("orders").onSnapshot(snapshot => {
+    orders = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+    renderOrders();
+  }, () => {
+    $("ordersMsg").textContent = "Could not load orders.";
+    showMsg(globalMsg, "Error loading orders.", true);
   });
-};
-
-// 6. Visual Order Status Stepper Builder
-function getOrderStepInfo(status) {
-  const st = status || "Processing";
-  const steps = [
-    { key: "Pending", label: "Placed", icon: "📝" },
-    { key: "Confirmed", label: "Confirmed", icon: "✅" },
-    { key: "Processing", label: "Processing", icon: "🌱" },
-    { key: "Packed", label: "Packed", icon: "📦" },
-    { key: "Shipped", label: "Shipped", icon: "🚚" },
-    { key: "Delivered", label: "Delivered", icon: "🏡" }
-  ];
-
-  const statusMessages = {
-    Pending: "Order received and awaiting confirmation.",
-    Confirmed: "Your order has been confirmed!",
-    Processing: "Your fresh BaghVeda® Organic Potting Mix is being prepared.",
-    Packed: "Your order is packed and ready for dispatch!",
-    Shipped: "Your order is out for delivery.",
-    Delivered: "🎉 Order successfully delivered! You can now download your GST Invoice.",
-    Cancelled: "❌ This order has been cancelled."
-  };
-
-  let activeIdx = steps.findIndex(s => s.key === st);
-  if (activeIdx === -1 && st !== "Cancelled") activeIdx = 2;
-
-  return { steps, activeIdx, isCancelled: st === "Cancelled", message: statusMessages[st] || statusMessages.Processing, currentStatus: st };
 }
 
-// 7. Customer GST Invoice Generator (Unlocked ONLY when Delivered!)
-window.downloadCustomerGSTInvoice = function(orderId) {
-  const order = (window.customerOrders || []).find(o => o.id === orderId);
-  if (!order) return;
+function renderOrders() {
+  const getStatus = o => statusOf(o);
+  $("totalCount").textContent = orders.length;
+  const validOrders = orders.filter(o => getStatus(o) !== "Cancelled");
+  const totalRev = validOrders.reduce((sum, o) => sum + (Number(o.totalAmount) || 0), 0);
+  $("totalRevenue").textContent = money(totalRev);
+  $("activeCount").textContent = orders.filter(o => ["Pending", "Confirmed", "Processing", "Packed", "Shipped"].includes(getStatus(o))).length;
+  $("deliveredCount").textContent = orders.filter(o => getStatus(o) === "Delivered").length;
+  $("returnCount").textContent = orders.filter(o => Boolean(o.returnStatus)).length;
 
-  if (order.status !== "Delivered") {
-    alert("GST Invoice can only be downloaded after the order is marked as 'Delivered' by Admin.");
-    return;
-  }
+  const queryText = $("search").value.trim().toLowerCase();
+  const filter = $("filter").value;
 
-  const totalAmt = Number(order.totalAmount) || 0;
-  const taxableValue = (totalAmt / 1.05).toFixed(2);
-  const gstAmt = (totalAmt - Number(taxableValue)).toFixed(2);
-  const cleanAddr = String(order.customerAddress || "").replace(/\[💳.*\]/, "").trim();
+  const filtered = orders.filter(o => {
+    const text = [o.id, o.customerName, o.customerPhone, o.customerAddress, o.paymentMethod, o.transactionId, o.returnStatus, o.returnReason].map(v => safe(v, "")).join(" ").toLowerCase();
+    const matchesSearch = !queryText || text.includes(queryText);
+    if (!matchesSearch) return false;
+    if (filter === "all") return true;
+    if (filter === "RETURNS_ONLY") return Boolean(o.returnStatus);
+    return getStatus(o) === filter;
+  });
 
-  const itemsRows = (order.items || []).map(i => `
-    <tr>
-      <td style="padding:10px; border-bottom:1px solid #e2e8f0;">${i.name}</td>
-      <td style="padding:10px; border-bottom:1px solid #e2e8f0; text-align:center;">${i.qty}</td>
-      <td style="padding:10px; border-bottom:1px solid #e2e8f0; text-align:right;">₹${i.price}</td>
-      <td style="padding:10px; border-bottom:1px solid #e2e8f0; text-align:right;">₹${(Number(i.price)||0) * (Number(i.qty)||1)}</td>
-    </tr>`).join("");
+  filtered.sort((a, b) => parseTimeMs(b.createdAt) - parseTimeMs(a.createdAt));
+  const list = $("ordersList");
+  list.replaceChildren();
+  $("ordersMsg").textContent = filtered.length ? `Showing ${filtered.length} order(s).` : "No matching orders found.";
 
-  const win = window.open("", "_blank");
-  win.document.write(`
-    <html>
-    <head><title>GST_Invoice_${order.id.slice(0,8).toUpperCase()}</title></head>
-    <body style="font-family:Arial,sans-serif; max-width:680px; margin:25px auto; padding:25px; border:1px solid #cbd5e1; color:#0f172a;">
-      <div style="display:flex; justify-content:space-between; align-items:flex-start; border-bottom:2px solid #146334; padding-bottom:15px;">
-        <div>
-          <h2 style="margin:0; color:#146334;">BaghVeda® Organics</h2>
-          <p style="margin:4px 0; font-size:13px; font-weight:bold; color:#b45309;">"मिट्टी में प्राण, पौधे मुस्कुराएं"</p>
-          <p style="margin:2px 0; font-size:12px;">New Delhi, Delhi - 110045, India</p>
-          <p style="margin:2px 0; font-size:12px;"><strong>GSTIN:</strong> 07IZUPK8908Q1ZY</p>
-          <p style="margin:2px 0; font-size:12px;">Helpline: +91 8700733425 | Email: support@baghveda.in</p>
-        </div>
-        <div style="text-align:right;">
-          <span style="background:#dcfce7; color:#166534; padding:4px 10px; border-radius:4px; font-size:11px; font-weight:bold;">DELIVERED • TAX INVOICE</span>
-          <p style="margin:8px 0 3px; font-size:12px;"><strong>Invoice No:</strong> BV-${order.id.slice(0, 8).toUpperCase()}</p>
-          <p style="margin:3px 0; font-size:12px;"><strong>Order Date:</strong> ${formatOrderDate(order.createdAt)}</p>
-          <p style="margin:3px 0; font-size:12px;"><strong>Payment:</strong> ${order.paymentMethod || 'COD'}</p>
-        </div>
-      </div>
+  filtered.forEach(order => {
+    const st = getStatus(order);
+    const card = document.createElement("article");
+    card.className = "order" + (order.returnStatus ? " has-return" : "");
 
-      <div style="margin:18px 0; font-size:13px; background:#f8fafc; padding:12px; border-radius:8px;">
-        <strong>Billed & Delivered To:</strong><br>
-        Name: ${order.customerName}<br>
-        Phone: +91 ${order.customerPhone}<br>
-        Address: ${cleanAddr}
-      </div>
+    const topDiv = document.createElement("div");
+    const head = document.createElement("div");
+    head.className = "orderhead";
+    const id = document.createElement("span");
+    id.className = "order-id-badge";
+    id.textContent = "Order #" + order.id.slice(0, 8).toUpperCase();
+    const pill = document.createElement("span");
+    pill.className = "pill status-" + st;
+    pill.textContent = st;
+    head.append(id, pill);
+    topDiv.append(head);
 
-      <table style="width:100%; border-collapse:collapse; font-size:13px; margin:15px 0;">
-        <thead>
-          <tr style="background:#f1f5f9;">
-            <th style="padding:10px; text-align:left;">Product Description</th>
-            <th style="padding:10px; text-align:center;">Qty</th>
-            <th style="padding:10px; text-align:right;">Unit Price</th>
-            <th style="padding:10px; text-align:right;">Total</th>
-          </tr>
-        </thead>
-        <tbody>${itemsRows}</tbody>
-      </table>
+    const cleanAddr = String(order.customerAddress || "").replace(/\[💳.*\]/, "").trim();
+    function addLine(label, value) {
+      const p = document.createElement("p");
+      const strong = document.createElement("strong");
+      strong.textContent = label + ": ";
+      p.append(strong, document.createTextNode(safe(value)));
+      topDiv.append(p);
+    }
 
-      <div style="text-align:right; font-size:13px; margin-top:15px; border-top:1px solid #cbd5e1; padding-top:12px;">
-        ${order.discount ? `<p style="margin:4px 0; color:#15803d;">Coupon Discount: -₹${order.discount}</p>` : ""}
-        <p style="margin:4px 0; color:#64748b;">Taxable Amount: ₹${taxableValue} | Included GST: ₹${gstAmt}</p>
-        <h3 style="margin:8px 0; color:#146334; font-size:18px;">Grand Total Paid (Incl. of all taxes): ₹${totalAmt}</h3>
-      </div>
+    addLine("👤 Customer", order.customerName);
+    addLine("📞 Mobile", order.customerPhone);
+    addLine("📍 Address", cleanAddr);
+    addLine("🕒 Ordered At", dateText(order.createdAt));
 
-      <p style="text-align:center; font-size:12px; color:#64748b; margin-top:35px; border-top:1px dashed #cbd5e1; padding-top:12px;">
-        This is a computer-generated GST Invoice from BaghVeda® Organics (www.baghveda.in).
-      </p>
-      <script>window.print();<\/script>
-    </body>
-    </html>
-  `);
-  win.document.close();
-};
+    const payBox = document.createElement("div");
+    payBox.className = "payment-info-box";
+    const payMode = order.paymentMethod || "Cash on Delivery (COD)";
+    const utrText = order.transactionId && order.transactionId !== "COD" ? ` | Ref/UTR: ${order.transactionId}` : "";
+    payBox.innerHTML = `<div><strong>💰 Total: ${money(order.totalAmount)}</strong></div><div style="margin-top:2px;">💳 <strong>Payment:</strong> ${safe(payMode)}${utrText}</div>`;
 
-// 8. Submit Return / Exchange Request Handler
-window.openReturnModalForOrder = function(orderId) {
-  switchHubView('returns');
-  const sel = document.getElementById('return-order-select');
-  if (sel) sel.value = orderId;
-};
+    const gstBadge = document.createElement("span");
+    if (st === "Delivered") {
+      gstBadge.className = "gst-lock-tag gst-unlocked";
+      gstBadge.textContent = "🔓 Customer GST Bill: Unlocked (Delivered)";
+    } else {
+      gstBadge.className = "gst-lock-tag gst-locked";
+      gstBadge.textContent = "🔒 Customer GST Bill: Locked (Mark 'Delivered')";
+    }
+    payBox.appendChild(gstBadge);
+    topDiv.appendChild(payBox);
 
-window.submitReturnExchangeRequest = async function(event) {
-  event.preventDefault();
-  const orderId = document.getElementById('return-order-select').value;
-  const reqType = document.getElementById('return-type-select').value;
-  const reason = document.getElementById('return-reason-select').value;
-  const details = document.getElementById('return-details-input').value.trim();
+    if (order.returnStatus) {
+      const retBox = document.createElement("div");
+      retBox.className = "return-alert-box";
+      retBox.innerHTML = `<div class="return-alert-head"><span>🔄 ${safe(order.returnType, "Return")} Alert</span><span style="background:#fef3c7; padding:2px 8px; border-radius:12px;">${safe(order.returnStatus)}</span></div><div style="font-size:0.8rem; color:#78350f;"><strong>Reason:</strong> ${safe(order.returnReason)}</div>`;
+      
+      const retActions = document.createElement("div");
+      retActions.className = "return-actions-row";
+      const retSelect = document.createElement("select");
+      ["Return/Exchange Approved", "Replacement Shipped", "Refund Completed", "Request Rejected"].forEach(opt => {
+        const oEl = document.createElement("option"); oEl.value = opt; oEl.textContent = opt; retSelect.appendChild(oEl);
+      });
+      retSelect.value = order.returnStatus;
+      const retSaveBtn = document.createElement("button");
+      retSaveBtn.type = "button"; retSaveBtn.textContent = "Update";
+      retSaveBtn.onclick = async () => {
+        await db.collection("orders").doc(order.id).update({ returnStatus: retSelect.value });
+        showMsg(globalMsg, `✅ Return status updated!`);
+      };
+      retActions.append(retSelect, retSaveBtn);
+      retBox.appendChild(retActions);
+      topDiv.appendChild(retBox);
+    }
 
-  if (!orderId) {
-    alert("Please select an order for Return / Exchange.");
-    return;
-  }
+    const items = document.createElement("div");
+    items.className = "items";
+    items.innerHTML = `<strong>🛍️ Ordered Packs:</strong>`;
+    if (Array.isArray(order.items) && order.items.length) {
+      order.items.forEach(i => {
+        items.innerHTML += `<div style="margin-top:4px;">• ${i.name} × ${i.qty} (₹${i.price * i.qty})</div>`;
+      });
+    }
+    topDiv.append(items);
 
-  try {
-    await updateDoc(doc(db, "orders", orderId), {
-      returnStatus: `${reqType} Requested`,
-      returnType: reqType,
-      returnReason: `${reason} - ${details}`,
-      returnRequestedAt: new Date().toISOString()
+    const actions = document.createElement("div");
+    actions.className = "orderactions";
+    const select = document.createElement("select");
+    statuses.forEach(s => {
+      const option = document.createElement("option"); option.value = s; option.textContent = s; select.append(option);
     });
-    showToast(`✅ Your ${reqType} request has been submitted!`);
-    document.getElementById('return-form').reset();
-    switchHubView('orders');
-  } catch (e) {
-    alert("Could not submit request: " + e.message);
-  }
-};
+    select.value = st;
 
-function buildOrderCardHTML(ord, isCurrentHighlight = false) {
-  const info = getOrderStepInfo(ord.status);
-  let badgeBg = "#fef3c7";
-  let badgeColor = "#92400e";
-  if (info.currentStatus === "Confirmed" || info.currentStatus === "Packed") { badgeBg = "#dbeafe"; badgeColor = "#1e40af"; }
-  if (info.currentStatus === "Shipped") { badgeBg = "#ede9fe"; badgeColor = "#5b21b6"; }
-  if (info.currentStatus === "Delivered") { badgeBg = "#dcfce7"; badgeColor = "#166534"; }
-  if (info.currentStatus === "Cancelled") { badgeBg = "#fee2e2"; badgeColor = "#991b1b"; }
-
-  const itemsHtml = (ord.items || []).map(i =>
-    `<div style="display:flex; justify-content:space-between; font-size:0.84rem; padding:3px 0; color:#334155;">
-      <span>• ${i.name} × ${i.qty}</span>
-      <strong>₹${(Number(i.price) || 0) * (Number(i.qty) || 1)}</strong>
-    </div>`
-  ).join("");
-
-  let stepperHtml = "";
-  if (info.isCancelled) {
-    stepperHtml = `<div style="background:#fef2f2; border:1px solid #fecaca; color:#b91c1c; padding:10px; border-radius:10px; font-size:0.82rem; margin:10px 0; font-weight:700;">${info.message}</div>`;
-  } else {
-    const dotsHtml = info.steps.map((s, idx) => {
-      const done = idx <= info.activeIdx;
-      const isCurrent = idx === info.activeIdx;
-      return `
-        <div class="track-step-light ${done ? 'done' : ''} ${isCurrent ? 'current' : ''}">
-          <div class="track-dot-light">${done ? s.icon : (idx + 1)}</div>
-          <div class="track-label-light">${s.label}</div>
-        </div>
-      `;
-    }).join("");
-
-    stepperHtml = `
-      <div class="live-tracker-box-light">
-        <div style="font-size:0.8rem; color:#0f172a; font-weight:700; margin-bottom:10px;">
-          📍 Status: <span style="color:#15803d;">${info.message}</span>
-        </div>
-        <div class="track-steps-row">${dotsHtml}</div>
-      </div>
-    `;
-  }
-
-  const payMethodText = ord.paymentMethod || "Cash on Delivery (COD)";
-  const cleanAddr = String(ord.customerAddress || "").replace(/\[💳.*\]/, "").trim();
-
-  // GST Bill Button ONLY enabled when Admin marks order as 'Delivered'
-  const gstBillHtml = info.currentStatus === "Delivered"
-    ? `<button type="button" onclick="downloadCustomerGSTInvoice('${ord.id}')" style="width:100%; background:#15803d; color:#fff; border:none; padding:10px; border-radius:8px; font-weight:800; font-size:0.82rem; cursor:pointer; margin-top:8px;">🧾 Download Official GST Invoice (PDF)</button>`
-    : `<div style="background:#f1f5f9; border:1px dashed #cbd5e1; color:#64748b; padding:8px 10px; border-radius:8px; font-size:0.75rem; font-weight:700; text-align:center; margin-top:8px;">🔒 GST Bill will unlock once Admin marks order as 'Delivered'</div>`;
-
-  // Return / Exchange status or button
-  let returnHtml = "";
-  if (ord.returnStatus) {
-    returnHtml = `<div style="background:#fffbeb; border:1px solid #fde68a; color:#b45309; padding:8px 10px; border-radius:8px; font-size:0.76rem; font-weight:700; margin-top:6px;">🔄 ${ord.returnStatus}: ${ord.returnReason || ''}</div>`;
-  } else if (info.currentStatus === "Delivered") {
-    returnHtml = `<button type="button" onclick="openReturnModalForOrder('${ord.id}')" style="width:100%; background:#f8fafc; color:#0f172a; border:1px solid #cbd5e1; padding:8px; border-radius:8px; font-weight:700; font-size:0.78rem; cursor:pointer; margin-top:6px;">🔄 Request Return / Exchange</button>`;
-  }
-
-  return `
-    <div class="app-order-card ${isCurrentHighlight ? 'highlight' : ''}">
-      <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:6px; border-bottom:1px solid #e2e8f0; padding-bottom:8px; margin-bottom:8px;">
-        <div>
-          <span style="font-size:0.78rem; color:#64748b;">Order ID:</span>
-          <strong style="color:#0f172a; font-size:0.9rem;">#${ord.id.slice(0, 8).toUpperCase()}</strong>
-          <div style="font-size:0.74rem; color:#64748b;">🕒 ${formatOrderDate(ord.createdAt)}</div>
-        </div>
-        <span style="background:${badgeBg}; color:${badgeColor}; padding:4px 10px; border-radius:20px; font-size:0.74rem; font-weight:800;">
-          ${info.currentStatus}
-        </span>
-      </div>
-
-      ${stepperHtml}
-
-      <div style="background:#f8fafc; border:1px solid #e2e8f0; padding:10px; border-radius:10px; margin:8px 0;">
-        <div style="font-size:0.75rem; color:#64748b; margin-bottom:4px; font-weight:700;">Ordered Items:</div>
-        ${itemsHtml}
-        <div style="border-top:1px solid #e2e8f0; margin-top:6px; padding-top:6px; display:flex; justify-content:space-between; font-weight:800; color:#15803d; font-size:0.95rem;">
-          <span>Total Amount:</span>
-          <span>₹${ord.totalAmount}</span>
-        </div>
-        <div style="font-size:0.75rem; color:#475569; margin-top:4px;">
-          💳 <strong>Payment:</strong> ${payMethodText}
-        </div>
-      </div>
-
-      <div style="font-size:0.78rem; color:#475569; margin-top:4px;">
-        📍 <strong>Delivery Address:</strong> ${cleanAddr}
-      </div>
-
-      ${gstBillHtml}
-      ${returnHtml}
-    </div>
-  `;
-}
-
-// 9. Render Orders, Stats & Return Dropdown
-function renderCustomerOrdersAndStats() {
-  const list = window.customerOrders || [];
-  const activeOrders = list.filter(o => !["Delivered", "Cancelled"].includes(o.status));
-  const lastOrder = list[0] || null;
-
-  const countBadge = document.getElementById("prof-orders-count-sub");
-  if (countBadge) {
-    countBadge.innerText = list.length > 0
-      ? `${list.length} Orders (${activeOrders.length} Active)`
-      : "Track & View History";
-  }
-
-  // Populate Return/Exchange Order Selector
-  const returnSelect = document.getElementById("return-order-select");
-  if (returnSelect) {
-    if (list.length === 0) {
-      returnSelect.innerHTML = `<option value="">No orders found</option>`;
-    } else {
-      returnSelect.innerHTML = list.map(o =>
-        `<option value="${o.id}">Order #${o.id.slice(0,8).toUpperCase()} - ₹${o.totalAmount} (${o.status || 'Processing'})</option>`
-      ).join("");
-    }
-  }
-
-  const currentOrderContainer = document.getElementById("current-order-container");
-  const allOrdersContainer = document.getElementById("all-orders-container");
-
-  if (currentOrderContainer) {
-    if (activeOrders.length > 0) {
-      currentOrderContainer.innerHTML = `
-        <div style="margin-bottom:10px; font-size:0.85rem; color:#15803d; font-weight:800;">
-          🟢 Active Order Live Tracking (${activeOrders.length}):
-        </div>
-        ${activeOrders.map(o => buildOrderCardHTML(o, true)).join("")}
-      `;
-    } else if (lastOrder) {
-      currentOrderContainer.innerHTML = `
-        <div style="margin-bottom:10px; font-size:0.85rem; color:#0f172a; font-weight:800;">
-          ✨ Your Most Recent Order:
-        </div>
-        ${buildOrderCardHTML(lastOrder, false)}
-      `;
-    } else {
-      currentOrderContainer.innerHTML = `
-        <div style="text-align:center; padding:25px 10px; color:#64748b;">
-          <div style="font-size:2.2rem; margin-bottom:6px;">📦</div>
-          <p style="margin:0; font-size:0.88rem;">No orders found for this number yet. Enter your 10-digit mobile number above to track.</p>
-        </div>
-      `;
-    }
-  }
-
-  if (allOrdersContainer) {
-    if (list.length === 0) {
-      allOrdersContainer.innerHTML = `<p style="text-align:center; color:#64748b; padding:16px; font-size:0.85rem;">No past orders found.</p>`;
-    } else {
-      allOrdersContainer.innerHTML = list.map((o, idx) => `
-        <div style="font-size:0.76rem; color:#64748b; margin:10px 0 4px; font-weight:800;">
-          ${idx === 0 ? "🌟 Latest Order" : `Order #${list.length - idx}`}
-        </div>
-        ${buildOrderCardHTML(o, idx === 0)}
-      `).join("");
-    }
-  }
-}
-
-// 10. Save Customer Profile
-window.saveCustomerProfile = async function(event) {
-  event.preventDefault();
-  const name = document.getElementById("prof-name").value.trim();
-  const phone = cleanMobile(document.getElementById("prof-phone").value);
-  const email = document.getElementById("prof-email").value.trim();
-  const address = document.getElementById("prof-address").value.trim();
-
-  if (phone.length !== 10) {
-    alert("Please enter a valid 10-digit mobile number.");
-    return;
-  }
-
-  const profileObj = { name, phone, email, address, updatedAt: new Date().toISOString() };
-  populateProfileUI(profileObj);
-
-  try {
-    await setDoc(doc(db, "phone_profiles", phone), profileObj, { merge: true });
-    if (window.currentUser) {
-      await setDoc(doc(db, "users", window.currentUser.uid), profileObj, { merge: true });
-    }
-    startLiveOrdersListener(window.currentUser ? window.currentUser.uid : null, phone);
-    showToast("✅ Profile and default address saved!");
-  } catch (e) {
-    showToast("✅ Profile saved locally!");
-  }
-};
-
-window.trackByPhoneSubmit = async function(event) {
-  event.preventDefault();
-  const ph = cleanMobile(document.getElementById("track-phone-input").value);
-  if (ph.length !== 10) {
-    alert("Please enter a valid 10-digit mobile number.");
-    return;
-  }
-  await window.lookupCustomerByPhone(ph, "track");
-  startLiveOrdersListener(window.currentUser ? window.currentUser.uid : null, ph);
-};
-
-// 11. Register & Login
-window.handleRegister = async function(event) {
-  event.preventDefault();
-  const email = document.getElementById('reg-email').value.trim();
-  const pass = document.getElementById('reg-pass').value;
-  const name = document.getElementById('reg-name').value.trim();
-  const phone = cleanMobile(document.getElementById('reg-phone').value);
-  const address = document.getElementById('reg-address').value.trim();
-
-  if (phone.length !== 10) {
-    alert("Please enter a valid 10-digit mobile number.");
-    return;
-  }
-
-  try {
-    const userCred = await createUserWithEmailAndPassword(auth, email, pass);
-    const profileData = { name, phone, email, address, createdAt: new Date().toISOString() };
-    await setDoc(doc(db, "users", userCred.user.uid), profileData);
-    await setDoc(doc(db, "phone_profiles", phone), profileData, { merge: true });
-    populateProfileUI(profileData);
-    showToast("🎉 Account created & address saved!");
-    closeAuthModal();
-    openCustomerHub('main');
-  } catch (error) {
-    alert("Registration error: " + error.message);
-  }
-};
-
-window.handleLogin = async function(event) {
-  event.preventDefault();
-  const email = document.getElementById('login-email').value.trim();
-  const pass = document.getElementById('login-pass').value;
-
-  try {
-    await signInWithEmailAndPassword(auth, email, pass);
-    showToast("✅ Logged in successfully!");
-    closeAuthModal();
-    openCustomerHub('main');
-  } catch (error) {
-    alert("Login failed: Incorrect email or password.");
-  }
-};
-
-window.handleLogout = async function() {
-  await signOut(auth);
-  showToast("Logged out successfully.");
-  closeCustomerHub();
-};
-
-// 12. Submit Order with Mandatory Payment Verification
-window.submitCartOrder = async function(event) {
-  event.preventDefault();
-  if (window.cart.length === 0) {
-    alert("Your cart is empty!");
-    return;
-  }
-
-  const name = document.getElementById('cust-name').value.trim();
-  const phone = cleanMobile(document.getElementById('cust-phone').value);
-  const rawAddress = document.getElementById('cust-address').value.trim();
-  const selectedPay = document.querySelector('input[name="payment-mode"]:checked')?.value || "COD";
-
-  if (phone.length !== 10) {
-    alert("Please enter a valid 10-digit mobile number!");
-    return;
-  }
-
-  if (!window.isPaymentVerified) {
-    alert("Please complete Payment Verification first before placing your order!");
-    return;
-  }
-
-  let paymentMethodLabel = "Cash on Delivery (COD - Verified)";
-  let transactionId = "COD";
-
-  if (selectedPay === "UPI") {
-    paymentMethodLabel = window.verifiedPaymentDetails || "UPI Verified (brijender@ptaxis)";
-    transactionId = document.getElementById("upi-utr-input")?.value.trim() || "";
-  } else if (selectedPay === "CARD") {
-    paymentMethodLabel = window.verifiedPaymentDetails || "Card Payment (Verified)";
-    transactionId = "CARD-VERIFIED";
-  }
-
-  const subtotal = window.cart.reduce((sum, item) => sum + (item.price * item.qty), 0);
-  const discount = window.appliedCoupon ? Math.round(subtotal * (window.activeDiscountPercent / 100)) : 0;
-  const finalAmount = subtotal - discount;
-
-  const addressWithPaymentInfo = `${rawAddress} [💳 ${paymentMethodLabel}]`;
-
-  try {
-    const orderData = {
-      userId: window.currentUser ? window.currentUser.uid : "Guest",
-      userEmail: window.currentUser ? window.currentUser.email : (window.userData?.email || "Guest"),
-      items: window.cart,
-      subtotal,
-      discount,
-      couponApplied: window.appliedCoupon ? "KHUSHI25" : "None",
-      totalAmount: finalAmount,
-      customerName: name,
-      customerPhone: phone,
-      customerAddress: addressWithPaymentInfo,
-      paymentMethod: paymentMethodLabel,
-      transactionId: transactionId,
-      paymentVerified: true,
-      status: "Processing",
-      createdAt: new Date().toISOString()
+    const save = document.createElement("button");
+    save.textContent = "Save Status";
+    save.onclick = async () => {
+      save.disabled = true;
+      try {
+        await db.collection("orders").doc(order.id).update({ status: select.value });
+        showMsg(globalMsg, `✅ Order status updated to '${select.value}'!`);
+      } catch (e) {
+        showMsg(globalMsg, "Update failed.", true);
+      } finally { save.disabled = false; }
     };
 
-    await addDoc(collection(db, "orders"), orderData);
-
-    const profileToSave = { name, phone, address: rawAddress, updatedAt: new Date().toISOString() };
-    populateProfileUI(profileToSave);
-
-    try {
-      await setDoc(doc(db, "phone_profiles", phone), profileToSave, { merge: true });
-      if (window.currentUser) {
-        await setDoc(doc(db, "users", window.currentUser.uid), profileToSave, { merge: true });
-      }
-    } catch (_) {}
-
-    window.cart = [];
-    window.appliedCoupon = false;
-    window.updateCartUI();
-    closeCheckoutModal();
-
-    startLiveOrdersListener(window.currentUser ? window.currentUser.uid : null, phone);
-    showToast(`🎉 Order Confirmed! Track live status in Profile.`);
-    openCustomerHub('orders');
-  } catch (e) {
-    alert("Error saving order: " + e.message);
-  }
-};
-</script>
-
-<style>
-:root {
-  --emerald-deep: #051c14;
-  --emerald-main: #0b3d2c;
-  --emerald-light: #146343;
-  --sticker-cream: #fbf8f1;
-  --earth-gold: #c69a45;
-  --accent-gold: #f59e0b;
-  --accent-green: #10b981;
-  --text-light: #f8fafc;
-  --text-dim: #cbd5e1;
-  --border-glow: rgba(16, 185, 129, 0.28);
-}
-
-html, body {
-  width: 100%;
-  max-width: 100%;
-  overflow-x: hidden;
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-  font-family: 'Plus Jakarta Sans', sans-serif;
-  background-color: var(--emerald-deep);
-  color: var(--text-light);
-  line-height: 1.6;
-  scroll-behavior: smooth;
-}
-* { box-sizing: border-box; }
-
-/* Clean Top Bar without Coupon Code */
-.top-bar {
-  background: linear-gradient(90deg, #0b3d2c, #15803d, #0b3d2c);
-  color: #ffffff;
-  text-align: center;
-  padding: 9px 12px;
-  font-size: 0.82rem;
-  font-weight: 700;
-  border-bottom: 1px solid rgba(255,255,255,0.1);
-}
-
-/* Navbar (Clean: Only Logo, Profile & Cart) */
-nav {
-  background: rgba(5, 28, 20, 0.94);
-  backdrop-filter: blur(14px);
-  padding: 12px 5%;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  position: sticky;
-  top: 0;
-  z-index: 1000;
-  border-bottom: 1px solid var(--border-glow);
-}
-.brand-logo-wrap {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  text-decoration: none;
-}
-.brand-svg-icon { width: 40px; height: 40px; flex-shrink: 0; }
-.logo-title { font-size: 1.35rem; font-weight: 800; color: #ffffff; line-height: 1.1; }
-.logo-title span { color: var(--accent-green); }
-.logo-sub { font-size: 0.62rem; color: var(--earth-gold); font-weight: 700; letter-spacing: 0.5px; }
-
-.nav-right { display: flex; align-items: center; gap: 10px; }
-.auth-btn-nav {
-  background: #ffffff;
-  color: #0f172a;
-  border: none;
-  padding: 8px 16px;
-  border-radius: 30px;
-  font-weight: 800;
-  cursor: pointer;
-  font-size: 0.82rem;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.25);
-}
-.cart-btn-nav {
-  background: linear-gradient(135deg, #10b981, #059669);
-  color: #fff;
-  border: none;
-  padding: 8px 15px;
-  border-radius: 30px;
-  font-weight: 700;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  font-size: 0.82rem;
-}
-
-/* Hero Section */
-.hero {
-  padding: 50px 15px 40px;
-  text-align: center;
-  background: radial-gradient(circle at top, rgba(22, 156, 70, 0.22) 0%, transparent 70%);
-}
-.brand-seal {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  background: rgba(198, 154, 69, 0.15);
-  color: #fbbf24;
-  padding: 6px 16px;
-  border-radius: 30px;
-  font-size: 0.78rem;
-  font-weight: 800;
-  border: 1px solid rgba(245, 158, 11, 0.35);
-  margin-bottom: 16px;
-  text-transform: uppercase;
-}
-.hero h1 { font-size: clamp(1.9rem, 5vw, 2.9rem); font-weight: 800; color: #ffffff; margin: 0 0 8px; }
-.hero-tagline { font-size: clamp(1.2rem, 3.5vw, 1.55rem); color: #fbbf24; font-weight: 700; margin-bottom: 14px; }
-.hero p { font-size: 0.95rem; color: var(--text-dim); max-width: 720px; margin: 0 auto 24px; }
-.hero-badges { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; }
-.hero-badge-pill {
-  background: rgba(255,255,255,0.06);
-  border: 1px solid var(--border-glow);
-  padding: 6px 14px;
-  border-radius: 20px;
-  font-size: 0.78rem;
-  font-weight: 600;
-}
-
-/* Products */
-.section-header { text-align: center; margin-bottom: 32px; padding: 0 15px; }
-.section-subtitle { color: var(--accent-green); font-size: 0.82rem; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; }
-.section-title { font-size: clamp(1.5rem, 4vw, 2.1rem); font-weight: 800; color: #ffffff; margin: 5px 0 0; }
-
-.product-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(285px, 1fr));
-  gap: 24px;
-  max-width: 1140px;
-  margin: 0 auto 55px;
-  padding: 0 15px;
-}
-.product-card {
-  background: linear-gradient(180deg, rgba(13, 48, 34, 0.95) 0%, rgba(6, 24, 17, 0.98) 100%);
-  border-radius: 24px;
-  overflow: hidden;
-  border: 1px solid var(--border-glow);
-  position: relative;
-  box-shadow: 0 15px 35px rgba(0,0,0,0.45);
-  display: flex;
-  flex-direction: column;
-}
-.product-badge {
-  position: absolute; top: 15px; right: 15px;
-  background: var(--accent-gold); color: #000;
-  font-weight: 800; font-size: 0.72rem; padding: 5px 12px; border-radius: 50px; z-index: 2;
-}
-.discount-badge-left {
-  position: absolute; top: 15px; left: 15px;
-  background: #ef4444; color: #fff;
-  font-weight: 800; font-size: 0.72rem; padding: 5px 11px; border-radius: 50px; z-index: 2;
-}
-.product-img-wrap {
-  width: 100%; height: 280px;
-  background: radial-gradient(circle, #11422f 0%, #051a12 100%);
-  display: flex; align-items: center; justify-content: center; padding: 20px;
-}
-.real-green-pouch {
-  width: 172px; height: 240px;
-  background: linear-gradient(135deg, #22c55e 0%, #15803d 45%, #166534 100%);
-  border-radius: 10px 10px 18px 18px;
-  box-shadow: 0 18px 32px rgba(0,0,0,0.65), inset 0 2px 6px rgba(255,255,255,0.35);
-  position: relative; display: flex; flex-direction: column; align-items: center;
-  padding-top: 25px; border: 1px solid rgba(255,255,255,0.25);
-}
-.real-green-pouch::before {
-  content: ""; position: absolute; top: 11px; left: 8px; right: 8px; height: 5px;
-  background: rgba(255,255,255,0.35); border-radius: 2px;
-}
-.pouch-sticker {
-  width: 140px; height: 192px; background: var(--sticker-cream);
-  border-radius: 8px; padding: 10px 8px;
-  display: flex; flex-direction: column; align-items: center; justify-content: space-between;
-  text-align: center; color: #14532d;
-}
-.sticker-logo-svg { width: 42px; height: 42px; }
-.sticker-brand { font-size: 0.76rem; font-weight: 800; color: #14532d; }
-.sticker-tagline { font-size: 0.56rem; color: #15803d; font-weight: 700; }
-.sticker-product {
-  font-size: 0.6rem; font-weight: 800; color: #1e293b;
-  border-top: 1px solid #cbd5e1; border-bottom: 1px solid #cbd5e1; padding: 3px 0; width: 100%;
-}
-.sticker-bottom-row {
-  display: flex; justify-content: space-between; width: 100%;
-  background: #f1f5f9; padding: 4px 6px; border-radius: 5px;
-}
-.sticker-wt { font-size: 0.7rem; font-weight: 800; color: #0f172a; }
-.sticker-mrp { font-size: 0.6rem; font-weight: 700; color: #475569; }
-
-.product-body { padding: 20px; flex: 1; display: flex; flex-direction: column; justify-content: space-between; }
-.rating { color: var(--accent-gold); font-size: 0.86rem; margin-bottom: 6px; font-weight: 700; }
-.rating span { color: var(--text-dim); font-weight: 400; font-size: 0.78rem; }
-.product-title { font-size: 1.2rem; font-weight: 800; margin-bottom: 6px; color: #fff; }
-.product-desc { font-size: 0.86rem; color: var(--text-dim); margin-bottom: 15px; }
-.price-row {
-  display: flex; justify-content: space-between; align-items: flex-end;
-  margin-bottom: 16px; border-top: 1px solid rgba(255,255,255,0.08); padding-top: 12px;
-}
-.price-label { font-size: 0.74rem; color: var(--text-dim); }
-.mrp-strike { font-size: 0.92rem; color: #94a3b8; text-decoration: line-through; margin-right: 6px; }
-.price-val { font-size: 1.55rem; font-weight: 800; color: #fff; }
-.price-val small { font-size: 0.76rem; color: var(--accent-green); }
-.btn-group { display: flex; gap: 10px; }
-.buy-now-btn {
-  flex: 1; background: linear-gradient(135deg, #10b981 0%, #059669 100%);
-  color: #fff; padding: 12px; border-radius: 12px; font-weight: 700; font-size: 0.88rem; border: none; cursor: pointer;
-}
-.buy-now-btn:disabled {
-  background: #475569;
-  cursor: not-allowed;
-  opacity: 0.6;
-}
-.add-to-cart-btn {
-  flex: 1; background: rgba(255,255,255,0.09);
-  color: #fff; padding: 12px; border-radius: 12px; font-weight: 700; font-size: 0.88rem;
-  border: 1px solid rgba(255,255,255,0.2); cursor: pointer;
-}
-
-/* Info Sections (In Clean English) */
-.info-section { max-width: 1100px; margin: 0 auto 55px; padding: 0 15px; }
-.ingredients-box {
-  background: linear-gradient(145deg, rgba(13, 52, 37, 0.85), rgba(6, 28, 20, 0.95));
-  border: 1px solid var(--border-glow); border-radius: 24px; padding: 26px 22px;
-}
-.ing-row { margin-bottom: 14px; }
-.ing-row:last-child { margin-bottom: 0; }
-.ing-label { display: flex; justify-content: space-between; font-size: 0.9rem; font-weight: 700; margin-bottom: 5px; }
-.ing-label span:last-child { color: var(--accent-gold); }
-.ing-bar-bg { width: 100%; height: 9px; background: rgba(255,255,255,0.08); border-radius: 10px; overflow: hidden; }
-.ing-bar-fill { height: 100%; background: linear-gradient(90deg, #10b981, #fbbf24); border-radius: 10px; }
-
-.steps-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(235px, 1fr)); gap: 18px; }
-.step-card { background: rgba(15, 51, 37, 0.65); border: 1px solid var(--border-glow); border-radius: 20px; padding: 20px; }
-.step-icon { font-size: 1.7rem; margin-bottom: 8px; }
-.step-card h4 { margin: 0 0 6px; font-size: 1.05rem; color: #fff; }
-.step-card p { margin: 0; font-size: 0.84rem; color: var(--text-dim); }
-
-/* ==========================================================================
-   APP-STYLE PROFILE DRAWER (CLEAN ENGLISH, NO PAYMENTS / EARN & REDEEM)
-   ========================================================================== */
-#customer-hub-modal {
-  display: none;
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: rgba(0,0,0,0.75);
-  z-index: 4200;
-  justify-content: flex-end;
-}
-.app-profile-drawer {
-  width: 100%;
-  max-width: 440px;
-  height: 100%;
-  background: #ffffff;
-  color: #1e293b;
-  display: flex;
-  flex-direction: column;
-  overflow-y: auto;
-  box-shadow: -8px 0 30px rgba(0,0,0,0.5);
-  animation: slideInRight 0.25s ease-out;
-}
-@keyframes slideInRight {
-  from { transform: translateX(100%); }
-  to { transform: translateX(0); }
-}
-
-.app-prof-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 16px 18px 12px;
-  background: #ffffff;
-  position: sticky;
-  top: 0;
-  z-index: 10;
-  border-bottom: 1px solid #f1f5f9;
-}
-.app-prof-header-left {
-  display: flex;
-  align-items: center;
-  gap: 14px;
-}
-.app-back-btn {
-  background: none;
-  border: none;
-  font-size: 1.5rem;
-  color: #0f172a;
-  cursor: pointer;
-  padding: 0;
-  line-height: 1;
-}
-.app-prof-title {
-  font-size: 1.2rem;
-  font-weight: 800;
-  color: #0f172a;
-  margin: 0;
-}
-
-.app-top-pills {
-  display: flex;
-  gap: 10px;
-  padding: 12px 18px 16px;
-  overflow-x: auto;
-  background: #ffffff;
-}
-.app-pill-tag {
-  background: #ffffff;
-  border: 1px solid #cbd5e1;
-  border-radius: 30px;
-  padding: 7px 14px;
-  font-size: 0.8rem;
-  font-weight: 700;
-  color: #1e293b;
-  white-space: nowrap;
-  cursor: pointer;
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-}
-
-.app-grid-2x2 {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 12px;
-  padding: 4px 18px 18px;
-  background: #ffffff;
-  border-bottom: 6px solid #f1f5f9;
-}
-.app-grid-box {
-  background: #ffffff;
-  border: 1px solid #cbd5e1;
-  border-radius: 12px;
-  padding: 13px 14px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  cursor: pointer;
-  transition: 0.15s;
-}
-.app-grid-box:hover {
-  border-color: #15803d;
-  background: #f8fafc;
-}
-.app-grid-box-left {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-.app-grid-icon { font-size: 1.25rem; color: #334155; }
-.app-grid-label { font-size: 0.92rem; font-weight: 800; color: #0f172a; }
-.app-grid-sub { display: block; font-size: 0.68rem; color: #15803d; font-weight: 700; }
-.app-chevron { color: #64748b; font-weight: 700; font-size: 1rem; }
-
-.app-menu-list { display: flex; flex-direction: column; background: #ffffff; }
-.app-menu-item {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 16px 18px;
-  border-bottom: 1px solid #f1f5f9;
-  cursor: pointer;
-  transition: background 0.15s;
-}
-.app-menu-item:hover { background: #f8fafc; }
-.app-menu-left { display: flex; align-items: flex-start; gap: 14px; }
-.app-menu-icon { font-size: 1.3rem; color: #475569; margin-top: 2px; width: 26px; text-align: center; }
-.app-menu-title-row { display: flex; align-items: center; gap: 8px; }
-.app-menu-title { font-size: 0.96rem; font-weight: 800; color: #0f172a; }
-.app-new-badge {
-  background: #ff3f6c; color: #ffffff; font-size: 0.65rem;
-  font-weight: 800; padding: 2px 8px; border-radius: 20px; text-transform: uppercase;
-}
-.app-menu-sub { font-size: 0.8rem; color: #64748b; margin-top: 2px; }
-
-.app-subview { display: none; padding: 16px 18px 25px; background: #ffffff; flex: 1; }
-.app-subview.active { display: block; }
-.app-subview-header {
-  display: flex; align-items: center; justify-content: space-between;
-  margin-bottom: 14px; padding-bottom: 10px; border-bottom: 1px solid #e2e8f0;
-}
-.app-subview-back {
-  background: #f1f5f9; color: #0f172a; border: 1px solid #cbd5e1;
-  padding: 6px 12px; border-radius: 20px; font-size: 0.78rem; font-weight: 800; cursor: pointer;
-}
-
-.app-order-card {
-  background: #ffffff; border: 1px solid #cbd5e1; border-radius: 14px;
-  padding: 14px; margin-bottom: 14px; box-shadow: 0 2px 8px rgba(0,0,0,0.04);
-}
-.app-order-card.highlight { border: 2px solid #15803d; background: #f0fdf4; }
-.live-tracker-box-light {
-  background: #ffffff; border: 1px solid #cbd5e1; border-radius: 12px; padding: 12px 8px; margin: 10px 0;
-}
-.track-steps-row { display: grid; grid-template-columns: repeat(6, 1fr); gap: 4px; text-align: center; }
-.track-step-light { display: flex; flex-direction: column; align-items: center; opacity: 0.35; }
-.track-step-light.done { opacity: 1; }
-.track-dot-light {
-  width: 28px; height: 28px; border-radius: 50%;
-  background: #f1f5f9; border: 2px solid #94a3b8; color: #334155;
-  display: flex; align-items: center; justify-content: center;
-  font-size: 0.78rem; margin-bottom: 4px; font-weight: 700;
-}
-.track-step-light.done .track-dot-light { background: #dcfce7; border-color: #15803d; color: #14532d; }
-.track-step-light.current .track-dot-light {
-  background: #f59e0b; border-color: #0f172a; color: #000;
-  transform: scale(1.12); box-shadow: 0 0 10px rgba(245, 158, 11, 0.5);
-}
-.track-label-light { font-size: 0.63rem; font-weight: 800; color: #334155; line-height: 1.15; }
-.track-step-light.current .track-label-light { color: #b45309; }
-
-.light-form-group { margin-bottom: 12px; text-align: left; }
-.light-form-group label { display: block; font-size: 0.8rem; color: #334155; margin-bottom: 4px; font-weight: 700; }
-.light-form-group input, .light-form-group textarea, .light-form-group select {
-  width: 100%; padding: 10px 12px; border-radius: 10px;
-  background: #f8fafc; border: 1px solid #cbd5e1; color: #0f172a; font-size: 0.9rem; font-family: inherit;
-}
-
-/* Payment Selector Styles (Only inside Checkout Modal) */
-.pay-methods-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 12px; }
-.pay-option-card {
-  background: #051c14; border: 2px solid rgba(255,255,255,0.15); border-radius: 12px;
-  padding: 10px 6px; text-align: center; cursor: pointer; transition: 0.2s;
-  display: flex; flex-direction: column; align-items: center; gap: 4px;
-}
-.pay-option-card input { display: none; }
-.pay-option-card.active {
-  border-color: var(--accent-green); background: rgba(16, 185, 129, 0.15);
-  box-shadow: 0 0 12px rgba(16, 185, 129, 0.25);
-}
-.pay-option-card .pay-icon { font-size: 1.35rem; }
-.pay-option-card .pay-title { font-size: 0.78rem; font-weight: 800; color: #fff; }
-.pay-option-card .pay-sub { font-size: 0.65rem; color: var(--text-dim); }
-
-.pay-detail-box {
-  background: rgba(5, 28, 20, 0.9); border: 1px solid var(--border-glow);
-  border-radius: 12px; padding: 12px; margin-bottom: 14px; text-align: center;
-}
-.upi-qr-img {
-  width: 150px; height: 150px; background: #fff; padding: 6px;
-  border-radius: 10px; margin: 8px auto; display: block;
-}
-.upi-app-btn {
-  display: inline-block; background: #fbbf24; color: #000; font-weight: 800;
-  font-size: 0.82rem; padding: 9px 16px; border-radius: 8px; text-decoration: none; margin: 6px 0 10px;
-}
-.verify-btn {
-  background: #3b82f6; color: #fff; border: none; padding: 9px 14px;
-  border-radius: 8px; font-weight: 800; font-size: 0.8rem; cursor: pointer; width: 100%; margin-top: 8px;
-}
-.verify-status-msg {
-  font-size: 0.78rem; font-weight: 700; margin-top: 8px; padding: 6px 10px; border-radius: 6px; display: none;
-}
-
-/* Modals & Drawers */
-.custom-modal {
-  display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-  background: rgba(0,0,0,0.82); z-index: 4300; align-items: center; justify-content: center; padding: 12px;
-}
-.modal-content {
-  background: #0b3d2c; padding: 22px; border-radius: 20px; width: 100%; max-width: 450px;
-  border: 1px solid var(--accent-green); position: relative; max-height: 92vh; overflow-y: auto;
-}
-.modal-content h3 { color: #fff; margin: 0 0 12px; font-size: 1.22rem; }
-.form-group { margin-bottom: 12px; text-align: left; }
-.form-group label { display: block; font-size: 0.8rem; color: var(--text-dim); margin-bottom: 4px; font-weight: 600; }
-.form-group input, .form-group textarea, .form-group select {
-  width: 100%; padding: 10px 12px; border-radius: 8px;
-  background: #051c14; border: 1px solid rgba(255,255,255,0.2); color: #fff; font-size: 0.9rem;
-}
-.close-btn { position: absolute; top: 14px; right: 18px; color: #fff; font-size: 1.6rem; cursor: pointer; }
-.tab-row { display: flex; margin-bottom: 16px; border-bottom: 1px solid rgba(255,255,255,0.12); gap: 4px; }
-.tab-btn {
-  flex: 1; background: none; border: none; padding: 10px 6px;
-  color: var(--text-dim); font-weight: 700; cursor: pointer; font-size: 0.82rem;
-}
-.tab-btn.active { color: var(--accent-green); border-bottom: 2px solid var(--accent-green); }
-
-/* Cart Drawer */
-#cart-drawer {
-  position: fixed; top: 0; right: -420px; width: 100%; max-width: 380px; height: 100%;
-  background: #072218; box-shadow: -5px 0 25px rgba(0,0,0,0.6); z-index: 3000;
-  transition: right 0.35s ease; display: flex; flex-direction: column; border-left: 1px solid var(--border-glow);
-}
-#cart-drawer.open { right: 0; }
-.cart-header { padding: 18px 20px; background: #0b3d2c; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-glow); }
-.cart-header h3 { color: #fff; font-size: 1.1rem; margin: 0; }
-.close-cart { background: none; border: none; color: #fff; font-size: 1.6rem; cursor: pointer; }
-.cart-body { padding: 20px; flex: 1; overflow-y: auto; }
-.cart-item { display: flex; justify-content: space-between; align-items: center; background: rgba(15, 51, 37, 0.7); padding: 12px; border-radius: 12px; margin-bottom: 12px; }
-.cart-item-details h4 { font-size: 0.9rem; color: #fff; margin: 0 0 4px; }
-.cart-item-details p { font-size: 0.82rem; color: var(--accent-green); font-weight: 700; margin: 0; }
-.cart-actions { display: flex; align-items: center; gap: 8px; }
-.qty-btn { background: #125e43; color: #fff; border: none; width: 26px; height: 26px; border-radius: 6px; cursor: pointer; font-weight: bold; }
-.coupon-box { display: flex; gap: 8px; margin: 10px 0 12px; }
-.coupon-box input { flex: 1; padding: 9px 12px; background: #051c14; border: 1px solid rgba(255,255,255,0.2); border-radius: 8px; color: #fff; }
-.coupon-btn { background: var(--accent-gold); color: #000; border: none; padding: 8px 14px; border-radius: 8px; font-weight: 800; cursor: pointer; }
-.cart-footer { padding: 18px 20px; background: #0b3d2c; border-top: 1px solid var(--border-glow); }
-.cart-summary-row { display: flex; justify-content: space-between; color: var(--text-dim); font-size: 0.88rem; margin-bottom: 6px; }
-.cart-total { display: flex; justify-content: space-between; color: #fff; font-size: 1.15rem; font-weight: 800; margin: 10px 0 14px; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 10px; }
-
-#toast-msg {
-  visibility: hidden; min-width: 260px; background-color: var(--accent-green); color: #fff;
-  text-align: center; border-radius: 12px; padding: 14px; position: fixed; z-index: 5000;
-  left: 50%; bottom: 30px; transform: translateX(-50%); font-weight: 700; box-shadow: 0 10px 25px rgba(0,0,0,0.5);
-}
-#toast-msg.show { visibility: visible; }
-
-/* AI Chat */
-#ai-chat-btn {
-  position: fixed; bottom: 22px; right: 22px;
-  background: linear-gradient(135deg, #10b981, #059669);
-  color: #fff; width: 56px; height: 56px; border-radius: 50%;
-  display: flex; align-items: center; justify-content: center;
-  font-size: 1.55rem; cursor: pointer; z-index: 3500; border: 2px solid #fff;
-  box-shadow: 0 8px 25px rgba(0,0,0,0.5);
-}
-#ai-chat-box {
-  position: fixed; bottom: 86px; right: 20px; width: 365px; max-width: calc(100vw - 26px);
-  height: 485px; max-height: calc(100vh - 110px); background: #072218; border: 1px solid var(--accent-green);
-  border-radius: 20px; z-index: 3500; display: none; flex-direction: column; overflow: hidden;
-  box-shadow: 0 15px 35px rgba(0,0,0,0.65);
-}
-.ai-chat-header { background: #0b3d2c; padding: 12px 16px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-glow); }
-.ai-chat-header h4 { color: #fff; font-size: 0.92rem; margin: 0; }
-.ai-quick-chips {
-  display: flex; gap: 6px; padding: 8px 10px; background: #051c14;
-  overflow-x: auto; border-bottom: 1px solid rgba(255,255,255,0.08);
-}
-.ai-chip {
-  background: rgba(16, 185, 129, 0.15); color: #a7f3d0; border: 1px solid rgba(16, 185, 129, 0.35);
-  padding: 5px 10px; border-radius: 20px; font-size: 0.72rem; font-weight: 700;
-  white-space: nowrap; cursor: pointer; flex-shrink: 0;
-}
-.ai-chat-body { padding: 14px; flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; font-size: 0.84rem; }
-.ai-msg { padding: 10px 14px; border-radius: 12px; max-width: 88%; line-height: 1.45; }
-.ai-msg.bot { background: #0b3d2c; color: #fff; align-self: flex-start; border: 1px solid var(--border-glow); }
-.ai-msg.user { background: var(--accent-green); color: #fff; align-self: flex-end; }
-.ai-chat-footer { padding: 10px; background: #0b3d2c; display: flex; gap: 8px; }
-.ai-chat-footer input { flex: 1; padding: 9px 12px; background: #051c14; border: 1px solid rgba(255,255,255,0.2); border-radius: 8px; color: #fff; }
-.ai-chat-footer button { background: var(--accent-green); color: #fff; border: none; padding: 0 14px; border-radius: 8px; font-weight: bold; cursor: pointer; }
-
-footer { background: #03110b; color: var(--text-dim); padding: 40px 15px 25px; border-top: 1px solid rgba(255,255,255,0.08); }
-.footer-container { max-width: 1100px; margin: 0 auto; display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 25px; margin-bottom: 20px; }
-.footer-col h3 { color: #fff; margin: 0 0 10px; font-size: 1.05rem; }
-.footer-col p { font-size: 0.84rem; margin: 0 0 6px; color: #94a3b8; }
-.footer-col a { color: var(--accent-green); text-decoration: none; font-weight: 600; }
-.gst-badge { display: inline-block; background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.15); padding: 5px 10px; border-radius: 8px; font-size: 0.76rem; color: #e2e8f0; margin-top: 6px; }
-.copyright { text-align: center; font-size: 0.76rem; color: rgba(255,255,255,0.4); border-top: 1px solid rgba(255,255,255,0.06); padding-top: 14px; }
-</style>
-</head>
-<body>
-
-<!-- Official BaghVeda SVG Logo -->
-<svg style="display:none;">
-  <symbol id="baghveda-logo" viewBox="0 0 100 100">
-    <circle cx="50" cy="50" r="48" fill="#146334" />
-    <clipPath id="circle-clip"><circle cx="50" cy="50" r="48" /></clipPath>
-    <g clip-path="url(#circle-clip)">
-      <ellipse cx="50" cy="92" rx="46" ry="24" fill="#c69a45" />
-      <path d="M 48 68 C 24 66, 18 42, 22 25 C 38 25, 48 40, 48 68 Z" fill="#fbf8f1" />
-      <path d="M 52 68 C 76 66, 82 42, 78 25 C 62 25, 52 40, 52 68 Z" fill="#fbf8f1" />
-    </g>
-  </symbol>
-</svg>
-
-<!-- Clean Top Bar (Removed KHUSHI25) -->
-<div class="top-bar">
-  🌱 BaghVeda® Organics: 100% Pure Organic Potting Soil Mix | 24-Hour Express Delivery in Delhi NCR!
-</div>
-
-<!-- Main Navbar (Removed separate Track Order button; kept inside Profile) -->
-<nav>
-  <a href="#" class="brand-logo-wrap">
-    <svg class="brand-svg-icon"><use href="#baghveda-logo"></use></svg>
-    <div>
-      <div class="logo-title">Bagh<span>Veda</span>®</div>
-      <div class="logo-sub">ORGANICS</div>
-    </div>
-  </a>
-  <div class="nav-right">
-    <button id="auth-nav-btn" class="auth-btn-nav" onclick="openCustomerHub('main')">👤 Profile</button>
-    <button class="cart-btn-nav" onclick="toggleCart()">🛒 Cart (<span id="cart-count">0</span>)</button>
-  </div>
-</nav>
-
-<section class="hero">
-  <div class="brand-seal">⭐ 100% Organic & Ready-To-Use • Delhi NCR</div>
-  <h1>BaghVeda® Organics Potting Soil Mix</h1>
-  <div class="hero-tagline">"मिट्टी में प्राण, पौधे मुस्कुराएं"</div>
-  <p>Scientific blend of 40% Premium Cocopeat, 35% Pure Vermicompost, 15% Fertile Garden Soil, 7% Neem & Mustard Cake, and 3% Perlite & Organic Micronutrients.</p>
-  <div class="hero-badges">
-    <div class="hero-badge-pill">✅ 100% Organic & Chemical-Free</div>
-    <div class="hero-badge-pill">🌿 Ready-to-Use Potting Medium</div>
-    <div class="hero-badge-pill">🚚 24-Hour Express Delivery in Delhi NCR</div>
-  </div>
-</section>
-
-<section id="products">
-  <div class="section-header">
-    <div class="section-subtitle">Our Exclusive Packs</div>
-    <h2 class="section-title">Choose the Right Pack for Your Plants</h2>
-  </div>
-
-  <div class="product-grid">
-    <!-- 1 KG Pack -->
-    <div class="product-card">
-      <span class="discount-badge-left" id="save-1kg">40% OFF</span>
-      <span class="product-badge">Trial Pack</span>
-      <div class="product-img-wrap">
-        <div class="real-green-pouch">
-          <div class="pouch-sticker">
-            <svg class="sticker-logo-svg"><use href="#baghveda-logo"></use></svg>
-            <div>
-              <div class="sticker-brand">BaghVeda® Organics</div>
-              <div class="sticker-tagline">मिट्टी में प्राण, पौधे मुस्कुराएं</div>
-            </div>
-            <div class="sticker-product">Premium Organic<br>Potting Soil Mix</div>
-            <div class="sticker-bottom-row">
-              <span class="sticker-wt">Net Wt: 1 KG</span>
-              <span class="sticker-mrp">MRP ₹299</span>
-            </div>
-          </div>
-        </div>
-      </div>
-      <div class="product-body">
-        <div>
-          <div class="rating">★★★★★ <span>(48 Reviews)</span></div>
-          <div class="product-title">Organic Potting Soil Mix - 1 KG</div>
-          <div class="product-desc">छोटे गमलों, बालकनी के इनडोर पौधों और टेबल प्लांट्स के लिए बेस्ट।</div>
-        </div>
-        <div>
-          <div class="price-row">
-            <div>
-              <div class="price-label">Price (Incl. of all taxes)</div>
-              <div>
-                <span class="mrp-strike">₹299</span>
-                <span class="price-val" id="price-1kg">₹179</span>
-                <small>Only</small>
-              </div>
-            </div>
-          </div>
-          <div class="btn-group">
-            <button class="buy-now-btn" onclick="buyInstant('Organic Potting Mix - 1 KG', window.dbPrices.kg1)">⚡ Buy Now</button>
-            <button class="add-to-cart-btn" onclick="addToCartSilent('Organic Potting Mix - 1 KG', window.dbPrices.kg1)">🛒 Add to Cart</button>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- 2 KG Pack -->
-    <div class="product-card" style="border-color: var(--accent-gold);">
-      <span class="discount-badge-left" id="save-2kg">38% OFF</span>
-      <span class="product-badge" style="background:#10b981; color:#fff;">Most Popular</span>
-      <div class="product-img-wrap">
-        <div class="real-green-pouch">
-          <div class="pouch-sticker">
-            <svg class="sticker-logo-svg"><use href="#baghveda-logo"></use></svg>
-            <div>
-              <div class="sticker-brand">BaghVeda® Organics</div>
-              <div class="sticker-tagline">मिट्टी में प्राण, पौधे मुस्कुराएं</div>
-            </div>
-            <div class="sticker-product">Premium Organic<br>Potting Soil Mix</div>
-            <div class="sticker-bottom-row">
-              <span class="sticker-wt">Net Wt: 2 KG</span>
-              <span class="sticker-mrp">MRP ₹399</span>
-            </div>
-          </div>
-        </div>
-      </div>
-      <div class="product-body">
-        <div>
-          <div class="rating">★★★★★ <span>(124 Reviews)</span></div>
-          <div class="product-title">Organic Potting Soil Mix - 2 KG</div>
-          <div class="product-desc">मध्यम आकार के गमलों और होम गार्डनिंग के लिए ग्राहकों का पसंदीदा पैक।</div>
-        </div>
-        <div>
-          <div class="price-row">
-            <div>
-              <div class="price-label">Price (Incl. of all taxes)</div>
-              <div>
-                <span class="mrp-strike">₹399</span>
-                <span class="price-val" id="price-2kg">₹249</span>
-                <small>Only</small>
-              </div>
-            </div>
-          </div>
-          <div class="btn-group">
-            <button class="buy-now-btn" onclick="buyInstant('Organic Potting Mix - 2 KG', window.dbPrices.kg2)">⚡ Buy Now</button>
-            <button class="add-to-cart-btn" onclick="addToCartSilent('Organic Potting Mix - 2 KG', window.dbPrices.kg2)">🛒 Add to Cart</button>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- 3 KG Pack -->
-    <div class="product-card">
-      <span class="discount-badge-left" id="save-3kg">28% OFF</span>
-      <span class="product-badge">Best Value</span>
-      <div class="product-img-wrap">
-        <div class="real-green-pouch">
-          <div class="pouch-sticker">
-            <svg class="sticker-logo-svg"><use href="#baghveda-logo"></use></svg>
-            <div>
-              <div class="sticker-brand">BaghVeda® Organics</div>
-              <div class="sticker-tagline">मिट्टी में प्राण, पौधे मुस्कुराएं</div>
-            </div>
-            <div class="sticker-product">Premium Organic<br>Potting Soil Mix</div>
-            <div class="sticker-bottom-row">
-              <span class="sticker-wt">Net Wt: 3 KG</span>
-              <span class="sticker-mrp">MRP ₹499</span>
-            </div>
-          </div>
-        </div>
-      </div>
-      <div class="product-body">
-        <div>
-          <div class="rating">★★★★★ <span>(92 Reviews)</span></div>
-          <div class="product-title">Organic Potting Soil Mix - 3 KG</div>
-          <div class="product-desc">बड़े गमलों और छत के बगीचे (Terrace Garden) के लिए सबसे किफ़ायती पैक।</div>
-        </div>
-        <div>
-          <div class="price-row">
-            <div>
-              <div class="price-label">Price (Incl. of all taxes)</div>
-              <div>
-                <span class="mrp-strike">₹499</span>
-                <span class="price-val" id="price-3kg">₹359</span>
-                <small>Only</small>
-              </div>
-            </div>
-          </div>
-          <div class="btn-group">
-            <button class="buy-now-btn" onclick="buyInstant('Organic Potting Mix - 3 KG', window.dbPrices.kg3)">⚡ Buy Now</button>
-            <button class="add-to-cart-btn" onclick="addToCartSilent('Organic Potting Mix - 3 KG', window.dbPrices.kg3)">🛒 Add to Cart</button>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-</section>
-
-<!-- Ingredients Section (In Clean English) -->
-<section id="ingredients" class="info-section">
-  <div class="section-header">
-    <div class="section-subtitle">100% Transparent Formula</div>
-    <h2 class="section-title">What's Inside? (Organic Ingredients)</h2>
-  </div>
-  <div class="ingredients-box">
-    <div class="ing-row">
-      <div class="ing-label"><span>🥥 Cocopeat (Moisture retention & root aeration)</span><span>40%</span></div>
-      <div class="ing-bar-bg"><div class="ing-bar-fill" style="width: 40%;"></div></div>
-    </div>
-    <div class="ing-row">
-      <div class="ing-label"><span>🪱 Vermicompost (Pure earthworm castings for complete nutrition)</span><span>35%</span></div>
-      <div class="ing-bar-bg"><div class="ing-bar-fill" style="width: 35%;"></div></div>
-    </div>
-    <div class="ing-row">
-      <div class="ing-label"><span>🌱 Fertile Garden Soil (Natural base & root grip)</span><span>15%</span></div>
-      <div class="ing-bar-bg"><div class="ing-bar-fill" style="width: 15%;"></div></div>
-    </div>
-    <div class="ing-row">
-      <div class="ing-label"><span>🍃 Neem Khali & Mustard Cake (Pest protection & flower booster)</span><span>7%</span></div>
-      <div class="ing-bar-bg"><div class="ing-bar-fill" style="width: 7%;"></div></div>
-    </div>
-    <div class="ing-row">
-      <div class="ing-label"><span>✨ Perlite & Organic Micronutrients (Drainage & essential minerals)</span><span>3%</span></div>
-      <div class="ing-bar-bg"><div class="ing-bar-fill" style="width: 5%;"></div></div>
-    </div>
-  </div>
-</section>
-
-<!-- How to Use Section (In Clean English) -->
-<section id="how-to-use" class="info-section">
-  <div class="section-header">
-    <div class="section-subtitle">Easy Gardening Guide</div>
-    <h2 class="section-title">How to Use & Storage</h2>
-  </div>
-  <div class="steps-grid">
-    <div class="step-card">
-      <div class="step-icon">🪴</div>
-      <h4>New Plants</h4>
-      <p>Fill the pot 80% with BaghVeda Potting Soil Mix, place your plant, and water lightly.</p>
-    </div>
-    <div class="step-card">
-      <div class="step-icon">🌿</div>
-      <h4>Old Pots</h4>
-      <p>Remove the top 2–3 inches of old soil, refill with this organic mix, and water well.</p>
-    </div>
-    <div class="step-card">
-      <div class="step-icon">💧</div>
-      <h4>Watering</h4>
-      <p>Water well the first time; after that, water only when the top soil feels slightly dry.</p>
-    </div>
-    <div class="step-card">
-      <div class="step-icon">🛡️</div>
-      <h4>Storage & Safety</h4>
-      <p>Store in a cool, dry, shaded place away from direct sunlight. Keep away from children and pets.</p>
-    </div>
-  </div>
-</section>
-
-<!-- Toast Notification -->
-<div id="toast-msg">🛒 Item added to cart!</div>
-
-<!-- Smart Multi-Topic AI Support Chatbot -->
-<div id="ai-chat-btn" onclick="toggleAIChat()">💬</div>
-<div id="ai-chat-box">
-  <div class="ai-chat-header">
-    <h4>🤖 BaghVeda® AI Assistant</h4>
-    <button class="close-cart" onclick="toggleAIChat()">×</button>
-  </div>
-  <div class="ai-quick-chips">
-    <button class="ai-chip" onclick="askQuickQuestion('Pack Prices')">💰 Pack Prices</button>
-    <button class="ai-chip" onclick="askQuickQuestion('How to use in pots?')">🪴 How to Use</button>
-    <button class="ai-chip" onclick="askQuickQuestion('Track my order')">📦 Track Order</button>
-    <button class="ai-chip" onclick="askQuickQuestion('Download GST Bill')">🧾 GST Bill</button>
-    <button class="ai-chip" onclick="askQuickQuestion('Return & Exchange policy')">🔄 Return/Exchange</button>
-  </div>
-  <div class="ai-chat-body" id="ai-chat-messages">
-    <div class="ai-msg bot">
-      Hello! 🌱 I am your <strong>BaghVeda® Assistant</strong>. Ask me anything about:<br>
-      • <strong>Plant Care & Usage Guide</strong><br>
-      • <strong>Pack Prices (1 KG, 2 KG, 3 KG)</strong><br>
-      • <strong>Live Order Tracking & GST Invoice</strong><br>
-      • <strong>Return & Exchange</strong>
-    </div>
-  </div>
-  <div class="ai-chat-footer">
-    <input type="text" id="ai-user-input" placeholder="Ask a question..." onkeypress="handleAIPress(event)">
-    <button onclick="sendAIMessage()">Send</button>
-  </div>
-</div>
-
-<!-- Cart Drawer -->
-<div id="cart-drawer">
-  <div class="cart-header">
-    <h3>🛍️ Your Shopping Cart</h3>
-    <button class="close-cart" onclick="toggleCart()">×</button>
-  </div>
-  <div class="cart-body" id="cart-items-container">
-    <p style="color: var(--text-dim); text-align: center; margin-top: 40px;">Your cart is empty</p>
-  </div>
-  <div class="cart-footer">
-    <div class="coupon-box">
-      <input type="text" id="coupon-input" placeholder="Enter Coupon Code">
-      <button class="coupon-btn" onclick="applyCoupon()">Apply</button>
-    </div>
-    <div id="coupon-msg" style="font-size: 0.78rem; color: var(--accent-green); margin-bottom: 8px; display: none;"></div>
-    <div class="cart-summary-row"><span>Subtotal:</span><span id="cart-subtotal">₹0</span></div>
-    <div class="cart-summary-row" id="discount-row" style="display: none; color: var(--accent-gold);"><span>Discount:</span><span id="cart-discount">-₹0</span></div>
-    <div class="cart-total"><span>Final Total:</span><span id="cart-total-price">₹0</span></div>
-    <button class="buy-now-btn" onclick="openCheckoutModal()" style="width:100%; font-size:1rem; padding:14px;">⚡ Proceed to Checkout</button>
-  </div>
-</div>
-
-<!-- ==========================================================================
-     1. APP-STYLE PROFILE DRAWER (CLEAN: NO PAYMENTS, NO EARN & REDEEM)
-     ========================================================================== -->
-<div id="customer-hub-modal">
-  <div class="app-profile-drawer">
-
-    <!-- Top Header -->
-    <div class="app-prof-header">
-      <div class="app-prof-header-left">
-        <button class="app-back-btn" onclick="handleProfileBack()">←</button>
-        <div>
-          <h3 class="app-prof-title" id="app-prof-header-title">Profile</h3>
-          <div id="app-prof-user-subtitle" style="font-size:0.72rem; color:#64748b; font-weight:600;">Manage your orders, returns & address</div>
-        </div>
-      </div>
-    </div>
-
-    <!-- MAIN MENU VIEW -->
-    <div id="hub-view-main">
-      <!-- Top Horizontal Pills -->
-      <div class="app-top-pills">
-        <button class="app-pill-tag" onclick="switchHubView('account')">Basics <span>›</span></button>
-        <button class="app-pill-tag" onclick="switchHubView('orders')">Track Order <span>›</span></button>
-        <button class="app-pill-tag" onclick="switchHubView('returns')">Return / Exchange <span>›</span></button>
-      </div>
-
-      <!-- 2x2 Action Grid -->
-      <div class="app-grid-2x2">
-        <div class="app-grid-box" onclick="switchHubView('orders')">
-          <div class="app-grid-box-left">
-            <span class="app-grid-icon">📦</span>
-            <div>
-              <span class="app-grid-label">Orders</span>
-              <span class="app-grid-sub" id="prof-orders-count-sub">Track & GST Bill</span>
-            </div>
-          </div>
-          <span class="app-chevron">›</span>
-        </div>
-
-        <div class="app-grid-box" onclick="switchHubView('returns')">
-          <div class="app-grid-box-left">
-            <span class="app-grid-icon">🔄</span>
-            <div>
-              <span class="app-grid-label">Returns</span>
-              <span class="app-grid-sub">Return / Exchange</span>
-            </div>
-          </div>
-          <span class="app-chevron">›</span>
-        </div>
-
-        <div class="app-grid-box" onclick="switchHubView('help')">
-          <div class="app-grid-box-left">
-            <span class="app-grid-icon">🎧</span>
-            <div>
-              <span class="app-grid-label">Help Center</span>
-              <span class="app-grid-sub">24x7 Support</span>
-            </div>
-          </div>
-          <span class="app-chevron">›</span>
-        </div>
-
-        <div class="app-grid-box" onclick="switchHubView('account')">
-          <div class="app-grid-box-left">
-            <span class="app-grid-icon">📝</span>
-            <div>
-              <span class="app-grid-label">Address</span>
-              <span class="app-grid-sub">Saved Details</span>
-            </div>
-          </div>
-          <span class="app-chevron">›</span>
-        </div>
-      </div>
-
-      <!-- Clean Vertical List Menu Items -->
-      <div class="app-menu-list">
-        <div class="app-menu-item" onclick="switchHubView('orders')">
-          <div class="app-menu-left">
-            <span class="app-menu-icon">🚚</span>
-            <div>
-              <div class="app-menu-title-row">
-                <span class="app-menu-title">Track Order & GST Invoice</span>
-                <span class="app-new-badge">LIVE</span>
-              </div>
-              <div class="app-menu-sub">Check live order status & download GST bill after delivery</div>
-            </div>
-          </div>
-          <span class="app-chevron">›</span>
-        </div>
-
-        <div class="app-menu-item" onclick="switchHubView('returns')">
-          <div class="app-menu-left">
-            <span class="app-menu-icon">🔄</span>
-            <div>
-              <div class="app-menu-title-row">
-                <span class="app-menu-title">Return & Exchange</span>
-              </div>
-              <div class="app-menu-sub">Request a product return or pack replacement</div>
-            </div>
-          </div>
-          <span class="app-chevron">›</span>
-        </div>
-
-        <div class="app-menu-item" onclick="switchHubView('account')">
-          <div class="app-menu-left">
-            <span class="app-menu-icon">📝</span>
-            <div>
-              <div class="app-menu-title-row">
-                <span class="app-menu-title">Manage Account</span>
-              </div>
-              <div class="app-menu-sub">Manage your profile details and saved delivery addresses</div>
-            </div>
-          </div>
-          <span class="app-chevron">⌄</span>
-        </div>
-
-        <div class="app-menu-item" onclick="switchHubView('wishlist')">
-          <div class="app-menu-left">
-            <span class="app-menu-icon">🤍</span>
-            <div>
-              <div class="app-menu-title-row">
-                <span class="app-menu-title">Wishlist</span>
-              </div>
-              <div class="app-menu-sub">Your saved organic potting soil packs</div>
-            </div>
-          </div>
-          <span class="app-chevron">›</span>
-        </div>
-
-        <div class="app-menu-item" onclick="switchHubView('suggests')">
-          <div class="app-menu-left">
-            <span class="app-menu-icon">✪</span>
-            <div>
-              <div class="app-menu-title-row">
-                <span class="app-menu-title">BaghVeda Suggests</span>
-              </div>
-              <div class="app-menu-sub">100% personalized organic plant care guide</div>
-            </div>
-          </div>
-          <span class="app-chevron">›</span>
-        </div>
-      </div>
-
-      <!-- Bottom Login/Logout Bar -->
-      <div style="padding:18px; background:#f8fafc;">
-        <div id="prof-auth-trigger-row" style="display:flex; gap:10px;">
-          <button class="buy-now-btn" style="width:100%;" onclick="closeCustomerHub(); openAuthModal();">🔑 Login / Register</button>
-        </div>
-        <button id="logout-profile-btn" class="buy-now-btn" onclick="handleLogout()" style="width:100%; background:#ef4444; display:none;">🚪 Logout</button>
-      </div>
-    </div>
-
-    <!-- SUBVIEW 1: ORDERS, LIVE TRACKER & GST BILL -->
-    <div id="hub-view-orders" class="app-subview">
-      <div class="app-subview-header">
-        <strong style="font-size:1rem; color:#0f172a;">📦 Orders & Live Tracking</strong>
-        <button class="app-subview-back" onclick="switchHubView('main')">← Back</button>
-      </div>
-
-      <form onsubmit="trackByPhoneSubmit(event)" style="display:flex; gap:8px; margin-bottom:12px;">
-        <input type="tel" id="track-phone-input" placeholder="Enter 10-digit mobile number to track..." maxlength="10" style="flex:1; padding:10px 12px; border-radius:10px; background:#f8fafc; border:1px solid #cbd5e1; color:#0f172a; font-size:0.88rem;">
-        <button type="submit" class="buy-now-btn" style="flex:0 0 auto; padding:10px 16px;">🔍 Track</button>
-      </form>
-      <div id="track-lookup-msg" style="display:none; font-size:0.78rem; margin-bottom:10px; font-weight:700;"></div>
-
-      <div id="current-order-container"></div>
-      <hr style="border:0; border-top:1px solid #e2e8f0; margin:16px 0;">
-      <h4 style="margin:0 0 10px; color:#0f172a; font-size:0.95rem;">📜 Past Order History:</h4>
-      <div id="all-orders-container"></div>
-    </div>
-
-    <!-- SUBVIEW 2: RETURN & EXCHANGE -->
-    <div id="hub-view-returns" class="app-subview">
-      <div class="app-subview-header">
-        <strong style="font-size:1rem; color:#0f172a;">🔄 Return / Exchange Request</strong>
-        <button class="app-subview-back" onclick="switchHubView('main')">← Back</button>
-      </div>
-      <p style="font-size:0.8rem; color:#475569; margin-top:0;">Easy 7-day Return or Replacement for damaged packaging or wrong pack size.</p>
-      <form id="return-form" onsubmit="submitReturnExchangeRequest(event)">
-        <div class="light-form-group">
-          <label>Select Your Order</label>
-          <select id="return-order-select" required>
-            <option value="">No orders found</option>
-          </select>
-        </div>
-        <div class="light-form-group">
-          <label>Request Type</label>
-          <select id="return-type-select" required>
-            <option value="Exchange">Exchange / Replacement</option>
-            <option value="Return">Return & Refund</option>
-          </select>
-        </div>
-        <div class="light-form-group">
-          <label>Reason for Return / Exchange</label>
-          <select id="return-reason-select" required>
-            <option value="Damaged Pouch">Damaged Pouch on Arrival</option>
-            <option value="Wrong Pack Weight">Wrong Pack Size Delivered</option>
-            <option value="Quality Issue">Product Quality Issue</option>
-            <option value="Other">Other Reason</option>
-          </select>
-        </div>
-        <div class="light-form-group">
-          <label>Additional Details</label>
-          <textarea id="return-details-input" rows="3" placeholder="Describe the issue briefly..." required></textarea>
-        </div>
-        <button type="submit" class="buy-now-btn" style="width:100%; padding:12px;">🔄 Submit Return / Exchange Request</button>
-      </form>
-    </div>
-
-    <!-- SUBVIEW 3: MANAGE ACCOUNT & SAVED ADDRESSES -->
-    <div id="hub-view-account" class="app-subview">
-      <div class="app-subview-header">
-        <strong style="font-size:1rem; color:#0f172a;">📝 Manage Account & Address</strong>
-        <button class="app-subview-back" onclick="switchHubView('main')">← Back</button>
-      </div>
-      <p style="font-size:0.8rem; color:#15803d; font-weight:700; margin-top:0;">✨ Save your mobile number & address once—it will auto-fill on every order!</p>
-      <form onsubmit="saveCustomerProfile(event)">
-        <div class="light-form-group">
-          <label>Mobile Number (10 Digits)</label>
-          <input type="tel" id="prof-phone" placeholder="10-digit mobile number" maxlength="10" oninput="if(this.value.length>=10) window.lookupCustomerByPhone(this.value, 'track')" required>
-        </div>
-        <div class="light-form-group">
-          <label>Full Name</label>
-          <input type="text" id="prof-name" placeholder="Your Full Name" required>
-        </div>
-        <div class="light-form-group">
-          <label>Email Address (Optional)</label>
-          <input type="email" id="prof-email" placeholder="example@gmail.com">
-        </div>
-        <div class="light-form-group">
-          <label>Default Delivery Address (with Pincode)</label>
-          <textarea id="prof-address" rows="3" placeholder="House No, Street, Landmark, City, Pincode..." required></textarea>
-        </div>
-        <button type="submit" class="buy-now-btn" style="width:100%; padding:13px;">💾 Save Profile & Address</button>
-      </form>
-    </div>
-
-    <!-- SUBVIEW 4: HELP CENTER -->
-    <div id="hub-view-help" class="app-subview">
-      <div class="app-subview-header">
-        <strong style="font-size:1rem; color:#0f172a;">🎧 BaghVeda Help Center</strong>
-        <button class="app-subview-back" onclick="switchHubView('main')">← Back</button>
-      </div>
-      <div class="app-order-card">
-        <h4 style="margin:0 0 6px; color:#0f172a;">💬 WhatsApp Customer Support</h4>
-        <p style="font-size:0.82rem; color:#64748b; margin:0 0 10px;">Chat with our support team for order tracking, delivery, or return queries.</p>
-        <a href="https://wa.me/918700733425" target="_blank" class="buy-now-btn" style="display:inline-block; text-decoration:none;">💬 WhatsApp (+91 8700733425)</a>
-      </div>
-      <div class="app-order-card">
-        <h4 style="margin:0 0 6px; color:#0f172a;">📞 Direct Helpline</h4>
-        <p style="font-size:0.82rem; color:#64748b; margin:0 0 10px;">Available 9:00 AM to 8:00 PM (Mon - Sun).</p>
-        <a href="tel:+918700733425" class="buy-now-btn" style="display:inline-block; text-decoration:none; background:#0284c7;">📞 Call +91 8700733425</a>
-      </div>
-    </div>
-
-    <!-- SUBVIEW 5: WISHLIST & SUGGESTS -->
-    <div id="hub-view-wishlist" class="app-subview">
-      <div class="app-subview-header">
-        <strong style="font-size:1rem; color:#0f172a;">🤍 Your Wishlist Packs</strong>
-        <button class="app-subview-back" onclick="switchHubView('main')">← Back</button>
-      </div>
-      <div class="app-order-card">
-        <div style="display:flex; justify-content:space-between; align-items:center;">
-          <div>
-            <strong style="color:#0f172a;">Organic Potting Mix - 2 KG (Most Popular)</strong>
-            <div style="font-size:0.82rem; color:#15803d; font-weight:800;">Special Price: ₹249 <del style="color:#94a3b8;">₹399</del></div>
-          </div>
-          <button class="buy-now-btn" style="flex:0 0 auto; padding:8px 14px;" onclick="closeCustomerHub(); buyInstant('Organic Potting Mix - 2 KG', window.dbPrices.kg2);">Buy Now</button>
-        </div>
-      </div>
-    </div>
-
-    <div id="hub-view-suggests" class="app-subview">
-      <div class="app-subview-header">
-        <strong style="font-size:1rem; color:#0f172a;">✪ BaghVeda Suggests</strong>
-        <button class="app-subview-back" onclick="switchHubView('main')">← Back</button>
-      </div>
-      <div class="app-order-card highlight">
-        <h4 style="margin:0 0 6px; color:#15803d;">🪴 Recommended Pack Guide</h4>
-        <p style="font-size:0.82rem; color:#334155; margin:0 0 10px;">• <strong>1–2 Indoor Pots:</strong> Choose 1 KG Pack<br>• <strong>4–6 Balcony Pots:</strong> Choose 2 KG Pack (Bestseller)<br>• <strong>Terrace & Vegetable Garden:</strong> Choose 3 KG Value Pack</p>
-        <button class="buy-now-btn" onclick="closeCustomerHub(); document.getElementById('products').scrollIntoView({behavior:'smooth'});">🛍️ Explore Packs</button>
-      </div>
-    </div>
-
-  </div>
-</div>
-
-<!-- 2. Login / Single-Time Registration Modal -->
-<div id="auth-modal" class="custom-modal">
-  <div class="modal-content">
-    <span class="close-btn" onclick="closeAuthModal()">×</span>
-    <div class="tab-row">
-      <button class="tab-btn active" id="tab-login-btn" onclick="switchAuthTab('login')">Login</button>
-      <button class="tab-btn" id="tab-reg-btn" onclick="switchAuthTab('register')">1-Time Register</button>
-    </div>
-
-    <form id="login-form" onsubmit="handleLogin(event)">
-      <div class="form-group"><label>Email</label><input type="email" id="login-email" required></div>
-      <div class="form-group"><label>Password</label><input type="password" id="login-pass" required></div>
-      <button type="submit" class="buy-now-btn" style="width:100%; padding:12px; margin-bottom:10px;">Login</button>
-      <button type="button" class="add-to-cart-btn" style="width:100%;" onclick="closeAuthModal(); openCustomerHub('orders');">📱 Track Order by Mobile Number</button>
-    </form>
-
-    <form id="register-form" onsubmit="handleRegister(event)" style="display:none;">
-      <p style="font-size:0.78rem; color:#fbbf24; margin-top:0;">Register once—your delivery address will be saved permanently.</p>
-      <div class="form-group"><label>Mobile Number (10 Digits)</label><input type="tel" id="reg-phone" maxlength="10" required></div>
-      <div class="form-group"><label>Full Name</label><input type="text" id="reg-name" required></div>
-      <div class="form-group"><label>Email</label><input type="email" id="reg-email" required></div>
-      <div class="form-group"><label>Create Password</label><input type="password" id="reg-pass" required></div>
-      <div class="form-group"><label>Delivery Address (with Pincode)</label><textarea id="reg-address" rows="2" required></textarea></div>
-      <button type="submit" class="buy-now-btn" style="width:100%; padding:12px;">Register & Save Profile</button>
-    </form>
-  </div>
-</div>
-
-<!-- 3. Smart Checkout Modal (Payment Options Appear ONLY When Buying + Mandatory Verification) -->
-<div id="order-modal" class="custom-modal">
-  <div class="modal-content">
-    <span class="close-btn" onclick="closeCheckoutModal()">×</span>
-    <h3>⚡ Checkout & Payment Verification</h3>
-
-    <div style="background:rgba(16,185,129,0.12); border:1px solid var(--accent-green); border-radius:12px; padding:10px 14px; margin-bottom:14px; display:flex; justify-content:space-between; align-items:center;">
-      <span style="font-size:0.85rem; color:#e2e8f0; font-weight:700;">Total Payable Amount:</span>
-      <strong id="checkout-payable-amt" style="font-size:1.3rem; color:#fbbf24;">₹0</strong>
-    </div>
-
-    <form id="order-form" onsubmit="submitCartOrder(event)">
-      <div class="form-group">
-        <label>Mobile Number (10 Digits - Auto-fills saved address)</label>
-        <input type="tel" id="cust-phone" maxlength="10" placeholder="Enter 10-digit mobile number..." oninput="if(this.value.replace(/\D/g,'').length===10) window.lookupCustomerByPhone(this.value, 'checkout')" required>
-        <div id="phone-lookup-msg" style="display:none; font-size:0.76rem; margin-top:4px; font-weight:700;"></div>
-      </div>
-      <div class="form-group">
-        <label>Full Name</label>
-        <input type="text" id="cust-name" placeholder="Your Full Name" required>
-      </div>
-      <div class="form-group">
-        <label>Delivery Address (Full Address with Pincode)</label>
-        <textarea id="cust-address" rows="2" placeholder="House No, Street, Landmark, Pincode..." required></textarea>
-      </div>
-
-      <!-- Payment Method Selection (Only shown during product purchase) -->
-      <label style="display:block; font-size:0.82rem; color:#fbbf24; margin-bottom:8px; font-weight:700;">💳 Select Payment Method & Verify:</label>
-      <div class="pay-methods-grid">
-        <label class="pay-option-card active" id="pay-card-cod" onclick="selectPaymentMode('COD')">
-          <input type="radio" name="payment-mode" value="COD" checked>
-          <span class="pay-icon">💵</span>
-          <span class="pay-title">Cash (COD)</span>
-          <span class="pay-sub">Pay on Delivery</span>
-        </label>
-        <label class="pay-option-card" id="pay-card-upi" onclick="selectPaymentMode('UPI')">
-          <input type="radio" name="payment-mode" value="UPI">
-          <span class="pay-icon">📱</span>
-          <span class="pay-title">UPI / QR</span>
-          <span class="pay-sub">GPay, PhonePe</span>
-        </label>
-        <label class="pay-option-card" id="pay-card-card" onclick="selectPaymentMode('CARD')">
-          <input type="radio" name="payment-mode" value="CARD">
-          <span class="pay-icon">💳</span>
-          <span class="pay-title">Card</span>
-          <span class="pay-sub">Debit / Credit</span>
-        </label>
-      </div>
-
-      <!-- 1. Cash on Delivery Box -->
-      <div id="pay-box-cod" class="pay-detail-box">
-        <div style="font-size:0.82rem; color:#a7f3d0; font-weight:700;">✅ Cash on Delivery (Verified)</div>
-        <p style="font-size:0.76rem; color:#cbd5e1; margin:4px 0 0;">Pay in cash when your order is delivered to your doorstep.</p>
-      </div>
-
-      <!-- 2. UPI QR & Mandatory 12-Digit UTR Verification (brijender@ptaxis) -->
-      <div id="pay-box-upi" class="pay-detail-box" style="display:none;">
-        <div style="font-size:0.82rem; color:#fbbf24; font-weight:700;">📱 Scan QR or Pay via UPI App</div>
-        <div style="font-size:0.78rem; color:#a7f3d0; margin-top:3px;">Official UPI ID: <strong>brijender@ptaxis</strong></div>
-        <img id="dynamic-upi-qr" class="upi-qr-img" src="" alt="BaghVeda UPI QR">
-        <a id="dynamic-upi-link" href="#" class="upi-app-btn">⚡ Pay via UPI App</a>
-        <div class="form-group" style="margin:8px 0 0; text-align:left;">
-          <label style="font-size:0.75rem; color:#fbbf24;">Enter 12-Digit UPI Ref / UTR No. for Verification *</label>
-          <input type="text" id="upi-utr-input" maxlength="12" placeholder="Enter 12-digit UTR number (e.g. 428912345678)" oninput="resetPaymentVerificationState()">
-          <button type="button" class="verify-btn" onclick="verifyUpiPaymentNow()">🔍 Verify UPI Payment</button>
-          <div id="upi-verify-msg" class="verify-status-msg"></div>
-        </div>
-      </div>
-
-      <!-- 3. Debit / Credit Card Box with Mandatory Verification -->
-      <div id="pay-box-card" class="pay-detail-box" style="display:none; text-align:left;">
-        <div style="font-size:0.82rem; color:#93c5fd; font-weight:700; margin-bottom:8px;">💳 Debit / Credit Card Verification</div>
-        <div class="form-group">
-          <label>Card Number (16 Digits) *</label>
-          <input type="text" id="card-num-input" maxlength="19" placeholder="XXXX XXXX XXXX XXXX" oninput="formatCardNumber(this); resetPaymentVerificationState();">
-        </div>
-        <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px;">
-          <div class="form-group" style="margin:0;">
-            <label>Expiry (MM/YY) *</label>
-            <input type="text" id="card-exp-input" maxlength="5" placeholder="MM/YY" oninput="formatExpiryDate(this); resetPaymentVerificationState();">
-          </div>
-          <div class="form-group" style="margin:0;">
-            <label>CVV (3 Digits) *</label>
-            <input type="password" id="card-cvv-input" maxlength="3" placeholder="•••" oninput="resetPaymentVerificationState()">
-          </div>
-        </div>
-        <button type="button" class="verify-btn" onclick="verifyCardPaymentNow()">🔒 Verify Card Details</button>
-        <div id="card-verify-msg" class="verify-status-msg"></div>
-      </div>
-
-      <button type="submit" id="checkout-submit-btn" class="buy-now-btn" style="width:100%; font-size:1rem; padding:14px;">🚀 Confirm & Place Order</button>
-    </form>
-  </div>
-</div>
-
-<!-- Footer (Removed Batch Number) -->
-<footer>
-  <div class="footer-container">
-    <div class="footer-col">
-      <h3>BaghVeda® Organics</h3>
-      <p>"मिट्टी में प्राण, पौधे मुस्कुराएं"</p>
-      <p>Premium Organic Potting Soil Mix • Ready-to-Use Growing Medium</p>
-      <div class="gst-badge">GSTIN: 07IZUPK8908Q1ZY</div>
-    </div>
-    <div class="footer-col">
-      <h3>Contact & Support</h3>
-      <p>📞 Helpline / WhatsApp: <a href="https://wa.me/918700733425" target="_blank">+91 8700733425</a></p>
-      <p>✉️ Email: <a href="mailto:support@baghveda.in">support@baghveda.in</a></p>
-      <p>🌐 Web: <a href="https://www.baghveda.in">www.baghveda.in</a></p>
-    </div>
-    <div class="footer-col">
-      <h3>Manufactured & Marketed By</h3>
-      <p><strong>BaghVeda Organics</strong></p>
-      <p>📍 New Delhi, Delhi - 110045, India</p>
-      <p>🕒 Best Before: 24 months from Mfg. Date</p>
-    </div>
-  </div>
-  <div class="copyright">© 2026 BaghVeda Organics. All rights reserved.</div>
-</footer>
-
-<script>
-window.cart = [];
-window.appliedCoupon = false;
-window.currentHubView = 'main';
-
-function toggleCart() {
-  document.getElementById('cart-drawer').classList.toggle('open');
-}
-function toggleAIChat() {
-  let b = document.getElementById('ai-chat-box');
-  b.style.display = b.style.display === 'flex' ? 'none' : 'flex';
-}
-
-// ============================================================================
-// SMART MULTI-TOPIC BAGHVEDA AI ENGINE
-// ============================================================================
-function generateSmartBaghVedaReply(queryText) {
-  const q = queryText.toLowerCase().trim();
-  const p1 = window.dbPrices?.kg1 || 179;
-  const p2 = window.dbPrices?.kg2 || 249;
-  const p3 = window.dbPrices?.kg3 || 359;
-
-  if (/(bill|invoice|gst|receipt|बिल|जीएसटी)/.test(q)) {
-    return `🧾 <strong>GST Invoice Download Guide:</strong><br>Once your order is marked as <strong>'Delivered'</strong> by our Admin team, a green <strong>'Download Official GST Invoice (PDF)'</strong> button will automatically unlock inside <strong>Profile → Orders</strong>.`;
-  }
-
-  if (/(return|exchange|replace|damaged|refund|वापस|रिटर्न)/.test(q)) {
-    return `🔄 <strong>Return & Exchange Policy:</strong><br>You can easily request a Return or Replacement by opening <strong>👤 Profile → Return & Exchange</strong> and selecting your order.`;
-  }
-
-  if (/(order|track|status|kaha|kab aayega|ऑर्डर|स्टेटस|ट्रैक)/.test(q)) {
-    if (window.customerOrders && window.customerOrders.length > 0) {
-      const latest = window.customerOrders[0];
-      return `📦 <strong>Your Latest Order Status:</strong><br>• <strong>Order ID:</strong> #${latest.id.slice(0,8).toUpperCase()}<br>• <strong>Status:</strong> <span style="color:#fbbf24; font-weight:800;">${latest.status || 'Processing'}</span><br>• <strong>Total:</strong> ₹${latest.totalAmount}<br><br>Open <strong>👤 Profile → Orders</strong> to view the live progress bar!`;
-    }
-    return `📦 To track your order live, click on <strong>👤 Profile → Orders</strong> in the top bar and enter your 10-digit mobile number.`;
-  }
-
-  if (/(payment|pay|upi|cod|cash|card|gpay|phonepe|paytm|qr)/.test(q)) {
-    return `💳 <strong>Payment Options at Checkout:</strong><br>1. <strong>Cash on Delivery (COD)</strong><br>2. <strong>UPI / QR Code:</strong> Official UPI ID <strong>brijender@ptaxis</strong> (with 12-digit UTR verification)<br>3. <strong>Debit / Credit Card</strong>`;
-  }
-
-  if (/(price|rate|cost|kitne|mrp|pack|1kg|2kg|3kg|1 kg|2 kg|3 kg)/.test(q)) {
-    return `🌱 <strong>BaghVeda® Pack Prices:</strong><br>• <strong>1 KG Pack:</strong> ₹${p1} <del style="color:#94a3b8;">(MRP ₹299)</del><br>• <strong>2 KG Pack:</strong> ₹${p2} <del style="color:#94a3b8;">(MRP ₹399)</del> – Most Popular<br>• <strong>3 KG Pack:</strong> ₹${p3} <del style="color:#94a3b8;">(MRP ₹499)</del> – Best Value`;
-  }
-
-  if (/(how to use|kaise use|gamla|pot|repot|water)/.test(q)) {
-    return `🪴 <strong>How to Use:</strong><br>• <strong>New Plants:</strong> Fill pot 80% with BaghVeda mix, plant, and water lightly.<br>• <strong>Old Pots:</strong> Replace top 2–3 inches of old soil with this mix and water well.`;
-  }
-
-  return `🌱 Thank you for your message! Our 100% Organic Potting Soil Mix is available in <strong>1 KG (₹${p1})</strong>, <strong>2 KG (₹${p2})</strong>, and <strong>3 KG (₹${p3})</strong> packs with 24-hour delivery in Delhi NCR. For quick support, WhatsApp us at <strong>+91 8700733425</strong>.`;
-}
-
-function askQuickQuestion(text) {
-  document.getElementById('ai-user-input').value = text;
-  sendAIMessage();
-}
-
-function sendAIMessage() {
-  let input = document.getElementById('ai-user-input');
-  let userText = input.value.trim();
-  if (!userText) return;
-
-  let chatContainer = document.getElementById('ai-chat-messages');
-  chatContainer.innerHTML += `<div class="ai-msg user">${userText}</div>`;
-  input.value = "";
-  chatContainer.scrollTop = chatContainer.scrollHeight;
-
-  const loadingId = "loading-" + Date.now();
-  chatContainer.innerHTML += `<div id="${loadingId}" class="ai-msg bot">Typing... 🌱</div>`;
-  chatContainer.scrollTop = chatContainer.scrollHeight;
-
-  setTimeout(() => {
-    const loader = document.getElementById(loadingId);
-    if (loader) loader.remove();
-    const reply = generateSmartBaghVedaReply(userText);
-    chatContainer.innerHTML += `<div class="ai-msg bot">${reply}</div>`;
-    chatContainer.scrollTop = chatContainer.scrollHeight;
-  }, 350);
-}
-
-function handleAIPress(e) {
-  if (e.key === 'Enter') sendAIMessage();
-}
-
-// ============================================================================
-// PAYMENT VERIFICATION ENGINE (UPI: brijender@ptaxis, CARD & COD)
-// ============================================================================
-function getFinalPayableAmount() {
-  let subtotal = window.cart.reduce((sum, item) => sum + (item.price * item.qty), 0);
-  let discount = window.appliedCoupon ? Math.round(subtotal * (window.activeDiscountPercent / 100)) : 0;
-  return subtotal - discount;
-}
-
-function resetPaymentVerificationState() {
-  const mode = document.querySelector('input[name="payment-mode"]:checked')?.value || "COD";
-  const submitBtn = document.getElementById("checkout-submit-btn");
-  const amt = getFinalPayableAmount();
-
-  if (mode === "COD") {
-    window.isPaymentVerified = true;
-    submitBtn.disabled = false;
-    submitBtn.innerText = `🚀 Confirm COD Order (₹${amt})`;
-  } else {
-    window.isPaymentVerified = false;
-    submitBtn.disabled = true;
-    submitBtn.innerText = `🔒 Verify ${mode} Payment Above to Continue`;
-  }
-}
-
-function selectPaymentMode(mode) {
-  ["cod", "upi", "card"].forEach(m => {
-    document.getElementById(`pay-card-${m}`).classList.toggle("active", m.toUpperCase() === mode);
-    document.getElementById(`pay-box-${m}`).style.display = m.toUpperCase() === mode ? "block" : "none";
-  });
-
-  const radios = document.querySelectorAll('input[name="payment-mode"]');
-  radios.forEach(r => { r.checked = (r.value === mode); });
-
-  const amt = getFinalPayableAmount();
-  if (mode === "UPI") {
-    updateLiveUpiQR(amt);
-  }
-  resetPaymentVerificationState();
-}
-
-function updateLiveUpiQR(amount) {
-  const upiId = "brijender@ptaxis";
-  const upiUri = `upi://pay?pa=${encodeURIComponent(upiId)}&pn=${encodeURIComponent("BaghVeda Organics")}&am=${amount}&cu=INR&tn=${encodeURIComponent("BaghVeda Soil Mix Order")}`;
-  const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(upiUri)}`;
-
-  const qrImg = document.getElementById("dynamic-upi-qr");
-  const upiLink = document.getElementById("dynamic-upi-link");
-  if (qrImg) qrImg.src = qrUrl;
-  if (upiLink) upiLink.href = upiUri;
-}
-
-function verifyUpiPaymentNow() {
-  const utr = (document.getElementById("upi-utr-input")?.value || "").replace(/\D/g, "");
-  const msgEl = document.getElementById("upi-verify-msg");
-  const submitBtn = document.getElementById("checkout-submit-btn");
-  const amt = getFinalPayableAmount();
-
-  msgEl.style.display = "block";
-
-  if (!/^\d{12}$/.test(utr) \vert{}\vert{} /^(\d)\1{11}$/.test(utr)) {
-    window.isPaymentVerified = false;
-    submitBtn.disabled = true;
-    msgEl.style.background = "rgba(239,68,68,0.2)";
-    msgEl.style.color = "#fca5a5";
-    msgEl.innerText = "❌ Invalid UTR! Please enter a valid 12-digit UPI Reference/UTR number from your UPI app.";
-    return;
-  }
-
-  msgEl.style.background = "rgba(245,158,11,0.2)";
-  msgEl.style.color = "#fde68a";
-  msgEl.innerText = "⏳ Verifying UPI Reference Number...";
-
-  setTimeout(() => {
-    window.isPaymentVerified = true;
-    window.verifiedPaymentDetails = `UPI Verified (brijender@ptaxis | UTR: ${utr})`;
-    submitBtn.disabled = false;
-    submitBtn.innerText = `🚀 Place Verified UPI Order (₹${amt})`;
-    msgEl.style.background = "rgba(16,185,129,0.2)";
-    msgEl.style.color = "#a7f3d0";
-    msgEl.innerText = `✅ UTR #${utr} Verified! You can now place your order.`;
-  }, 900);
-}
-
-function verifyCardPaymentNow() {
-  const num = (document.getElementById("card-num-input")?.value || "").replace(/\D/g, "");
-  const exp = (document.getElementById("card-exp-input")?.value || "").trim();
-  const cvv = (document.getElementById("card-cvv-input")?.value || "").replace(/\D/g, "");
-  const msgEl = document.getElementById("card-verify-msg");
-  const submitBtn = document.getElementById("checkout-submit-btn");
-  const amt = getFinalPayableAmount();
-
-  msgEl.style.display = "block";
-
-  if (num.length !== 16 || !/^\d{2}\/\d{2}$/.test(exp) || cvv.length !== 3) {
-    window.isPaymentVerified = false;
-    submitBtn.disabled = true;
-    msgEl.style.background = "rgba(239,68,68,0.2)";
-    msgEl.style.color = "#fca5a5";
-    msgEl.innerText = "❌ Please enter a valid 16-digit card number, MM/YY expiry, and 3-digit CVV.";
-    return;
-  }
-
-  msgEl.style.background = "rgba(245,158,11,0.2)";
-  msgEl.style.color = "#fde68a";
-  msgEl.innerText = "⏳ Verifying Card Details...";
-
-  setTimeout(() => {
-    window.isPaymentVerified = true;
-    window.verifiedPaymentDetails = `Card Verified (Ends in ${num.slice(-4)})`;
-    submitBtn.disabled = false;
-    submitBtn.innerText = `🚀 Place Verified Card Order (₹${amt})`;
-    msgEl.style.background = "rgba(16,185,129,0.2)";
-    msgEl.style.color = "#a7f3d0";
-    msgEl.innerText = `✅ Card ending in ${num.slice(-4)} Verified! You can now place your order.`;
-  }, 900);
-}
-
-function formatCardNumber(el) {
-  let v = el.value.replace(/\D/g, "").slice(0, 16);
-  el.value = v.replace(/(.{4})/g, "$1 ").trim();
-}
-
-function formatExpiryDate(el) {
-  let v = el.value.replace(/\D/g, "").slice(0, 4);
-  if (v.length >= 3) el.value = v.slice(0, 2) + "/" + v.slice(2);
-  else el.value = v;
-}
-
-function addToCartSilent(name, price) {
-  let item = window.cart.find(i => i.name === name);
-  if (item) item.qty += 1;
-  else window.cart.push({ name, price: Number(price), qty: 1 });
-  window.updateCartUI();
-  showToast(`🛒 ${name} added to cart!`);
-}
-
-function buyInstant(name, price) {
-  window.cart = [{ name, price: Number(price), qty: 1 }];
-  window.updateCartUI();
-  openCheckoutModal();
-}
-
-function showToast(text) {
-  let t = document.getElementById("toast-msg");
-  t.innerText = text;
-  t.className = "show";
-  setTimeout(() => { t.className = ""; }, 3200);
-}
-
-function changeQty(name, delta) {
-  let item = window.cart.find(i => i.name === name);
-  if (item) {
-    item.qty += delta;
-    if (item.qty <= 0) window.cart = window.cart.filter(i => i.name !== name);
-  }
-  window.updateCartUI();
-}
-
-function applyCoupon() {
-  let code = document.getElementById('coupon-input').value.trim().toUpperCase();
-  let msg = document.getElementById('coupon-msg');
-  if (code === "KHUSHI25") {
-    window.appliedCoupon = true;
-    msg.innerText = `🎉 Coupon Applied! ${window.activeDiscountPercent}% discount added.`;
-    msg.style.display = "block";
-    window.updateCartUI();
-  } else {
-    alert("Invalid coupon code!");
-  }
-}
-
-window.updateCartUI = function() {
-  let countSpan = document.getElementById('cart-count');
-  let container = document.getElementById('cart-items-container');
-  let subtotalSpan = document.getElementById('cart-subtotal');
-  let discountRow = document.getElementById('discount-row');
-  let discountSpan = document.getElementById('cart-discount');
-  let totalSpan = document.getElementById('cart-total-price');
-
-  let totalCount = window.cart.reduce((sum, item) => sum + item.qty, 0);
-  let subtotal = window.cart.reduce((sum, item) => sum + (item.price * item.qty), 0);
-  let discount = window.appliedCoupon ? Math.round(subtotal * (window.activeDiscountPercent / 100)) : 0;
-  let finalTotal = subtotal - discount;
-
-  countSpan.innerText = totalCount;
-  subtotalSpan.innerText = `₹${subtotal}`;
-  if (window.appliedCoupon && subtotal > 0) {
-    discountRow.style.display = "flex";
-    discountSpan.innerText = `-₹${discount}`;
-  } else {
-    discountRow.style.display = "none";
-  }
-  totalSpan.innerText = `₹${finalTotal}`;
-
-  if (window.cart.length === 0) {
-    container.innerHTML = `<p style="color: var(--text-dim); text-align: center; margin-top: 40px;">Your cart is empty</p>`;
-    window.appliedCoupon = false;
-    document.getElementById('coupon-msg').style.display = "none";
-    return;
-  }
-
-  container.innerHTML = "";
-  window.cart.forEach(item => {
-    container.innerHTML += `
-      <div class="cart-item">
-        <div class="cart-item-details">
-          <h4>${item.name}</h4>
-          <p>₹${item.price} × ${item.qty} = ₹${item.price * item.qty}</p>
-        </div>
-        <div class="cart-actions">
-          <button class="qty-btn" onclick="changeQty('${item.name}', -1)">-</button>
-          <span style="color:#fff; font-weight:bold;">${item.qty}</span>
-          <button class="qty-btn" onclick="changeQty('${item.name}', 1)">+</button>
-        </div>
-      </div>`;
-  });
-};
-
-// ============================================================================
-// APP-STYLE PROFILE HUB NAVIGATION CONTROLS
-// ============================================================================
-function openCustomerHub(view = 'main') {
-  document.getElementById('customer-hub-modal').style.display = 'flex';
-  if (window.userData && window.userData.phone && document.getElementById('track-phone-input')) {
-    document.getElementById('track-phone-input').value = window.userData.phone;
-  }
-  switchHubView(view);
-}
-
-function closeCustomerHub() {
-  document.getElementById('customer-hub-modal').style.display = 'none';
-}
-
-function handleProfileBack() {
-  if (window.currentHubView && window.currentHubView !== 'main') {
-    switchHubView('main');
-  } else {
-    closeCustomerHub();
-  }
-}
-
-function switchHubView(viewName) {
-  window.currentHubView = viewName;
-  const allViews = ['main', 'orders', 'returns', 'account', 'help', 'wishlist', 'suggests'];
-  allViews.forEach(v => {
-    const el = document.getElementById(`hub-view-${v}`);
-    if (el) {
-      if (v === 'main') {
-        el.style.display = (viewName === 'main') ? 'block' : 'none';
-      } else {
-        el.classList.toggle('active', v === viewName);
-      }
-    }
+    actions.append(select, save);
+    card.append(topDiv, actions);
+    list.append(card);
   });
 }
 
-function openAuthModal() { document.getElementById('auth-modal').style.display = 'flex'; }
-function closeAuthModal() { document.getElementById('auth-modal').style.display = 'none'; }
-
-function switchAuthTab(tab) {
-  document.getElementById('login-form').style.display = tab === 'login' ? 'block' : 'none';
-  document.getElementById('register-form').style.display = tab === 'register' ? 'block' : 'none';
-  document.getElementById('tab-login-btn').classList.toggle('active', tab === 'login');
-  document.getElementById('tab-reg-btn').classList.toggle('active', tab === 'register');
+async function loadRegisteredUsers() {
+  const container = $("usersList"), msg = $("usersMsg");
+  msg.textContent = "Loading...";
+  try {
+    const snap = await db.collection("phone_profiles").get();
+    if (snap.empty) { msg.textContent = "No saved customers found."; container.replaceChildren(); return; }
+    msg.textContent = `Showing ${snap.size} saved customer(s).`;
+    container.replaceChildren();
+    snap.forEach(d => {
+      const u = d.data();
+      const div = document.createElement("div");
+      div.className = "order";
+      div.innerHTML = `<p><strong>👤 Name:</strong> ${safe(u.name)}</p><p><strong>📞 Mobile:</strong> ${safe(u.phone)}</p><p><strong>📍 Address:</strong> ${safe(u.address)}</p>`;
+      container.appendChild(div);
+    });
+  } catch (e) { msg.textContent = "Could not load customers."; }
 }
 
-function openCheckoutModal() {
-  if (window.cart.length === 0) {
-    alert("Your cart is empty!");
-    return;
-  }
-  if (document.getElementById('cart-drawer').classList.contains('open')) toggleCart();
-
-  if (window.userData) {
-    if (window.userData.phone) document.getElementById('cust-phone').value = window.userData.phone;
-    if (window.userData.name) document.getElementById('cust-name').value = window.userData.name;
-    if (window.userData.address) document.getElementById('cust-address').value = window.userData.address;
-  }
-
-  const finalAmt = getFinalPayableAmount();
-  document.getElementById('checkout-payable-amt').innerText = `₹${finalAmt}`;
-  document.getElementById("upi-Verify-msg")?.style && (document.getElementById("upi-verify-msg").style.display = "none");
-  document.getElementById("card-verify-msg")?.style && (document.getElementById("card-verify-msg").style.display = "none");
-  selectPaymentMode('COD');
-  document.getElementById('order-modal').style.display = 'flex';
-}
-function closeCheckoutModal() { document.getElementById('order-modal').style.display = 'none'; }
+$("search").addEventListener("input", renderOrders);
+$("filter").addEventListener("change", renderOrders);
+})();
 </script>
 </body>
 </html>
