@@ -640,7 +640,7 @@ window.submitCartOrder = async function(event) {
 html, body { width: 100%; max-width: 100%; overflow-x: hidden; margin: 0; padding: 0; box-sizing: border-box; font-family: 'Plus Jakarta Sans', sans-serif; background-color: var(--emerald-deep); color: var(--text-light); line-height: 1.6; }
 * { box-sizing: border-box; }
 .top-bar { background: linear-gradient(90deg, #0d4734, #10b981, #0d4734); color: #ffffff; text-align: center; padding: 9px 12px; font-size: 0.82rem; font-weight: 700; }
-nav { background: rgba(6, 35, 25, 0.9); backdrop-filter: blur(12px); padding: 12px 5%; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 1000; border-bottom: 1px solid var(--border-glow); }
+nav { background: rgba(6, 35, 25, 0.92); backdrop-filter: blur(12px); padding: 12px 5%; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 1000; border-bottom: 1px solid var(--border-glow); }
 .brand-logo-wrap { display: flex; align-items: center; gap: 10px; text-decoration: none; }
 .brand-svg-icon { width: 40px; height: 40px; flex-shrink: 0; }
 .logo-title { font-size: 1.35rem; font-weight: 800; color: #ffffff; line-height: 1.1; }
@@ -689,6 +689,13 @@ nav { background: rgba(6, 35, 25, 0.9); backdrop-filter: blur(12px); padding: 12
 .buy-now-btn:disabled { background: #475569; cursor: not-allowed; opacity: 0.6; }
 .add-to-cart-btn { flex: 1; background: rgba(255,255,255,0.09); color: #fff; padding: 12px; border-radius: 12px; font-weight: 700; font-size: 0.88rem; border: 1px solid rgba(255,255,255,0.2); cursor: pointer; }
 
+/* Enhanced Trust & Testimonials Section */
+.trust-banner { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; max-width: 1100px; margin: 0 auto 50px; padding: 0 15px; }
+.trust-card { background: rgba(15, 51, 37, 0.8); border: 1px solid var(--border-glow); padding: 18px; border-radius: 16px; text-align: center; }
+.trust-icon { font-size: 1.8rem; margin-bottom: 8px; }
+.trust-card h4 { margin: 0 0 4px; font-size: 0.95rem; color: #fff; }
+.trust-card p { margin: 0; font-size: 0.78rem; color: var(--text-dim); }
+
 .info-section { max-width: 1100px; margin: 0 auto 55px; padding: 0 15px; }
 .ingredients-box { background: linear-gradient(145deg, rgba(13, 52, 37, 0.85), rgba(6, 28, 20, 0.95)); border: 1px solid var(--border-glow); border-radius: 24px; padding: 26px 22px; }
 .ing-row { margin-bottom: 14px; }
@@ -702,6 +709,12 @@ nav { background: rgba(6, 35, 25, 0.9); backdrop-filter: blur(12px); padding: 12
 .step-icon { font-size: 1.7rem; margin-bottom: 8px; }
 .step-card h4 { margin: 0 0 6px; font-size: 1.05rem; color: #fff; }
 .step-card p { margin: 0; font-size: 0.84rem; color: var(--text-dim); }
+
+/* Sticky Bottom Action Bar for Mobile */
+.sticky-bottom-bar { display: none; position: fixed; bottom: 0; left: 0; width: 100%; background: rgba(6, 35, 25, 0.98); backdrop-filter: blur(10px); border-top: 1px solid var(--border-glow); padding: 10px 15px; z-index: 2900; justify-content: space-between; align-items: center; gap: 10px; }
+@media (max-width: 768px) {
+  .sticky-bottom-bar { display: flex; }
+}
 
 /* App Profile Drawer */
 #customer-hub-modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.75); z-index: 4200; justify-content: flex-end; }
@@ -860,6 +873,25 @@ footer { background: #03110b; color: var(--text-dim); padding: 40px 15px 25px; b
     <div class="hero-badge-pill">🚚 24-Hour Express Delivery in Delhi NCR</div>
   </div>
 </section>
+
+<!-- Trust Banner -->
+<div class="trust-banner">
+  <div class="trust-card">
+    <div class="trust-icon">🌱</div>
+    <h4>100% Organic</h4>
+    <p>Zero artificial chemicals or urea added</p>
+  </div>
+  <div class="trust-card">
+    <div class="trust-icon">🚀</div>
+    <h4>Express Delivery</h4>
+    <p>Fast dispatch across Delhi NCR</p>
+  </div>
+  <div class="trust-card">
+    <div class="trust-icon">🧾</div>
+    <h4>GST Verified</h4>
+    <p>Official tax invoice with every order</p>
+  </div>
+</div>
 
 <section id="products">
   <div class="section-header">
@@ -1049,6 +1081,18 @@ footer { background: #03110b; color: var(--text-dim); padding: 40px 15px 25px; b
     </div>
   </div>
 </section>
+
+<!-- Sticky Bottom Action Bar for Mobile -->
+<div class="sticky-bottom-bar">
+  <div>
+    <div style="font-size:0.72rem; color:var(--text-dim);">Best Seller (2 KG)</div>
+    <div style="font-size:1.05rem; font-weight:800; color:#fbbf24;">₹249 <span style="font-size:0.7rem; text-decoration:line-through; color:#94a3b8;">₹399</span></div>
+  </div>
+  <div style="display:flex; gap:8px;">
+    <button class="add-to-cart-btn" style="padding:10px 14px; font-size:0.8rem;" onclick="addToCartSilent('Organic Potting Mix - 2 KG', window.dbPrices.kg2)">🛒 Cart</button>
+    <button class="buy-now-btn" style="padding:10px 16px; font-size:0.82rem;" onclick="buyInstant('Organic Potting Mix - 2 KG', window.dbPrices.kg2)">⚡ Buy Now</button>
+  </div>
+</div>
 
 <!-- Toast Notification -->
 <div id="toast-msg">🛒 Item added to cart!</div>
